@@ -1,0 +1,51 @@
+body {
+	margin: 30px;
+}
+
+.recherche {
+	padding-bottom: 3px;
+}
+
+.pagination_total {
+	padding-bottom: 3px;	
+}
+
+.titre-section {
+    font-size: 26px;
+    margin-left: 15px;
+}
+
+.contenu_editable {
+	background-color: #F8FBF2;
+	border: dashed 1px #AAAAAA;
+	padding: 5px;
+	padding-top: 2px;
+	border-radius: 3px;
+}
+
+.editable_sur_clic {
+	min-height: 50px;
+}
+
+.champ_edition_wiki {
+	width: 100%;
+	overflow: auto;
+}
+
+#fiches-existantes {
+	margin-top: 0px;
+}
+
+#fiches-existantes input {
+	margin-top: 8px;
+}
+
+#masque-chargement {
+    font-size: 30px;
+    margin: auto;
+    width: 250px;
+}
+
+.chargement-icone {
+	margin-right: 15px;
+}
