@@ -21,7 +21,7 @@
 			<div class="recherche row">
 				<form ng-submit="getFiches()">
 					<div class="col-md-6">
-						<input type="text" class="form-control" placeholder="Rechercher une fiche" ng-model="recherche.texte" >
+						<input type="text" class="form-control" placeholder="Rechercher une fiche" ng-model="recherche.texte" ng-disabled="recherche.fichesExistantes" >
 					</div>
 					<div class="col-md-2">
 						<select name="referentiel" id="referentiel" class="form-control" ng-model="recherche.referentiel">
