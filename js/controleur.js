@@ -11,7 +11,7 @@ smartFormApp.controller('SmartFormControleur', function ($scope, $http, $sce, $d
 	$scope.referentiels = config.referentiels;
 	$scope.recherche = {};
 	$scope.recherche.texte = "";
-	$scope.recherche.referentiel = "";
+	$scope.recherche.referentiel = $scope.referentiels[0];
 	$scope.rechercheModifiee = false;
 	$scope.premierChargement = true;
 	
@@ -49,31 +49,82 @@ smartFormApp.controller('SmartFormControleur', function ($scope, $http, $sce, $d
 			$scope.rechercheModifiee = false;
 		}
 		
-		console.log($scope.pageCourante*$scope.taillePage+' '+$scope.taillePage);
-		
-		referentiel = !$scope.recherche.referentiel ? '%' : $scope.recherche.referentiel;
-		texte = !$scope.recherche.texte ? '%' : $scope.recherche.texte;
-		
-		nom_fiche = config.nom_fiche.replace("{referentiel}", referentiel);
-		nom_fiche = nom_fiche.replace("{num_tax}", texte);
-		
+		referentiel = "referentiel="+(!$scope.recherche.referentiel ? '%' : $scope.recherche.referentiel);
+		recherche = "&recherche="+(!$scope.recherche.texte ? '%' : $scope.recherche.texte);
+		pages_existantes = '&pages_existantes='+(!!$scope.recherche.fichesExistantes);
 		pagination = '&debut='+($scope.pageCourante*$scope.taillePage)+"&limite="+($scope.taillePage);
 
-		$http.get(config.url_service+'?tpl_nom_page='+nom_fiche+pagination).
+		$http.get(config.url_service+'?'+referentiel+recherche+pages_existantes+pagination).
 		success(function(data, status, headers, config) {
-			$scope.totalResultats = data.pagination.total;
-			$scope.nbPages = Math.ceil($scope.totalResultats/$scope.taillePage);
-			$scope.pages = [];
-			for(var i = 0; i < $scope.nbPages; i++) {
-				$scope.pages.push(i+1);	
-			}
-			
+
+			$scope.construireNbPages(data.pagination);
 			$scope.fiches = data.resultats;
 			$scope.chargement = false;
 		}).
 		error(function(data, status, headers, config) {
 			$scope.chargement = false;
 		});
+	};
+	
+	$scope.construireNbPages = function(pagination) {
+		$scope.totalResultats = pagination.total;
+		$scope.nbPages = Math.ceil($scope.totalResultats/$scope.taillePage);
+		$scope.pages = [];
+		
+		var intervalleAvantApres = 6;
+		// Cas où l'on affiche toutes les pages sans se prendre la tête
+		if($scope.nbPages <= 2*intervalleAvantApres) {
+			for(var i = 0; i < 2*intervalleAvantApres; i++) {
+				$scope.pages.push(i+1);	
+			}
+		} else {						
+			var debutIntervalleGauche = Math.max(1, $scope.pageCourante - intervalleAvantApres);
+			var finIntervalleGauche = $scope.pageCourante;
+			
+			var debutIntervalleDroite = finIntervalleGauche + 1;
+			var finIntervalleDroite = Math.min($scope.pageCourante + intervalleAvantApres, $scope.nbPages - 2);
+			
+			// Si on est au début de la liste et qu'on a moins de pages à gauche qu'à droite on en rajoute 
+			// à droite 
+			var decalageADroite = $scope.pageCourante - (debutIntervalleGauche);
+			if(decalageADroite < intervalleAvantApres) {
+				finIntervalleDroite = finIntervalleDroite + (intervalleAvantApres - decalageADroite) - 1;
+				finIntervalleDroite = Math.min(finIntervalleDroite, $scope.nbPages - 2);
+			}
+			
+			// Si on est à la fin de la liste et qu'on a moins de pages à droite qu'à gauche on en rajoute 
+			// à gauche 
+			var decalageAGauche = finIntervalleDroite - $scope.pageCourante;
+			if(decalageAGauche < intervalleAvantApres) {
+				debutIntervalleGauche = debutIntervalleGauche - (intervalleAvantApres - decalageAGauche) + 1;
+				debutIntervalleGauche = Math.max(debutIntervalleGauche, 0);
+			}
+			
+			// page de début obligatoire
+			$scope.pages.push(1);
+			
+			if($scope.pageCourante - intervalleAvantApres > 0) {
+				$scope.pages.push("...");
+			}
+			
+			for(var i = debutIntervalleGauche; i <= finIntervalleGauche; i++) {
+				$scope.pages.push(i+1);
+			}
+						
+			for(var i = debutIntervalleDroite; i <= finIntervalleDroite; i++) {
+				$scope.pages.push(i+1);
+			}
+			
+			if($scope.pageCourante + intervalleAvantApres < $scope.nbPages - 1) {
+				$scope.pages.push("...");
+			}
+			
+			if($scope.pageCourante < $scope.nbPages - 1) {
+				// page de fin obligatoire si non incluse par la boucle précédente
+				$scope.pages.push($scope.nbPages);
+			}
+		}
+
 	};
 	
 	$scope.getFiche = function(fiche) {
@@ -219,7 +270,8 @@ smartFormApp.controller('SmartFormControleur', function ($scope, $http, $sce, $d
 	$scope.changerPage = function(page) {
 
 		// Pas besoin de changer de page si on est déjà sur la page demandée
-		if($scope.pageCourante == page - 1) {
+		// où si l'on a cliqué sur une case de remplissage
+		if($scope.pageCourante == page - 1 || page == '...') {
 			return;
 		}
 		
@@ -235,7 +287,7 @@ smartFormApp.controller('SmartFormControleur', function ($scope, $http, $sce, $d
 	};
 	
 	$scope.getBorneMinIntervalleAffiche = function() {
-		return $scope.pageCourante * $scope.taillePage;
+		return $scope.pageCourante * $scope.taillePage + 1;
 	};
 	
 	$scope.getBorneMaxIntervalleAffiche = function() {

@@ -37,7 +37,19 @@ body {
 }
 
 #fiches-existantes input {
+	margin-top: 0px;
+}
+
+#fiches-existantes label {
 	margin-top: 8px;
+}
+
+.fiche-existante {
+	background-color : #DBF4C1 !important;
+}
+
+.fiche-nt-inexistant {
+	background-color : #FD8C13 !important;
 }
 
 #masque-chargement {
