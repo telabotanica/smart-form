@@ -74,7 +74,7 @@ smartFormApp.controller('SmartFormControleur', function ($scope, $http, $sce, $d
 		var intervalleAvantApres = 6;
 		// Cas où l'on affiche toutes les pages sans se prendre la tête
 		if($scope.nbPages <= 2*intervalleAvantApres) {
-			for(var i = 0; i < 2*intervalleAvantApres; i++) {
+			for(var i = 0; i < $scope.nbPages; i++) {
 				$scope.pages.push(i+1);	
 			}
 		} else {						
