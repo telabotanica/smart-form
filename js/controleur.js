@@ -12,20 +12,63 @@ smartFormApp.controller('SmartFormControleur', function ($scope, $http, $sce, $d
 	$scope.recherche = {};
 	$scope.recherche.texte = "";
 	$scope.recherche.referentiel = "";
+	$scope.rechercheModifiee = false;
+	$scope.premierChargement = true;
+	
+	$scope.pages = [];
+	$scope.nbPages = 0;
+	$scope.totalResultats = 0;
+	$scope.taillePage = 20;
+	$scope.pageCourante = 0;
+	
+	$scope.$watch('recherche', function(newVal, oldVal) {
+		if(!$scope.premierChargement) {
+			$scope.rechercheModifiee = true;
+		}
+		$scope.premierChargement = false;
+	}, true);
+	
+	$scope.getNbPages = function() {
+		return $scope.NbPages; 
+	};
+	
+	$scope.resetPagination = function() {
+		$scope.pages = [];
+		$scope.nbPages = 0;
+		$scope.totalResultats = 0;
+		$scope.taillePage = 20;
+		$scope.pageCourante = 0;
+	};
 
 	$scope.getFiches = function() {
 
 		$scope.chargement = true;
+
+		if($scope.rechercheModifiee && !$scope.premierChargement) {
+			$scope.resetPagination();
+			$scope.rechercheModifiee = false;
+		}
+		
+		console.log($scope.pageCourante*$scope.taillePage+' '+$scope.taillePage);
 		
 		referentiel = !$scope.recherche.referentiel ? '%' : $scope.recherche.referentiel;
 		texte = !$scope.recherche.texte ? '%' : $scope.recherche.texte;
 		
 		nom_fiche = config.nom_fiche.replace("{referentiel}", referentiel);
 		nom_fiche = nom_fiche.replace("{num_tax}", texte);
+		
+		pagination = '&debut='+($scope.pageCourante*$scope.taillePage)+"&limite="+($scope.taillePage);
 
-		$http.get(config.url_service+'?tpl_nom_page='+nom_fiche).
+		$http.get(config.url_service+'?tpl_nom_page='+nom_fiche+pagination).
 		success(function(data, status, headers, config) {
-			$scope.fiches = data;
+			$scope.totalResultats = data.pagination.total;
+			$scope.nbPages = Math.ceil($scope.totalResultats/$scope.taillePage);
+			$scope.pages = [];
+			for(var i = 0; i < $scope.nbPages; i++) {
+				$scope.pages.push(i+1);	
+			}
+			
+			$scope.fiches = data.resultats;
 			$scope.chargement = false;
 		}).
 		error(function(data, status, headers, config) {
@@ -72,7 +115,6 @@ smartFormApp.controller('SmartFormControleur', function ($scope, $http, $sce, $d
 	};
 	
 	$scope.afficherFiche = function(fiche) {
-		console.log(fiche);
 		referentiel_fiche = ""+fiche.infos_taxon.referentiel;
 		url_fiche = $scope.config.url_fiche_mobile.replace('{referentiel}', referentiel_fiche.toLowerCase());
 		url_fiche = url_fiche.replace('{num_nom}', fiche.infos_taxon.num_nom);
@@ -160,6 +202,44 @@ smartFormApp.controller('SmartFormControleur', function ($scope, $http, $sce, $d
 		url = url.replace('{format}', 'text/plain');
 		
 		return url;
+	};
+	
+	$scope.pagePrecedente = function() {
+		if($scope.pageCourante != 0) {
+			$scope.changerPage($scope.pageCourante);
+		}
+	};
+	
+	$scope.pageSuivante = function() {
+		if($scope.pageCourante != $scope.nbPages - 1) {
+			$scope.changerPage($scope.pageCourante + 2);
+		}
+	};
+	
+	$scope.changerPage = function(page) {
+
+		// Pas besoin de changer de page si on est déjà sur la page demandée
+		if($scope.pageCourante == page - 1) {
+			return;
+		}
+		
+		$scope.pageCourante = page - 1;
+		if(page - 1 < 0) {
+			$scope.pageCourante = 0;
+		}
+		
+		if(page -1 > $scope.nbPages) {
+			$scope.pageCourante = $scope.nbPages;
+		}
+		$scope.getFiches();
+	};
+	
+	$scope.getBorneMinIntervalleAffiche = function() {
+		return $scope.pageCourante * $scope.taillePage;
+	};
+	
+	$scope.getBorneMaxIntervalleAffiche = function() {
+		return Math.min($scope.totalResultats, ($scope.pageCourante+1) * $scope.taillePage);
 	};
 	
 	$scope.getFiches();

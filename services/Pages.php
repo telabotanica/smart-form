@@ -19,6 +19,9 @@
 	$tpl_nom_page = !empty($_GET['tpl_nom_page']) ? $_GET['tpl_nom_page'] : 'SmartFlore%nt%';
 	$tpl_nom_page = $dbh->quote($tpl_nom_page);
 	
+	$debut = !empty($_GET['debut']) ? intval($_GET['debut']) : 0;
+	$limite = !empty($_GET['limite']) ? intval($_GET['limite']) : 20;
+	
 	$dbh->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
 	$dbh->exec("SET CHARACTER SET utf8");
 	
@@ -28,10 +31,18 @@
 				'FROM `eFloreRedaction_pages` '.
 				'WHERE tag LIKE '.$tpl_nom_page.' '.
 				'GROUP BY tag '.
-				'ORDER BY nb_revisions DESC';
+				'ORDER BY nb_revisions DESC '.
+				'LIMIT '.$debut.', '.$limite;
 	
 	$res = $dbh->query($requete);
 	$res = $res->fetchAll(PDO::FETCH_ASSOC);
+	
+	$comptage = 'SELECT COUNT(DISTINCT tag) as nb_pages '.
+				'FROM `eFloreRedaction_pages` '.
+				'WHERE tag LIKE '.$tpl_nom_page;
+	
+	$res_comptage = $dbh->query($comptage);
+	$res_comptage = $res_comptage->fetch(PDO::FETCH_ASSOC);
 	
 	$infos_indexees_par_nt = array();
 	$nts = array();
@@ -43,6 +54,8 @@
 		$nts[$referentiel][] = $nt;
 		$infos_indexees_par_nt[$referentiel.$nt] = $resultat;
 	}
+	
+	$retour = array('pagination' => array('total' => $res_comptage['nb_pages']), 'resultats' => array());
 	
 	$url_eflore_tpl = $config['eflore']['infos_taxons_url'];
 	
@@ -65,8 +78,9 @@
 	}
 	
 	$dbh = null;
+	$retour['resultats'] = array_values($infos_indexees_par_nt);
 	
 	header('Content-type: application/json');
-	echo json_encode(array_values($infos_indexees_par_nt));
+	echo json_encode($retour);
 	exit;
 ?>
