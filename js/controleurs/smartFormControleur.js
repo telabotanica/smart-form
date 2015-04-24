@@ -1,80 +1,80 @@
-smartFormApp.controller('SmartFormControleur', function ($scope, $http, $sce, $document, $controller) {
+smartFormApp.controller('SmartFormControleur', function ($scope, $http, $controller, wikiniService, smartFormService) {
 	
 	// globale provenant de config.js
 	$scope.config = config;
 	
+	// état dictant la vue active dans la page
 	$scope.etat = "liste";
+	
+	// affiche ou cache le masque de chargement
 	$scope.chargement = true;
 	
 	$scope.fiches = [];
-	$scope.referentiels = config.referentiels;
+	
 	$scope.recherche = {};
 	$scope.recherche.texte = "";
-	$scope.recherche.referentiel = $scope.referentiels[0];
+	$scope.referentiels = config.referentiels;
+	$scope.recherche.referentiel = config.referentiels[0];
 	$scope.rechercheModifiee = false;
 	$scope.premierChargement = true;
 	
-	$scope.pagination = $controller("PaginationControleur");
-	$scope.pagination.surChangementPage = function() {
+	// service d'accès et modification aux pages wikini
+	$scope.wikiniService = wikiniService;
+			
+	this.initApplication = function() {
+		
+		this.initPaginationCtrl();
+		this.initEditionControleur();
+		
+		$scope.$watch('recherche', function(newVal, oldVal) {
+			if(!$scope.premierChargement) {
+				$scope.rechercheModifiee = true;
+			}
+			$scope.premierChargement = false;
+		}, true);
+				
+		$scope.$on('stop-chargement', function() {
+			$scope.chargement = false;
+		});
+		
 		$scope.getFiches();
 	};
-	$scope.pagination.nomElementTrouve = "fiches";
-	$scope.pagination.nomElementTrouveSingulier = "fiche trouvée"; 
-	$scope.pagination.nomElementTrouvePluriel = "fiches trouvées";
 	
-	$scope.$watch('recherche', function(newVal, oldVal) {
-		if(!$scope.premierChargement) {
-			$scope.rechercheModifiee = true;
-		}
-		$scope.premierChargement = false;
-	}, true);
+	this.initPaginationCtrl = function() {
+		$scope.paginationCtrl = $controller("PaginationControleur");
+		// instanciation de fonction "abstraite"
+		$scope.paginationCtrl.surChangementPage = function() {
+			$scope.getFiches();
+		};
+		$scope.paginationCtrl.nomElementTrouve = "fiches";
+		$scope.paginationCtrl.nomElementTrouveSingulier = "fiche trouvée"; 
+		$scope.paginationCtrl.nomElementTrouvePluriel = "fiches trouvées";
+	};
+	
+	this.initEditionControleur = function() {
+		$scope.editionCtrl = $controller("EditionControleur");
+	};
 	
 	$scope.getFiches = function() {
 
 		$scope.chargement = true;
 
 		if($scope.rechercheModifiee && !$scope.premierChargement) {
-			$scope.pagination.resetPagination();
+			$scope.paginationCtrl.resetPagination();
 			$scope.rechercheModifiee = false;
 		}
 		
-		referentiel = "referentiel="+(!$scope.recherche.referentiel ? '%' : $scope.recherche.referentiel);
-		recherche = "&recherche="+(!$scope.recherche.texte ? '%' : $scope.recherche.texte);
-		pages_existantes = '&pages_existantes='+(!!$scope.recherche.fichesExistantes);
-		pagination = '&debut='+($scope.pagination.pageCourante*$scope.pagination.taillePage)+"&limite="+($scope.pagination.taillePage);
-
-		$http.get(config.url_service+'?'+referentiel+recherche+pages_existantes+pagination).
-		success(function(data, status, headers, config) {
-
-			$scope.pagination.construireNbPages(data.pagination);
-			$scope.fiches = data.resultats;
-			$scope.chargement = false;
-		}).
-		error(function(data, status, headers, config) {
-			$scope.chargement = false;
-		});
-	};
-	
-	$scope.getFiche = function(fiche) {
-		$scope.chargement = true;
-		
-		url = $scope.formaterUrlSectionWiki(fiche.tag, config.sections_pages.join(), 'text/html'); 
-		
-		$http.get(url).
-		success(function(data, status, headers, config) {
-			$scope.fiche_edition = data;
-			$scope.fiche_edition.tag = fiche.tag;
-			$scope.fiche_edition.nom_sci = fiche.infos_taxon.nom_sci;
-			$scope.fiche_edition.referentiel = fiche.infos_taxon.referentiel;
-			$scope.chargement = false;
-		}).
-		error(function(data, status, headers, config) {
-			$scope.chargement = false;
-		});
-	};
-	
-	$scope.getUrlPageWiki = function(fiche) {
-		return $scope.config.url_wikini.replace("{tag}" , fiche.tag);
+		smartFormService.getListeFichesSmartFlore($scope.recherche, $scope.paginationCtrl.pageCourante, $scope.paginationCtrl.taillePage, 
+			function(data) {
+				$scope.paginationCtrl.construireNbPages(data.pagination);
+				$scope.paginationCtrl.afficherPagination = data.resultats.length > 0;
+				$scope.fiches = data.resultats;
+				$scope.chargement = false;
+			}, 
+			function(data) {
+				$scope.chargement = false;
+			}
+		);
 	};
 	
 	$scope.afficherQrCode = function(fiche) {
@@ -90,98 +90,16 @@ smartFormApp.controller('SmartFormControleur', function ($scope, $http, $sce, $d
 	$scope.editerFiche = function(fiche) {
 		// charger les données de fiche
 		$scope.etat = "edition";
-		$scope.getFiche(fiche);
+		$scope.editionCtrl.editerFiche(fiche);
 	};
 	
-	$scope.afficherFiche = function(fiche) {
+	$scope.afficherFicheMobile = function(fiche) {
 		referentiel_fiche = ""+fiche.infos_taxon.referentiel;
 		url_fiche = $scope.config.url_fiche_mobile.replace('{referentiel}', referentiel_fiche.toLowerCase());
 		url_fiche = url_fiche.replace('{num_nom}', fiche.infos_taxon.num_nom);
 		window.open(url_fiche);
 	};
-	
-	$scope.afficherFormEdition = function(fiche, titre, section) {
 		
-		url = $scope.formaterUrlSectionWiki(fiche.tag, titre, 'text/plain'); 
-		
-		$scope.fiche_edition.section_edition = {};
-				
-		$http.get(url).
-		success(function(data, status, headers, config) {
-			$scope.fiche_edition.section_edition.titre = titre;
-			$scope.fiche_edition.section_edition.html_brut_original = data.texte;
-			$scope.fiche_edition.section_edition.html_brut = data.texte;
-		}).
-		error(function(data, status, headers, config) {
-			// Afficher l'erreur
-		});
-	};
-	
-	$scope.getSectionFiche = function(fiche, titre, section) {
-		
-		url = $scope.formaterUrlSectionWiki(fiche.tag, titre, 'text/html'); 
-		
-		$http.get(url).
-		success(function(data, status, headers, config) {
-			section = data.texte;
-			// C'est moche mais en attendant mieux on met à jour l'affichage manuellement
-			// On ne peut pas faire de modèle bi directionnel avec du html échappé
-			var elm = angular.element(document.getElementById(titre));
-			elm.text(section);
-			$scope.fiche_edition.section_edition = {};	
-		}).
-		error(function(data, status, headers, config) {
-			// Afficher l'erreur
-		});
-	};
-	
-	
-	$scope.annulerEditionSection = function(fiche_edition, titre, section) {
-		$scope.fiche_edition.section_edition = {};
-	};
-	
-	$scope.validerEditionSection = function(fiche_edition, titre, section) {
-		texte_saisi = $scope.fiche_edition.section_edition.html_brut;
-		if(texte_saisi != $scope.fiche_edition.section_edition.html_brut_original) {
-						
-			url = $scope.formaterUrlSectionWiki(fiche_edition.tag, titre, 'text/plain');
-			donnees_post = {pageContenu : texte_saisi, pageSectionTitre : titre};
-			
-			// Besoin d'un objet particulier ici car sinon angular poste du json
-			$http({
-			    method: 'POST',
-			    url: url,
-			    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-			    transformRequest: function(obj) {
-			        var str = [];
-			        for(var p in obj)
-			        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
-			        return str.join("&");
-			    },
-			    data: donnees_post
-			}).
-			success(function(data, status, headers, config) {
-				$scope.getSectionFiche(fiche_edition, titre, section);
-			}).
-			error(function(data, status, headers, config) {
-				// afficher erreur
-			});
-		} else {
-			$scope.annulerEditionSection();
-		}
-	};
-	
-	$scope.trustAsHtml = function(html) {
-		return $sce.trustAsHtml(html);
-	};
-	
-	$scope.formaterUrlSectionWiki = function(tag, titre, format) {
-		url = config.url_section_wiki.replace('{pageTag}', tag);
-		url = url.replace('{sectionTitre}', window.encodeURIComponent(titre));
-		url = url.replace('{format}', 'text/plain');
-		
-		return url;
-	};
-	
-	$scope.getFiches();
+	// Initialisation du controleur
+	this.initApplication();
 });

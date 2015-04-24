@@ -1,25 +1,25 @@
 <!-- PAGINATION  DE LA LISTE -->
-<div ng-show="fiches.length > 0">
+<div ng-show="paginationCtrl.afficherPagination">
 	<div class="pagination_total ng-cloak">
-		<span class="ng-cloak">Affichage des {{pagination.nomElementTrouve}}
-			{{pagination.getBorneMinIntervalleAffiche()}} à
-			{{pagination.getBorneMaxIntervalleAffiche()}} sur un total de {{pagination.totalResultats}}
-			<span ng-show="pagination.totalResultats == 1"> {{pagination.nomElementTrouveSingulier}}</span> 
-			<span ng-show="pagination.totalResultats > 1"> {{pagination.nomElementTrouvePluriel}}</span>
+		<span class="ng-cloak">Affichage des {{paginationCtrl.nomElementTrouve}}
+			{{paginationCtrl.getBorneMinIntervalleAffiche()}} à
+			{{paginationCtrl.getBorneMaxIntervalleAffiche()}} sur un total de {{paginationCtrl.totalResultats}}
+			<span ng-show="paginationCtrl.totalResultats == 1"> {{paginationCtrl.nomElementTrouveSingulier}}</span> 
+			<span ng-show="paginationCtrl.totalResultats > 1"> {{paginationCtrl.nomElementTrouvePluriel}}</span>
 		</span>
 	</div>
 
 	<ul class="pagination">
-		<li class="{{pagination.pageCourante == 0 ? 'disabled' : ''}}"><a href="#"
-			aria-label="Previous" ng-click="pagination.pagePrecedente()"> <span
+		<li class="{{paginationCtrl.pageCourante == 0 ? 'disabled' : ''}}"><a href="#"
+			aria-label="Previous" ng-click="paginationCtrl.pagePrecedente()"> <span
 				aria-hidden="true">&laquo;</span>
 		</a></li>
-		<li ng-repeat="page in pagination.pages track by $index"
-			class="{{pagination.pageCourante == page - 1 ? 'active' : ''}} {{page == '...' ? 'disabled' : ''}}">
-			<a href="#" ng-click="pagination.changerPage(page)"> {{page}} </a>
+		<li ng-repeat="page in paginationCtrl.pages track by $index"
+			class="{{paginationCtrl.pageCourante == page - 1 ? 'active' : ''}} {{page == '...' ? 'disabled' : ''}}">
+			<a href="#" ng-click="paginationCtrl.changerPage(page)"> {{page}} </a>
 		</li>
-		<li class="{{pageCourante == pagination.nbPages - 1 ? 'disabled' : ''}}"><a
-			href="#" aria-label="Previous" ng-click="pagination.pageSuivante()"> <span
+		<li class="{{pageCourante == paginationCtrl.nbPages - 1 ? 'disabled' : ''}}"><a
+			href="#" aria-label="Previous" ng-click="paginationCtrl.pageSuivante()"> <span
 				aria-hidden="true">&raquo;</span>
 		</a></li>
 	</ul>

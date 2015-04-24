@@ -26,7 +26,7 @@
 						<td>{{fiche.infos_taxon.nom_sci}}</td>
 						<td>{{fiche.infos_taxon.num_nom}}</td>
 						<td><a target="_blank" title="Voir la page wikini"
-							href="{{getUrlPageWiki(fiche)}}">{{fiche.tag}}</a></td>
+							href="{{wikiniService.getUrlPageWiki(fiche)}}">{{fiche.tag}}</a></td>
 						<td>{{fiche.user}}</td>
 						<td>{{fiche.nb_revisions}}</td>
 						<td>
@@ -38,7 +38,7 @@
 									aria-hidden="true"></span>
 							</button>
 							<button type="button" class="btn btn-default btn-sm"
-								title="Voir cette fiche" ng-click="afficherFiche(fiche)">
+								title="Voir cette fiche" ng-click="afficherFicheMobile(fiche)">
 								<span class="glyphicon glyphicon-phone" aria-hidden="true"></span>
 							</button>
 							<button type="button" class="btn btn-default btn-sm"

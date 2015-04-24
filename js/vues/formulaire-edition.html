@@ -3,24 +3,24 @@
 	<a class="retour-liste-fiches" href="#" ng-click='changerEtat("liste")'>Retour
 		à la liste des fiches</a>
 	<h2 class="titre-section">Édition de la fiche de l'espèce
-		{{fiche_edition.nom_sci}} ({{fiche_edition.referentiel}})</h2>
+		{{editionCtrl.fiche_edition.nom_sci}} ({{editionCtrl.fiche_edition.referentiel}})</h2>
 
 	<div class="section_wiki"
-		ng-repeat="(titre, section) in fiche_edition.sections">
+		ng-repeat="(titre, section) in editionCtrl.fiche_edition.sections">
 		<h3>{{titre}}</h3>
 		<div class="contenu_editable">
 			<div id="{{titre}}" class="wikini editable_sur_clic"
-				ng-bind-html="trustAsHtml(section)"
-				ng-hide="fiche_edition.section_edition.titre == titre"
-				ng-dblclick="afficherFormEdition(fiche_edition, titre, section)"></div>
+				ng-bind-html="editionCtrl.trustAsHtml(section)"
+				ng-hide="editionCtrl.fiche_edition.section_edition.titre == titre"
+				ng-dblclick="editionCtrl.afficherFormEditionSection(editionCtrl.fiche_edition, titre)"></div>
 			<div class="formulaire_edition"
-				ng-show="fiche_edition.section_edition.titre == titre">
+				ng-show="editionCtrl.fiche_edition.section_edition.titre == titre">
 				<textarea class="champ_edition_wiki"
-					ng-model="fiche_edition.section_edition.html_brut"></textarea>
+					ng-model="editionCtrl.fiche_edition.section_edition.html_brut"></textarea>
 				<button type="button"
-					ng-click="validerEditionSection(fiche_edition, titre, section)">OK</button>
+					ng-click="editionCtrl.validerEditionSection(editionCtrl.fiche_edition, titre)">OK</button>
 				<button type="button"
-					ng-click="annulerEditionSection(fiche_edition, titre, section)">Annuler</button>
+					ng-click="editionCtrl.annulerEditionSection(editionCtrl.fiche_edition, titre)">Annuler</button>
 			</div>
 		</div>
 	</div>

@@ -6,6 +6,8 @@ smartFormApp.controller('PaginationControleur', function () {
 	this.taillePage = 20;
 	this.pageCourante = 0;
 	
+	this.afficherPagination = false;
+	
 	this.nomElementTrouve = "fiches";
 	this.nomElementTrouveSingulier = "fiche trouvée"; 
 	this.nomElementTrouvePluriel = "fiches trouvées";
