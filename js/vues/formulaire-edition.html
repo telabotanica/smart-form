@@ -1,0 +1,27 @@
+<!-- FORMULAIRE D'ÉDITION D'UNE FICHE -->
+<div id="formulaire-edition-fiche" ng-show='etat == "edition"'>
+	<a class="retour-liste-fiches" href="#" ng-click='changerEtat("liste")'>Retour
+		à la liste des fiches</a>
+	<h2 class="titre-section">Édition de la fiche de l'espèce
+		{{fiche_edition.nom_sci}} ({{fiche_edition.referentiel}})</h2>
+
+	<div class="section_wiki"
+		ng-repeat="(titre, section) in fiche_edition.sections">
+		<h3>{{titre}}</h3>
+		<div class="contenu_editable">
+			<div id="{{titre}}" class="wikini editable_sur_clic"
+				ng-bind-html="trustAsHtml(section)"
+				ng-hide="fiche_edition.section_edition.titre == titre"
+				ng-dblclick="afficherFormEdition(fiche_edition, titre, section)"></div>
+			<div class="formulaire_edition"
+				ng-show="fiche_edition.section_edition.titre == titre">
+				<textarea class="champ_edition_wiki"
+					ng-model="fiche_edition.section_edition.html_brut"></textarea>
+				<button type="button"
+					ng-click="validerEditionSection(fiche_edition, titre, section)">OK</button>
+				<button type="button"
+					ng-click="annulerEditionSection(fiche_edition, titre, section)">Annuler</button>
+			</div>
+		</div>
+	</div>
+</div>

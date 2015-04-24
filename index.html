@@ -7,127 +7,21 @@
 	<link rel="stylesheet" href="css/app.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-sanitize.min.js"></script>
-	<script src="js/config.js"></script>
-	<script src="js/controleur.js"></script>
+	<script src="js/config/config.js"></script>
+	<script src="js/controleurs/smartFormControleur.js"></script>
 </head>
 <body ng-controller="SmartFormControleur">
 
 	<h1 class="titre-application"> Tableau de bord Smart'Flore </h1>
 
 	<!-- LISTE DES FICHES -->
-	<div id="liste-fiches" ng-show='(etat == "liste" || etat == "")'>
-		<h2 class="titre-section">Rechercher des fiches Smart'Flore</h2>
-		<div id="conteneur" class="container-fluid">
-			<div class="recherche row">
-				<form ng-submit="getFiches()">
-					<div class="col-md-6">
-						<input type="text" class="form-control" placeholder="Rechercher une fiche" ng-model="recherche.texte" ng-disabled="recherche.fichesExistantes" >
-					</div>
-					<div class="col-md-2">
-						<select name="referentiel" id="referentiel" class="form-control" ng-model="recherche.referentiel">
-							<option ng-repeat="referentiel in referentiels" value="{{referentiel}}">{{referentiel}}</option>
-						</select>
-					</div>
-					<div id="fiches-existantes" class="checkbox col-md-2">
-						<label>
-							<input type="checkbox" ng-model="recherche.fichesExistantes"> Uniquement les fiches existantes
-						</label>
-					</div>
-					<div class="col-md-1">
-						<button type="submit" class="btn btn-default btn-sm">
-							OK
-						</button>
-					</div>
-				</form>
-			</div>
-			
-			<div ng-show="fiches.length > 0">
-				<div class="pagination_total ng-cloak">
-					<span class="ng-cloak" >Affichage des fiches {{getBorneMinIntervalleAffiche()}} à {{getBorneMaxIntervalleAffiche()}} sur un total de {{totalResultats}} 
-						<span ng-show="totalResultats == 1">fiche trouvée</span>
-						<span ng-show="totalResultats > 1"> fiches trouvées</span>
-					</span>
-				</div>
-				
-				<ul class="pagination">
-					<li class="{{pageCourante == 0 ? 'disabled' : ''}}">
-						<a href="#" aria-label="Previous" ng-click="pagePrecedente()">
-					    	<span aria-hidden="true">&laquo;</span>
-					    </a>
-					</li>
-					<li ng-repeat="page in pages track by $index" class="{{pageCourante == page - 1 ? 'active' : ''}} {{page == '...' ? 'disabled' : ''}}">
-						<a href="#" ng-click="changerPage(page)">
-							{{page}}
-						</a>
-					</li>
-					<li class="{{pageCourante == nbPages - 1 ? 'disabled' : ''}}">
-						<a href="#" aria-label="Previous" ng-click="pageSuivante()">
-					    	<span aria-hidden="true">&raquo;</span>
-					    </a>
-				   	</li>
-				</ul>
-			</div>
-			
-			<div ng-show="!chargement">
-								
-				<div class="row" ng-show="fiches.length > 0" >
-					<table class="table table-striped table-bordered table-condensed">
-						<tr>
-							<th>Nom scientifique</th>
-							<th>Numéro nomenclatural</th>
-							<th>Page wikini</th>
-							<th>Auteur</th>
-							<th>Révisions</th>
-							<th>Actions</th>
-						</tr>
-						<tr ng-repeat="fiche in fiches" class="{{fiche.existe ? 'fiche-existante' : 'fiche-inexistante'}} {{!fiche.infos_taxon ? 'fiche-nt-inexistant' : ''}}">
-							<td>{{fiche.infos_taxon.nom_sci}}</td>
-							<td>{{fiche.infos_taxon.num_nom}}</td>
-							<td><a target="_blank" title="Voir la page wikini" href="{{getUrlPageWiki(fiche)}}" >{{fiche.tag}}</a></td>
-							<td>{{fiche.user}}</td>
-							<td>{{fiche.nb_revisions}}</td>	
-							<td>
-								<button type="button" class="btn btn-default btn-sm" title="{{fiche.existe ? 'Éditer cette fiche' : 'Créer cette fiche'}}" ng-click="editerFiche(fiche)">
-									<span class="glyphicon {{fiche.existe ? 'glyphicon-edit' : 'glyphicon-plus'}}" aria-hidden="true"></span>
-								</button>
-								<button type="button" class="btn btn-default btn-sm" title="Voir cette fiche" ng-click="afficherFiche(fiche)">
-									<span class="glyphicon glyphicon-phone" aria-hidden="true"></span>
-								</button>
-								<button type="button" class="btn btn-default btn-sm" title="Voir le qr code de cette fiche" ng-click="afficherQrCode(fiche)">
-									<span class="glyphicon glyphicon-qrcode" aria-hidden="true"></span>
-								</button>
-							</td>
-						</tr>
-					</table>
-				</div>
-				<div class="row" ng-show="fiches.length == 0 && !chargement" >
-					Aucune fiche ne correspond à la recherche
-				</div>
-			</div>
-		</div>
-	</div>
+	<div ng-include="'js/vues/liste-fiches.html'"></div>
+		
+	<!-- FORMULAIRE D'ÉDITION D'UNE FICHE -->
+	<div ng-include="'js/vues/formulaire-edition.html'"></div>
 	
 	<!-- MASQUE DE CHARGEMENT -->
-	<div id="masque-chargement" ng-show="chargement" >
-		<img class="chargement-icone" src="css/icones/chargement.gif"><span class="chargement-message">Chargement</span>
-	</div>
-	
-	<!-- FORMULAIRE D'ÉDITION D'UNE FICHE -->
-	<div id="formulaire-edition-fiche" ng-show='etat == "edition"'>
-		<a class="retour-liste-fiches" href="#" ng-click='changerEtat("liste")'>Retour à la liste des fiches</a>
-		<h2 class="titre-section">Édition de la fiche de l'espèce {{fiche_edition.nom_sci}} ({{fiche_edition.referentiel}})</h2>
-		
-		<div class="section_wiki" ng-repeat="(titre, section) in fiche_edition.sections">
-			<h3> {{titre}} </h3>
-			<div class="contenu_editable">
-				<div id="{{titre}}" class="wikini editable_sur_clic" ng-bind-html="trustAsHtml(section)" ng-hide="fiche_edition.section_edition.titre == titre" ng-dblclick="afficherFormEdition(fiche_edition, titre, section)"></div>
-				<div class="formulaire_edition" ng-show="fiche_edition.section_edition.titre == titre">
-					<textarea class="champ_edition_wiki" ng-model="fiche_edition.section_edition.html_brut"></textarea>
-					<button type="button" ng-click="validerEditionSection(fiche_edition, titre, section)">OK</button>
-					<button type="button" ng-click="annulerEditionSection(fiche_edition, titre, section)">Annuler</button>
-				</div>
-			</div>
-		</div>
-	</div>
+	<div ng-include="'js/vues/masque-chargement.html'"></div>
+
 </body>
 </html>

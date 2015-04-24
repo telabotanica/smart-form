@@ -1,4 +1,5 @@
 var smartFormApp = angular.module('smartFormApp', ['ngSanitize']);
+
 smartFormApp.controller('SmartFormControleur', function ($scope, $http, $sce, $document) {
 	
 	// globale provenant de config.js

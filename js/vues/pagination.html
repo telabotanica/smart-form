@@ -1,0 +1,26 @@
+<!-- PAGINATION  DE LA LISTE -->
+<div ng-show="fiches.length > 0">
+	<div class="pagination_total ng-cloak">
+		<span class="ng-cloak">Affichage des fiches
+			{{getBorneMinIntervalleAffiche()}} à
+			{{getBorneMaxIntervalleAffiche()}} sur un total de {{totalResultats}}
+			<span ng-show="totalResultats == 1">fiche trouvée</span> <span
+			ng-show="totalResultats > 1"> fiches trouvées</span>
+		</span>
+	</div>
+
+	<ul class="pagination">
+		<li class="{{pageCourante == 0 ? 'disabled' : ''}}"><a href="#"
+			aria-label="Previous" ng-click="pagePrecedente()"> <span
+				aria-hidden="true">&laquo;</span>
+		</a></li>
+		<li ng-repeat="page in pages track by $index"
+			class="{{pageCourante == page - 1 ? 'active' : ''}} {{page == '...' ? 'disabled' : ''}}">
+			<a href="#" ng-click="changerPage(page)"> {{page}} </a>
+		</li>
+		<li class="{{pageCourante == nbPages - 1 ? 'disabled' : ''}}"><a
+			href="#" aria-label="Previous" ng-click="pageSuivante()"> <span
+				aria-hidden="true">&raquo;</span>
+		</a></li>
+	</ul>
+</div>

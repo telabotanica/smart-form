@@ -1,0 +1,26 @@
+<!-- MOTEUR DE RECHERCHE -->
+<div class="recherche row">
+	<form ng-submit="getFiches()">
+		<div class="col-md-6">
+			<input type="text" class="form-control"
+				placeholder="Rechercher une fiche" ng-model="recherche.texte"
+				ng-disabled="recherche.fichesExistantes">
+		</div>
+		<div class="col-md-2">
+			<select name="referentiel" id="referentiel" class="form-control"
+				ng-model="recherche.referentiel">
+				<option ng-repeat="referentiel in referentiels"
+					value="{{referentiel}}">{{referentiel}}</option>
+			</select>
+		</div>
+		<div id="fiches-existantes" class="checkbox col-md-2">
+			<label> <input type="checkbox"
+				ng-model="recherche.fichesExistantes"> Uniquement les fiches
+				existantes
+			</label>
+		</div>
+		<div class="col-md-1">
+			<button type="submit" class="btn btn-default btn-sm">OK</button>
+		</div>
+	</form>
+</div>

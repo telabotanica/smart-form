@@ -1,0 +1,57 @@
+<!-- LISTE DES FICHES -->
+<div id="liste-fiches" ng-show='(etat == "liste" || etat == "")'>
+	<h2 class="titre-section">Rechercher des fiches Smart'Flore</h2>
+	<div id="conteneur" class="container-fluid">
+	
+		<!-- MOTEUR DE RECHERCHE -->
+	<div ng-include="'js/vues/moteur-recherche.html'"></div>
+
+		<!-- PAGINATION  DE LA LISTE -->
+		<div ng-include="'js/vues/pagination.html'"></div>
+
+		<div ng-show="!chargement">
+
+			<div class="row" ng-show="fiches.length > 0">
+				<table class="table table-striped table-bordered table-condensed">
+					<tr>
+						<th>Nom scientifique</th>
+						<th>Numéro nomenclatural</th>
+						<th>Page wikini</th>
+						<th>Auteur</th>
+						<th>Révisions</th>
+						<th>Actions</th>
+					</tr>
+					<tr ng-repeat="fiche in fiches"
+						class="{{fiche.existe ? 'fiche-existante' : 'fiche-inexistante'}} {{!fiche.infos_taxon ? 'fiche-nt-inexistant' : ''}}">
+						<td>{{fiche.infos_taxon.nom_sci}}</td>
+						<td>{{fiche.infos_taxon.num_nom}}</td>
+						<td><a target="_blank" title="Voir la page wikini"
+							href="{{getUrlPageWiki(fiche)}}">{{fiche.tag}}</a></td>
+						<td>{{fiche.user}}</td>
+						<td>{{fiche.nb_revisions}}</td>
+						<td>
+							<button type="button" class="btn btn-default btn-sm"
+								title="{{fiche.existe ? 'Éditer cette fiche' : 'Créer cette fiche'}}"
+								ng-click="editerFiche(fiche)">
+								<span
+									class="glyphicon {{fiche.existe ? 'glyphicon-edit' : 'glyphicon-plus'}}"
+									aria-hidden="true"></span>
+							</button>
+							<button type="button" class="btn btn-default btn-sm"
+								title="Voir cette fiche" ng-click="afficherFiche(fiche)">
+								<span class="glyphicon glyphicon-phone" aria-hidden="true"></span>
+							</button>
+							<button type="button" class="btn btn-default btn-sm"
+								title="Voir le qr code de cette fiche"
+								ng-click="afficherQrCode(fiche)">
+								<span class="glyphicon glyphicon-qrcode" aria-hidden="true"></span>
+							</button>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div class="row" ng-show="fiches.length == 0 && !chargement">
+				Aucune fiche ne correspond à la recherche</div>
+		</div>
+	</div>
+</div>
