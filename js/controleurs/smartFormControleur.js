@@ -1,6 +1,4 @@
-var smartFormApp = angular.module('smartFormApp', ['ngSanitize']);
-
-smartFormApp.controller('SmartFormControleur', function ($scope, $http, $sce, $document) {
+smartFormApp.controller('SmartFormControleur', function ($scope, $http, $sce, $document, $controller) {
 	
 	// globale provenant de config.js
 	$scope.config = config;
@@ -16,12 +14,13 @@ smartFormApp.controller('SmartFormControleur', function ($scope, $http, $sce, $d
 	$scope.rechercheModifiee = false;
 	$scope.premierChargement = true;
 	
-	$scope.pagination = {};
-	$scope.pagination.pages = [];
-	$scope.pagination.nbPages = 0;
-	$scope.pagination.totalResultats = 0;
-	$scope.pagination.taillePage = 20;
-	$scope.pagination.pageCourante = 0;
+	$scope.pagination = $controller("PaginationControleur");
+	$scope.pagination.surChangementPage = function() {
+		$scope.getFiches();
+	};
+	$scope.pagination.nomElementTrouve = "fiches";
+	$scope.pagination.nomElementTrouveSingulier = "fiche trouvée"; 
+	$scope.pagination.nomElementTrouvePluriel = "fiches trouvées";
 	
 	$scope.$watch('recherche', function(newVal, oldVal) {
 		if(!$scope.premierChargement) {
@@ -30,24 +29,12 @@ smartFormApp.controller('SmartFormControleur', function ($scope, $http, $sce, $d
 		$scope.premierChargement = false;
 	}, true);
 	
-	$scope.getNbPages = function() {
-		return $scope.pagination.nbPages; 
-	};
-	
-	$scope.resetPagination = function() {
-		$scope.pagination.pages = [];
-		$scope.pagination.nbPages = 0;
-		$scope.pagination.totalResultats = 0;
-		$scope.pagination.taillePage = 20;
-		$scope.pagination.pageCourante = 0;
-	};
-
 	$scope.getFiches = function() {
 
 		$scope.chargement = true;
 
 		if($scope.rechercheModifiee && !$scope.premierChargement) {
-			$scope.resetPagination();
+			$scope.pagination.resetPagination();
 			$scope.rechercheModifiee = false;
 		}
 		
@@ -59,74 +46,13 @@ smartFormApp.controller('SmartFormControleur', function ($scope, $http, $sce, $d
 		$http.get(config.url_service+'?'+referentiel+recherche+pages_existantes+pagination).
 		success(function(data, status, headers, config) {
 
-			$scope.construireNbPages(data.pagination);
+			$scope.pagination.construireNbPages(data.pagination);
 			$scope.fiches = data.resultats;
 			$scope.chargement = false;
 		}).
 		error(function(data, status, headers, config) {
 			$scope.chargement = false;
 		});
-	};
-	
-	$scope.construireNbPages = function(paginationResultats) {
-		$scope.pagination.totalResultats = paginationResultats.total;
-		$scope.pagination.nbPages = Math.ceil($scope.pagination.totalResultats/$scope.pagination.taillePage);
-		$scope.pagination.pages = [];
-		
-		var intervalleAvantApres = 6;
-		// Cas où l'on affiche toutes les pages sans se prendre la tête
-		if($scope.pagination.nbPages <= 2*intervalleAvantApres) {
-			for(var i = 0; i < $scope.pagination.nbPages; i++) {
-				$scope.pagination.pages.push(i+1);	
-			}
-		} else {						
-			var debutIntervalleGauche = Math.max(1, $scope.pagination.pageCourante - intervalleAvantApres);
-			var finIntervalleGauche = $scope.pagination.pageCourante;
-			
-			var debutIntervalleDroite = finIntervalleGauche + 1;
-			var finIntervalleDroite = Math.min($scope.pagination.pageCourante + intervalleAvantApres, $scope.pagination.nbPages - 2);
-			
-			// Si on est au début de la liste et qu'on a moins de pages à gauche qu'à droite on en rajoute 
-			// à droite 
-			var decalageADroite = $scope.pagination.pageCourante - (debutIntervalleGauche);
-			if(decalageADroite < intervalleAvantApres) {
-				finIntervalleDroite = finIntervalleDroite + (intervalleAvantApres - decalageADroite) - 1;
-				finIntervalleDroite = Math.min(finIntervalleDroite, $scope.pagination.nbPages - 2);
-			}
-			
-			// Si on est à la fin de la liste et qu'on a moins de pages à droite qu'à gauche on en rajoute 
-			// à gauche 
-			var decalageAGauche = finIntervalleDroite - $scope.pagination.pageCourante;
-			if(decalageAGauche < intervalleAvantApres) {
-				debutIntervalleGauche = debutIntervalleGauche - (intervalleAvantApres - decalageAGauche) + 1;
-				debutIntervalleGauche = Math.max(debutIntervalleGauche, 0);
-			}
-			
-			// page de début obligatoire
-			$scope.pagination.pages.push(1);
-			
-			if($scope.pagination.pageCourante - intervalleAvantApres > 0) {
-				$scope.pagination.pages.push("...");
-			}
-			
-			for(var i = debutIntervalleGauche; i <= finIntervalleGauche; i++) {
-				$scope.pagination.pages.push(i+1);
-			}
-						
-			for(var i = debutIntervalleDroite; i <= finIntervalleDroite; i++) {
-				$scope.pagination.pages.push(i+1);
-			}
-			
-			if($scope.pagination.pageCourante + intervalleAvantApres < $scope.pagination.nbPages - 1) {
-				$scope.pagination.pages.push("...");
-			}
-			
-			if($scope.pagination.pageCourante < $scope.pagination.nbPages - 1) {
-				// page de fin obligatoire si non incluse par la boucle précédente
-				$scope.pagination.pages.push($scope.pagination.nbPages);
-			}
-		}
-
 	};
 	
 	$scope.getFiche = function(fiche) {
@@ -255,45 +181,6 @@ smartFormApp.controller('SmartFormControleur', function ($scope, $http, $sce, $d
 		url = url.replace('{format}', 'text/plain');
 		
 		return url;
-	};
-	
-	$scope.pagePrecedente = function() {
-		if($scope.pagination.pageCourante != 0) {
-			$scope.changerPage($scope.pagination.pageCourante);
-		}
-	};
-	
-	$scope.pageSuivante = function() {
-		if($scope.pagination.pageCourante != $scope.pagination.nbPages - 1) {
-			$scope.changerPage($scope.pagination.pageCourante + 2);
-		}
-	};
-	
-	$scope.changerPage = function(page) {
-
-		// Pas besoin de changer de page si on est déjà sur la page demandée
-		// où si l'on a cliqué sur une case de remplissage
-		if($scope.pagination.pageCourante == page - 1 || page == '...') {
-			return;
-		}
-		
-		$scope.pagination.pageCourante = page - 1;
-		if(page - 1 < 0) {
-			$scope.pagination.pageCourante = 0;
-		}
-		
-		if(page -1 > $scope.pagination.nbPages) {
-			$scope.pagination.pageCourante = $scope.pagination.nbPages;
-		}
-		$scope.getFiches();
-	};
-	
-	$scope.getBorneMinIntervalleAffiche = function() {
-		return $scope.pagination.pageCourante * $scope.pagination.taillePage + 1;
-	};
-	
-	$scope.getBorneMaxIntervalleAffiche = function() {
-		return Math.min($scope.pagination.totalResultats, ($scope.pagination.pageCourante+1) * $scope.pagination.taillePage);
 	};
 	
 	$scope.getFiches();
