@@ -1,5 +1,5 @@
 <!-- PAGINATION  DE LA LISTE -->
-<div ng-show="paginationCtrl.afficherPagination">
+<div ng-show="paginationCtrl.afficherPagination" ng-controller="PaginationControleur as paginationCtrl">
 	<div class="pagination_total ng-cloak">
 		<span class="ng-cloak">Affichage des {{paginationCtrl.nomElementTrouve}}
 			{{paginationCtrl.getBorneMinIntervalleAffiche()}} à

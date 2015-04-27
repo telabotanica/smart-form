@@ -1,21 +1,24 @@
 <!-- MOTEUR DE RECHERCHE -->
-<div class="recherche row">
-	<form ng-submit="getFiches()">
+<div class="recherche row" ng-controller="RechercheControleur as rechercheCtrl">
+	<form ng-submit="rechercheCtrl.soumettreRecherche()">
 		<div class="col-md-6">
 			<input type="text" class="form-control"
-				placeholder="Rechercher une fiche" ng-model="recherche.texte"
-				ng-disabled="recherche.fichesExistantes">
+				placeholder="Rechercher une fiche" ng-model="rechercheCtrl.recherche.texte"
+				ng-disabled="rechercheCtrl.recherche.fichesExistantes"
+				ng-change="rechercheCtrl.surChangementRecherche()">
 		</div>
 		<div class="col-md-2">
 			<select name="referentiel" id="referentiel" class="form-control"
-				ng-model="recherche.referentiel">
-				<option ng-repeat="referentiel in referentiels"
+				ng-model="rechercheCtrl.recherche.referentiel"
+				ng-change="rechercheCtrl.surChangementRecherche()">
+				<option ng-repeat="referentiel in rechercheCtrl.referentiels"
 					value="{{referentiel}}">{{referentiel}}</option>
 			</select>
 		</div>
 		<div id="fiches-existantes" class="checkbox col-md-2">
 			<label> <input type="checkbox"
-				ng-model="recherche.fichesExistantes"> Uniquement les fiches
+				ng-model="rechercheCtrl.recherche.fichesExistantes"
+				ng-change="rechercheCtrl.surChangementRecherche()"> Uniquement les fiches
 				existantes
 			</label>
 		</div>

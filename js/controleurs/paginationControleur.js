@@ -1,4 +1,4 @@
-smartFormApp.controller('PaginationControleur', function () {
+smartFormApp.controller('PaginationControleur', function ($scope, $rootScope, paginationService) {
 
 	this.pages = [];
 	this.nbPages = 0;
@@ -8,9 +8,17 @@ smartFormApp.controller('PaginationControleur', function () {
 	
 	this.afficherPagination = false;
 	
-	this.nomElementTrouve = "fiches";
-	this.nomElementTrouveSingulier = "fiche trouvée"; 
-	this.nomElementTrouvePluriel = "fiches trouvées";
+	this.nomElementTrouve = paginationService.nomElementTrouve;
+	this.nomElementTrouveSingulier = paginationService.nomElementTrouveSingulier; 
+	this.nomElementTrouvePluriel = paginationService.nomElementTrouvePluriel;
+	
+	lthis = this;
+	$scope.$on('pagination.construire-pagination', function(event, paginationResultats) {
+		lthis.construireNbPages(paginationResultats);
+	});
+	$scope.$on('pagination.reset-pagination', function(event, paginationResultats) {
+		lthis.resetPagination();
+	});
 		
 	this.resetPagination = function() {
 		this.pages = [];
@@ -18,12 +26,16 @@ smartFormApp.controller('PaginationControleur', function () {
 		this.totalResultats = 0;
 		this.taillePage = 20;
 		this.pageCourante = 0;
+		
+		this.majPaginationService();
 	};
 	
 	this.construireNbPages = function(paginationResultats) {
 		this.totalResultats = paginationResultats.total;
 		this.nbPages = Math.ceil(this.totalResultats/this.taillePage);
 		this.pages = [];
+		
+		this.afficherPagination = this.nbPages > 0;
 		
 		var intervalleAvantApres = 6;
 		// Cas où l'on affiche toutes les pages sans se prendre la tête
@@ -78,7 +90,7 @@ smartFormApp.controller('PaginationControleur', function () {
 				this.pages.push(this.nbPages);
 			}
 		}
-
+		this.majPaginationService();
 	};
 	
 	this.getNbPages = function() {
@@ -112,7 +124,9 @@ smartFormApp.controller('PaginationControleur', function () {
 		if(page -1 > this.nbPages) {
 			this.pageCourante = this.nbPages;
 		}
-		this.surChangementPage();
+		
+		this.majPaginationService();
+		$rootScope.$broadcast('pagination.page-changee');
 	};
 	
 	this.getBorneMinIntervalleAffiche = function() {
@@ -123,6 +137,10 @@ smartFormApp.controller('PaginationControleur', function () {
 		return Math.min(this.totalResultats, (this.pageCourante+1) * this.taillePage);
 	};
 	
-	// A surcharger par le controleur qui l'instancie
-	this.surChangementPage = function() {};
+	this.majPaginationService = function() {
+		paginationService.nbPages = this.paginationService;
+		paginationService.totalResultats = this.totalResultats;
+		paginationService.taillePage = this.taillePage;
+		paginationService.pageCourante = this.pageCourante; 
+	};
 });

@@ -1,7 +1,14 @@
-smartFormApp.controller('EditionControleur', function ($sce, wikiniService) {
+smartFormApp.controller('EditionControleur', function ($scope, $rootScope, $sce, wikiniService) {
 	
 	this.fiche_edition = {};
 	this.fiche_edition.sections = [];
+	
+	var lthis = this;
+	$scope.$on('edition.editer-fiche', function(event, fiche) {
+		// changement d'état pour afficher le formulaire
+		$rootScope.$broadcast('etat.changement-etat', "edition");
+		lthis.editerFiche(fiche);
+	});
 	
 	this.editerFiche = function(fiche) {
 		var lthis = this;
