@@ -7,6 +7,7 @@
 	<link rel="stylesheet" href="css/app.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-sanitize.min.js"></script>
+	
 	<script src="js/config/config.js"></script>
 	<script src="js/app.js"></script>	
 	
@@ -18,21 +19,30 @@
 	<script src="js/controleurs/smartFormControleur.js"></script>
 	<script src="js/controleurs/listeControleur.js"></script>
 	<script src="js/controleurs/paginationControleur.js"></script>
+
 	<script src="js/controleurs/rechercheControleur.js"></script>
 	<script src="js/controleurs/editionControleur.js"></script>
+	
+	<script src="js/directives/paginationDirective.js"></script>
+	<script src="js/directives/listeDirective.js"></script>
+	<script src="js/directives/moteurRechercheDirective.js"></script>
+	<script src="js/directives/formulaireEditionDirective.js"></script>
+	<script src="js/directives/masqueChargementDirective.js"></script>
 </head>
 <body ng-controller="SmartFormControleur">
 
 	<h1 class="titre-application"> Tableau de bord Smart'Flore </h1>
 
 	<!-- LISTE DES FICHES -->
-	<div ng-include="'js/vues/liste-fiches.html'"></div>
+	<listefiches></listefiches>
 		
 	<!-- FORMULAIRE D'ÉDITION D'UNE FICHE -->
-	<div ng-include="'js/vues/formulaire-edition.html'"></div>
+	<formulaireedition></formulaireedition>
 	
 	<!-- MASQUE DE CHARGEMENT -->
-	<div ng-include="'js/vues/masque-chargement.html'"></div>
+	<masquechargement></masquechargement>
+	
+
 
 </body>
 </html>
