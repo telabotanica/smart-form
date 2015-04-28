@@ -11,6 +11,7 @@ smartFormApp.controller('PaginationControleur', function ($scope, $rootScope, pa
 	this.nomElementTrouve = paginationService.nomElementTrouve;
 	this.nomElementTrouveSingulier = paginationService.nomElementTrouveSingulier; 
 	this.nomElementTrouvePluriel = paginationService.nomElementTrouvePluriel;
+	this.taillePage = paginationService.taillePage;
 	
 	lthis = this;
 	$scope.$on('pagination.construire-pagination', function(event, paginationResultats) {

@@ -1,0 +1,233 @@
+<?php
+// declare(encoding='UTF-8');
+/**
+ * Classe mère des web services de smartFlore
+ *
+ * @category	php 5.2
+ * @package		smart-form
+ * @author		Aurélien Peronnet < aurelien@tela-botanica.org>
+ * @copyright	Copyright (c) 2011, Tela Botanica (accueil@tela-botanica.org)
+ * @license		http://www.cecill.info/licences/Licence_CeCILL_V2-fr.txt Licence CECILL
+ * @license		http://www.gnu.org/licenses/gpl.html Licence GNU-GPL
+ */
+class SmartFloreService {
+	
+	protected $config = null;
+	protected $bdd = null;
+	
+	public function __construct() {
+		$this->config = parse_ini_file('config.ini', true);
+		try {
+			$this->bdd = new PDO('mysql:host='. $this->config['bdd']['host'].';dbname='. $this->config['bdd']['db'], $this->config['bdd']['user'],  $this->config['bdd']['pass']);
+			$this->bdd->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
+			$this->bdd->exec("SET CHARACTER SET utf8");
+		}
+		catch (PDOException $e) {
+			$error_message = $e->getMessage();
+			echo "this is displayed because an error was found";
+			exit();
+		}
+		
+		$this->init();
+	}
+	
+	function init() {
+		$methode = $_SERVER['REQUEST_METHOD'];
+		$requete = explode("/", substr(@$_SERVER['PATH_INFO'], 1));
+		
+		switch ($methode) {
+			case 'PUT':
+				$this->put($requete, $this->retrouverInputData());
+				break;
+			case 'POST':
+				$this->post($requete, $this->retrouverInputData());
+				break;
+			case 'GET':
+				$this->get($requete);
+				break;
+			case 'HEAD':
+				$this->head($requete);
+				break;
+			case 'DELETE':
+				$this->delete($requete, $this->retrouverInputData());
+				break;
+			case 'OPTIONS':
+				$this->options($requete);
+				break;
+			default:
+				$this->erreur($requete);
+				break;
+		}
+	}
+	
+	function retrouverInputData() {
+		$input_fmt = "";
+		$input = file_get_contents('php://input', 'r');	
+
+		return json_decode($input, true);
+	}
+	
+	function splitNt($page) {
+		$page = str_replace('SmartFlore', '', $page);
+		return split('nt', $page);
+	}
+	
+	function getPagesWikiParRechercheFloue($recherche) {
+		$tpl_quote = $this->bdd->quote($recherche['noms_pages']);
+		return $this->getPagesWiki('tag LIKE '.$tpl_quote.' ', $recherche['debut'], $recherche['limite']);
+	}
+	
+	function getPagesWikiParRechercheExacte($recherche) {
+		return $this->getPagesWiki('tag IN ('.implode(',', $recherche['noms_pages']).')', $recherche['debut'], $recherche['limite']);
+	}
+	
+	private function getPagesWiki($condition, $debut, $limite) {
+	
+		$champs = "id, tag, time, owner, user, latest";
+	
+		$requete = 'SELECT '.$champs.', COUNT(tag) as nb_revisions '.
+				'FROM '.$this->config['bdd']['table_prefixe'].'_pages '.
+				'WHERE '.$condition.' '.
+				'GROUP BY tag '.
+				'ORDER BY nb_revisions DESC '.
+				'LIMIT '.$debut.', '.$limite;
+	
+		$res = $this->bdd->query($requete);
+		$res = $res->fetchAll(PDO::FETCH_ASSOC);
+	
+		$comptage = 'SELECT COUNT(DISTINCT tag) as nb_pages '.
+				'FROM '.$this->config['bdd']['table_prefixe'].'_pages '.
+				'WHERE '.$condition.' ';
+	
+		$res_comptage = $this->bdd->query($comptage);
+		$res_comptage = $res_comptage->fetch(PDO::FETCH_ASSOC);
+	
+		return array($res, $res_comptage['nb_pages']);
+	}
+	
+	protected function completerPagesParInfosTaxon(&$pages_wiki) {
+		
+		$infos_indexees_par_nt = array();
+		$nts = array();
+		foreach($pages_wiki as $resultat) {
+			list($referentiel, $nt) = $this->splitNt($resultat['tag']);
+			if(empty($nts)) {
+				$nts[$referentiel] = array();
+			}
+			$nts[$referentiel][] = $nt;
+			$resultat['existe'] = true;
+			$infos_indexees_par_nt[$referentiel.$nt] = $resultat;
+		}
+		
+		$url_eflore_tpl = $this->config['eflore']['infos_taxons_url'];
+		
+		// $nts est un tableau indexé par référentiel, puis par nt
+		foreach($nts as $referentiel => $nts_a_ref) {
+			if(!empty($referentiel)) {
+				$nts_ref_tranches = array_chunk($nts_a_ref, 99, true);
+				foreach($nts_ref_tranches as $tranche) {
+		
+					$url = sprintf($url_eflore_tpl, strtolower($referentiel), implode(',', $tranche));
+					$infos = file_get_contents($url);
+					$infos = json_decode($infos, true);
+		
+					foreach($infos['resultat'] as $num_nom => $infos_a_nt) {
+						$infos_a_nt['num_nom'] = $num_nom;
+						$infos_a_nt['referentiel'] = $referentiel;
+						$infos_indexees_par_nt[$referentiel.$infos_a_nt['num_taxonomique']]['infos_taxon'] = $infos_a_nt;
+					}
+				}
+			}
+		}
+		
+		return $infos_indexees_par_nt;
+	}
+	
+	function put($requete) {
+		
+	}
+	
+	function post($requete) {
+		
+	}
+	
+	function get($requete) {
+		
+	}
+	
+	function head($requete) {
+		
+	}
+	
+	function delete($requete) {
+		
+	}
+	
+	function options($requete) {
+		
+	}
+	
+	function error($code, $texte) {
+		http_response_code($code);
+		echo $texte;
+		exit;
+	}
+}
+
+// Pour compenser d'éventuels manques des anciennes version de php
+if (!function_exists('http_response_code')) {
+	function http_response_code($code = NULL) {
+		if ($code !== NULL) {
+			switch ($code) {
+				case 100: $text = 'Continue'; break;
+				case 101: $text = 'Switching Protocols'; break;
+				case 200: $text = 'OK'; break;
+				case 201: $text = 'Created'; break;
+				case 202: $text = 'Accepted'; break;
+				case 203: $text = 'Non-Authoritative Information'; break;
+				case 204: $text = 'No Content'; break;
+				case 205: $text = 'Reset Content'; break;
+				case 206: $text = 'Partial Content'; break;
+				case 300: $text = 'Multiple Choices'; break;
+				case 301: $text = 'Moved Permanently'; break;
+				case 302: $text = 'Moved Temporarily'; break;
+				case 303: $text = 'See Other'; break;
+				case 304: $text = 'Not Modified'; break;
+				case 305: $text = 'Use Proxy'; break;
+				case 400: $text = 'Bad Request'; break;
+				case 401: $text = 'Unauthorized'; break;
+				case 402: $text = 'Payment Required'; break;
+				case 403: $text = 'Forbidden'; break;
+				case 404: $text = 'Not Found'; break;
+				case 405: $text = 'Method Not Allowed'; break;
+				case 406: $text = 'Not Acceptable'; break;
+				case 407: $text = 'Proxy Authentication Required'; break;
+				case 408: $text = 'Request Time-out'; break;
+				case 409: $text = 'Conflict'; break;
+				case 410: $text = 'Gone'; break;
+				case 411: $text = 'Length Required'; break;
+				case 412: $text = 'Precondition Failed'; break;
+				case 413: $text = 'Request Entity Too Large'; break;
+				case 414: $text = 'Request-URI Too Large'; break;
+				case 415: $text = 'Unsupported Media Type'; break;
+				case 500: $text = 'Internal Server Error'; break;
+				case 501: $text = 'Not Implemented'; break;
+				case 502: $text = 'Bad Gateway'; break;
+				case 503: $text = 'Service Unavailable'; break;
+				case 504: $text = 'Gateway Time-out'; break;
+				case 505: $text = 'HTTP Version not supported'; break;
+				default:
+					exit('Unknown http status code "' . htmlentities($code) . '"');
+					break;
+			}
+
+			$protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');
+			header($protocol . ' ' . $code . ' ' . $text);
+			$GLOBALS['http_response_code'] = $code;
+		} else {
+			$code = (isset($GLOBALS['http_response_code']) ? $GLOBALS['http_response_code'] : 200);
+		}
+		return $code;
+	}
+}
+?>

@@ -1,6 +1,9 @@
-smartFormApp.controller('ListeControleur', function ($scope, $rootScope, smartFormService, wikiniService, paginationService, etatApplicationService) {
+smartFormApp.controller('ListeControleur', function ($scope, $rootScope, smartFormService, wikiniService, paginationService, etatApplicationService, liensService) {
 	
 	this.fiches = [];
+	this.afficherFavoris = etatApplicationService.utilisateur.connecte;
+	
+	this.liensService = liensService;
 		
 	var lthis = this;
 	$scope.$on('pagination.page-changee', function() {
@@ -37,17 +40,8 @@ smartFormApp.controller('ListeControleur', function ($scope, $rootScope, smartFo
 		$rootScope.$broadcast('edition.editer-fiche', fiche);
 	};
 	
-	this.afficherFicheMobile = function(fiche) {
-		referentiel_fiche = ""+fiche.infos_taxon.referentiel;
-		url_fiche = this.config.url_fiche_mobile.replace('{referentiel}', referentiel_fiche.toLowerCase());
-		url_fiche = url_fiche.replace('{num_nom}', fiche.infos_taxon.num_nom);
-		window.open(url_fiche);
-	};
-	
-	this.afficherQrCode = function(fiche) {
-		url = config.url_qr_code.replace('{referentiel}', fiche.infos_taxon.referentiel.toLowerCase());
-		url = url.replace('{num_nom}', fiche.infos_taxon.num_nom);
-		window.open(url);
+	this.ajouterFavoris = function(fiche) {
+		$rootScope.$broadcast('favoris.ajouter-fiche', fiche);
 	};
 	
 	this.getFiches();

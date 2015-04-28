@@ -15,23 +15,35 @@
 	<script src="js/services/smartFormService.js"></script>
 	<script src="js/services/paginationService.js"></script>
 	<script src="js/services/etatApplicationService.js"></script>
+	<script src="js/services/liensService.js"></script>
 	
 	<script src="js/controleurs/smartFormControleur.js"></script>
+	<script src="js/controleurs/boiteUtilisateurControleur.js"></script>
 	<script src="js/controleurs/listeControleur.js"></script>
 	<script src="js/controleurs/paginationControleur.js"></script>
-
 	<script src="js/controleurs/rechercheControleur.js"></script>
 	<script src="js/controleurs/editionControleur.js"></script>
+	<script src="js/controleurs/favorisControleur.js"></script>
 	
 	<script src="js/directives/paginationDirective.js"></script>
+	<script src="js/directives/boiteUtilisateurDirective.js"></script>
 	<script src="js/directives/listeDirective.js"></script>
 	<script src="js/directives/moteurRechercheDirective.js"></script>
 	<script src="js/directives/formulaireEditionDirective.js"></script>
+	<script src="js/directives/favorisDirective.js"></script>
 	<script src="js/directives/masqueChargementDirective.js"></script>
 </head>
 <body ng-controller="SmartFormControleur">
 
-	<h1 class="titre-application"> Tableau de bord Smart'Flore </h1>
+	<div class="col-md-8" >
+		<h1 class="titre-application"><img height="70px" src="http://resources.tela-botanica.org/tb/img/256x256/logo.png" title="logo de Tela Botanica" /> 
+			Tableau de bord Smart'Flore 
+		</h1>
+	</div>
+	
+	<!-- BOITE UTILISATEUR -->
+	<boiteutilisateur class="col-md-3 boite-utilisateur"></boiteutilisateur>
+	<hr class="nettoyage" />
 
 	<!-- LISTE DES FICHES -->
 	<listefiches></listefiches>
@@ -42,7 +54,5 @@
 	<!-- MASQUE DE CHARGEMENT -->
 	<masquechargement></masquechargement>
 	
-
-
 </body>
 </html>

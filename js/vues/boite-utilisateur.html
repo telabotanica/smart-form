@@ -1,0 +1,18 @@
+<!-- FORMULAIRE DE CONNEXION UTILISATEUR -->
+<div id="boite-utilisateur" ng-controller="BoiteUtilisateurControleur as boiteUtilisateurCtrl">
+	<form ng-submit="boiteUtilisateurCtrl.connecterUtilisateur()" ng-show='!boiteUtilisateurCtrl.utilisateur.connecte'>
+		<div id="formulaire-connexion-utilisateur" ng-show='!boiteUtilisateurCtrl.utilisateur.connecte' >
+			<div class="form-group">
+		    	<input type="email" class="form-control" id="utilisateur-courriel" ng-model="boiteUtilisateurCtrl.utilisateur.courriel" placeholder="Courriel">
+		  	</div>
+		  <div class="form-group">
+		    <input type="password" class="form-control" id="utilisateur-mdp" ng-model="boiteUtilisateurCtrl.utilisateur.mdp" placeholder="Mot de passe">
+		  </div>
+		  <button type="submit" class="btn btn-default">Se connecter</button>
+		</div>
+	</form>
+	
+	<div id="boite-infos-utilisateur" ng-show='boiteUtilisateurCtrl.utilisateur.connecte' >
+		Bienvenue {{boiteUtilisateurCtrl.utilisateur.prenom}} {{boiteUtilisateurCtrl.utilisateur.nom}}
+	</div>
+</div>

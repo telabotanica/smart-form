@@ -1,5 +1,6 @@
 body {
 	margin: 30px;
+	margin-top: 0px;
 }
 
 .recherche {
@@ -52,6 +53,20 @@ body {
 	background-color : #FD8C13 !important;
 }
 
+.liste-favoris {
+	background-color: #EEEEEE;
+}
+
+.boite-utilisateur {
+	float: right;
+	display: block;
+}
+
+#boite-infos-utilisateur {
+	position: absolute;
+    top: 55px;
+}
+
 #masque-chargement {
     font-size: 30px;
     margin: auto;
@@ -60,4 +75,9 @@ body {
 
 .chargement-icone {
 	margin-right: 15px;
+}
+
+.nettoyage {
+	clear:both;
+	visibility: hidden;
 }

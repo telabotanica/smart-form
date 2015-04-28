@@ -16,7 +16,7 @@
 					<tr>
 						<th>Nom scientifique</th>
 						<th>Numéro nomenclatural</th>
-						<th>Page wikini</th>
+						<th>Référentiel</th>
 						<th>Auteur</th>
 						<th>Révisions</th>
 						<th>Actions</th>
@@ -25,8 +25,7 @@
 						class="{{fiche.existe ? 'fiche-existante' : 'fiche-inexistante'}} {{!fiche.infos_taxon ? 'fiche-nt-inexistant' : ''}}">
 						<td>{{fiche.infos_taxon.nom_sci}}</td>
 						<td>{{fiche.infos_taxon.num_nom}}</td>
-						<td><a target="_blank" title="Voir la page wikini"
-							href="{{wikiniService.getUrlPageWiki(fiche)}}">{{fiche.tag}}</a></td>
+						<td>{{fiche.infos_taxon.referentiel}}</td>
 						<td>{{fiche.user}}</td>
 						<td>{{fiche.nb_revisions}}</td>
 						<td>
@@ -38,13 +37,20 @@
 									aria-hidden="true"></span>
 							</button>
 							<button type="button" class="btn btn-default btn-sm"
-								title="Voir cette fiche" ng-click="listeCtrl.afficherFicheMobile(fiche)">
+								title="Voir cette fiche" 
+								ng-click="listeCtrl.liensService.ouvrirFicheMobile(fiche)">
 								<span class="glyphicon glyphicon-phone" aria-hidden="true"></span>
 							</button>
 							<button type="button" class="btn btn-default btn-sm"
 								title="Voir le qr code de cette fiche"
-								ng-click="listeCtrl.afficherQrCode(fiche)">
+								ng-click="listeCtrl.liensService.ouvrirQrCode(fiche)">
 								<span class="glyphicon glyphicon-qrcode" aria-hidden="true"></span>
+							</button>
+							<button type="button" class="btn btn-default btn-sm"
+								title="Mettre cette fiche en favoris"
+								ng-show="listeCtrl.afficherFavoris && fiche.existe"
+								ng-click="listeCtrl.ajouterFavoris(fiche)">
+								<span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>
 							</button>
 						</td>
 					</tr>
@@ -54,4 +60,6 @@
 				Aucune fiche ne correspond à la recherche</div>
 		</div>
 	</div>
+	
+	<listefavoris class="col-md-6"></listefavoris>
 </div>

@@ -1,0 +1,48 @@
+<!-- LISTE DES FICHES -->
+<div id="liste-favoris" ng-show='(etat == "liste" || etat == "")' ng-controller="FavorisControleur as favorisCtrl">
+	<div ng-show="favorisCtrl.afficherFavoris" class="liste-favoris">
+		<h2 class="titre-section">Mes fiches Smart'Flore favorites</h2>
+		<div id="conteneur" class="container-fluid">
+		
+			<div ng-show="!chargement">
+	
+				<div class="row" ng-show="favorisCtrl.fiches.length > 0">
+					<table class="table table-striped table-bordered table-condensed">
+						<tr ng-repeat="fiche in favorisCtrl.fiches"
+							class="fiche-favoris">
+							<td>{{fiche.infos_taxon.nom_sci}}</td>
+							<td>{{fiche.infos_taxon.referentiel}}</td>
+							<td>{{fiche.nb_revisions}}</td>
+							<td>
+								<button type="button" class="btn btn-default btn-sm"
+									title="{{fiche.existe ? 'Éditer cette fiche' : 'Créer cette fiche'}}"
+									ng-click="favorisCtrl.editerFiche(fiche)">
+									<span
+										class="glyphicon {{fiche.existe ? 'glyphicon-edit' : 'glyphicon-plus'}}"
+										aria-hidden="true"></span>
+								</button>
+								<button type="button" class="btn btn-default btn-sm"
+									title="Voir cette fiche" 
+									ng-click="favorisCtrl.liensService.ouvrirFicheMobile(fiche)">
+									<span class="glyphicon glyphicon-phone" aria-hidden="true"></span>
+								</button>
+								<button type="button" class="btn btn-default btn-sm"
+									title="Voir le qr code de cette fiche" 
+									ng-click="favorisCtrl.liensService.ouvrirQrCode(fiche)">
+									<span class="glyphicon glyphicon-qrcode" aria-hidden="true"></span>
+								</button>
+								<button type="button" class="btn btn-default btn-sm"
+									title="Supprimer cette fiche des favoris"
+									ng-click="favorisCtrl.supprimerFavoris(fiche)">
+									<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+								</button>
+							</td>
+						</tr>
+					</table>
+				</div>
+				<div class="row" ng-show="favorisCtrl.fiches.length == 0 && !chargement">
+					Aucune fiche favorite</div>
+			</div>
+		</div>
+	</div>
+</div>
