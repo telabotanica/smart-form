@@ -1,0 +1,79 @@
+<!-- LISTE DES SENTIERS -->
+<div id="liste-sentiers" ng-show='(etat == "liste" || etat == "")' ng-controller="SentiersControleur as sentiersCtrl">
+	<div ng-show="sentiersCtrl.afficherSentiers" class="liste-sentiers">
+		<h2 class="titre-section">Collections / projets</h2>
+		<div id="conteneur" class="container-fluid">
+		
+			<div>
+				<div ng-show="sentiersCtrl.sentiers.length > 0" class="col-md-6">
+					<select name="sentier" id="sentier" class="form-control"
+						ng-model="sentiersCtrl.sentierSelectionne.titre"
+						ng-change="sentiersCtrl.surChangementSentier()">
+						<option ng-repeat="sentier in sentiersCtrl.sentiers" value="{{sentier.titre}}" 
+							title="créé par {{sentier.auteur}}">
+							{{sentier.titre}}
+						</option>
+					</select>
+				</div>
+			
+				<form ng-submit="sentiersCtrl.ajouterSentier()" class="col-md-6">
+					<div class="col-md-10">
+						<input type="text" class="form-control"
+							placeholder="Ajouter un sentier" ng-model="sentiersCtrl.nouveauSentier"
+							ng-change="rechercheCtrl.surChangementSaisieSentier()">
+					</div>
+					<div class="col-md-2 bouton-ajout-sentier">
+						<button type="submit" class="btn btn-default btn-sm" title="ajouter un sentier">
+							<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+						</button>
+					</div>
+				</form>
+			</div>
+			
+			<hr class="nettoyage" />
+		
+			<div ng-show="sentiersCtrl.sentiers.length > 0" >
+				<div class="row" ng-show="sentiersCtrl.sentierSelectionne.fiches.length > 0">
+					<table class="table table-striped table-bordered table-condensed">
+						<tr ng-repeat="fiche in sentiersCtrl.sentierSelectionne.fiches"
+							class="fiche-sentiers">
+							<td>{{fiche.infos_taxon.nom_sci}}</td>
+							<td>{{fiche.infos_taxon.referentiel}}</td>
+							<td>{{fiche.nb_revisions}}</td>
+							<td>
+								<button type="button" class="btn btn-default btn-sm"
+									title="{{fiche.existe ? 'Éditer cette fiche' : 'Créer cette fiche'}}"
+									ng-click="sentiersCtrl.editerFiche(fiche)">
+									<span
+										class="glyphicon {{fiche.existe ? 'glyphicon-edit' : 'glyphicon-plus'}}"
+										aria-hidden="true"></span>
+								</button>
+								<button type="button" class="btn btn-default btn-sm"
+									title="Voir cette fiche" 
+									ng-click="sentiersCtrl.liensService.ouvrirFicheMobile(fiche)">
+									<span class="glyphicon glyphicon-phone" aria-hidden="true"></span>
+								</button>
+								<button type="button" class="btn btn-default btn-sm"
+									title="Voir le qr code de cette fiche" 
+									ng-click="sentiersCtrl.liensService.ouvrirQrCode(fiche)">
+									<span class="glyphicon glyphicon-qrcode" aria-hidden="true"></span>
+								</button>
+								<button type="button" class="btn btn-default btn-sm"
+									title="Supprimer cette fiche du sentier"
+									ng-click="sentiersCtrl.supprimerDuSentier(fiche)">
+									<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+								</button>
+							</td>
+						</tr>
+					</table>
+				</div>
+				<div ng-show="sentiersCtrl.sentierSelectionne.fiches.length == 0">
+					Aucune fiche dans le sentier
+				</div>
+			</div>
+			<div ng-show="sentiersCtrl.sentiers.length == 0" >
+				Aucune sentier existant
+			</div>
+		</div>
+	</div>
+</div>

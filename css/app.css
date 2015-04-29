@@ -62,6 +62,13 @@ body {
 	color: #FFD700;
 }
 
+.bouton-ajout-sentier {
+	margin-left : 0px;
+    position: relative;
+    right: 26px;
+    top: 1px;
+}
+
 .boite-utilisateur {
 	float: right;
 	display: block;

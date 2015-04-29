@@ -7,7 +7,7 @@ require_once('SmartFloreService.php');
  * @category	php 5.2
  * @package		smart-form
  * @author		Aurélien Peronnet < aurelien@tela-botanica.org>
- * @copyright	Copyright (c) 2011, Tela Botanica (accueil@tela-botanica.org)
+ * @copyright	Copyright (c) 2015, Tela Botanica (accueil@tela-botanica.org)
  * @license		http://www.cecill.info/licences/Licence_CeCILL_V2-fr.txt Licence CECILL
  * @license		http://www.gnu.org/licenses/gpl.html Licence GNU-GPL
  */
@@ -63,7 +63,7 @@ class Favoris extends SmartFloreService {
 		$requete_existe = 'SELECT COUNT(resource) > 1 as favoris_existe '.
 				'FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
 				'WHERE value = '.$this->bdd->quote($utilisateur).' '.
-				'AND property = "smartFlore.fiche.favoris" '.
+				'AND property = "'.$this->triple_favoris_fiche.'" '.
 				'AND resource = '.$this->bdd->quote($page_tag);
 		
 		$res_existe = $this->bdd->query($requete_existe);
@@ -73,7 +73,7 @@ class Favoris extends SmartFloreService {
 		
 			$requete_insertion = 'INSERT INTO '.$this->config['bdd']['table_prefixe'].'_triples '.
 					'(resource, property, value) VALUES '.
-					' ('.$this->bdd->quote($page_tag).',"smartFlore.fiche.favoris", '.$this->bdd->quote($utilisateur).') ';
+					' ('.$this->bdd->quote($page_tag).',"'.$this->triple_favoris_fiche.'", '.$this->bdd->quote($utilisateur).') ';
 					
 			$res_insertion = $this->bdd->exec($requete_insertion);			
 			$retour = ($res_insertion !== false) ? 'OK' : false;
@@ -99,7 +99,7 @@ class Favoris extends SmartFloreService {
 		
 		$requete_suppression = 'DELETE FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
 				'WHERE resource = '.$this->bdd->quote($page_tag).' AND '.
-				'property = "smartFlore.fiche.favoris" AND '.
+				'property = "'.$this->triple_favoris_fiche.'" AND '.
 				'value = '.$this->bdd->quote($utilisateur);
 
 			

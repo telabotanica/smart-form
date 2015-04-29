@@ -4,6 +4,7 @@ var config = {
 		url_wikini : "http://www.tela-botanica.org/wikini/eFloreRedaction/wakka.php?wiki={tag}",
 		url_service_pages : "http://localhost/smart-form/services/Pages.php",
 		url_service_favoris : "http://localhost/smart-form/services/Favoris.php",
+		url_service_sentiers : "http://localhost/smart-form/services/Sentiers.php",
 		url_fiche_mobile : "http://www.tela-botanica.org/mobile:{referentiel}-nn-{num_nom}",
 		url_qr_code : "http://www.tela-botanica.org/tmp/eflore_v5_cache/qrcode/{referentiel}-{num_nom}.png",
 		url_section_wiki : "http://localhost/yeswiki/api/rest/0.5/pages/{pageTag}?txt.format={format}&txt.section.titre={sectionTitre}&txt.template=PageTaxonSmartFlore",

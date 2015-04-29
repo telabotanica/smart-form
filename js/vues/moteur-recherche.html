@@ -11,8 +11,9 @@
 			<select name="referentiel" id="referentiel" class="form-control"
 				ng-model="rechercheCtrl.recherche.referentiel"
 				ng-change="rechercheCtrl.surChangementRecherche()">
-				<option ng-repeat="referentiel in rechercheCtrl.referentiels"
-					value="{{referentiel}}">{{referentiel}}</option>
+				<option ng-repeat="referentiel in rechercheCtrl.referentiels" value="{{referentiel}}">
+					{{referentiel}}
+				</option>
 			</select>
 		</div>
 		<div id="fiches-existantes" class="checkbox col-md-2">

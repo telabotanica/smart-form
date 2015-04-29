@@ -6,7 +6,7 @@
  * @category	php 5.2
  * @package		smart-form
  * @author		Aurélien Peronnet < aurelien@tela-botanica.org>
- * @copyright	Copyright (c) 2011, Tela Botanica (accueil@tela-botanica.org)
+ * @copyright	Copyright (c) 2015, Tela Botanica (accueil@tela-botanica.org)
  * @license		http://www.cecill.info/licences/Licence_CeCILL_V2-fr.txt Licence CECILL
  * @license		http://www.gnu.org/licenses/gpl.html Licence GNU-GPL
  */
@@ -14,6 +14,11 @@ class SmartFloreService {
 	
 	protected $config = null;
 	protected $bdd = null;
+	
+	protected $triple_sentier = "smartFlore.sentiers";
+	protected $triple_sentier_fiche = "smartFlore.sentiers.fiche";
+	
+	protected $triple_favoris_fiche = "smartFlore.favoris.fiche";
 	
 	public function __construct() {
 		$this->config = parse_ini_file('config.ini', true);
@@ -209,12 +214,12 @@ class SmartFloreService {
 		$requete = 'SELECT * '.
 				'FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
 				'WHERE value = '.$this->bdd->quote($utilisateur).' '.
-				'AND property = "smartFlore.fiche.favoris" '.
+				'AND property = "'.$this->triple_favoris_fiche.'" '.
 				(!empty($tag_fiches) ? 'AND resource IN ('.implode(',', array_map(array($this->bdd, 'quote'), $tag_fiches)).')' : '');
 
 		$res = $this->bdd->query($requete);
 		$res = $res->fetchAll(PDO::FETCH_ASSOC);
-		
+
 		return $res;
 	}
 }
