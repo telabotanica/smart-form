@@ -3,7 +3,7 @@ smartFormApp.controller('PaginationControleur', function ($scope, $rootScope, pa
 	this.pages = [];
 	this.nbPages = 0;
 	this.totalResultats = 0;
-	this.taillePage = 20;
+	this.taillePage = 5;
 	this.pageCourante = 0;
 	
 	this.afficherPagination = false;
@@ -25,7 +25,7 @@ smartFormApp.controller('PaginationControleur', function ($scope, $rootScope, pa
 		this.pages = [];
 		this.nbPages = 0;
 		this.totalResultats = 0;
-		this.taillePage = 20;
+		this.taillePage = paginationService.taillePage;
 		this.pageCourante = 0;
 		
 		this.majPaginationService();

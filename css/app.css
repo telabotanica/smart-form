@@ -14,6 +14,7 @@ body {
 .titre-section {
     font-size: 26px;
     margin-left: 15px;
+    margin-top: 5px;
 }
 
 .contenu_editable {
@@ -54,12 +55,19 @@ body {
 }
 
 .liste-favoris {
-	background-color: #EEEEEE;
+   background-color: #eeeeee;
+   padding: 1px 10px 0;
+}
+
+.fiche-favorite {	
+	color: #FFD700;
 }
 
 .boite-utilisateur {
 	float: right;
 	display: block;
+	top: 15px;
+	height: 132px;
 }
 
 #boite-infos-utilisateur {

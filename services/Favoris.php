@@ -27,24 +27,22 @@ class Favoris extends SmartFloreService {
 	
 	public function getFavoris() {
 		
+		if(empty($_GET['utilisateur'])) {
+			$this->error('400', 'Le paramètre utilisateur est obligatoire');
+		}
+		
 		$utilisateur = $_GET['utilisateur'];
-		$utilisateur = 'AurelienPeronnet';
-		
-		$requete = 'SELECT * '.
-				   'FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
-				   'WHERE value = '.$this->bdd->quote($utilisateur).' '.
-				   'AND property = "smartFlore.fiche.favoris" ';
-		
-		$res = $this->bdd->query($requete);
-		$res = $res->fetchAll(PDO::FETCH_ASSOC);
+
+		$favoris = $this->getFavorisPourUtilisateur($utilisateur);
 		
 		$recherche = array('noms_pages' => array(), 'debut' => 0, 'limite' => 100);
-		foreach($res as $page) {
+		foreach($favoris as $page) {
 			$recherche['noms_pages'][] = $this->bdd->quote($page['resource']);
 		}
 		
-		$pages_wiki = $this->getPagesWikiParRechercheExacte($recherche);		
-		$retour = array('pagination' => array('total' => $pages_wiki[1]), 'resultats' => array_values($this->completerPagesParInfosTaxon($pages_wiki[0])));
+		$pages_wiki = $this->getPagesWikiParRechercheExacte($recherche);
+		$pages_completees_par_infos_taxon = $this->completerPagesParInfosTaxon($pages_wiki[0]);
+		$retour = array('pagination' => array('total' => $pages_wiki[1]), 'resultats' => array_values($pages_completees_par_infos_taxon['resultats']));
 		
 		header('Content-type: application/json');
 		echo json_encode($retour);
@@ -61,8 +59,6 @@ class Favoris extends SmartFloreService {
 		
 		$page_tag = $data['pageTag'];
 		$utilisateur = $data['utilisateur'];
-		
-		$utilisateur = 'AurelienPeronnet';
 		
 		$requete_existe = 'SELECT COUNT(resource) > 1 as favoris_existe '.
 				'FROM '.$this->config['bdd']['table_prefixe'].'_triples '.

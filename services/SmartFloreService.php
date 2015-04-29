@@ -31,6 +31,15 @@ class SmartFloreService {
 		$this->init();
 	}
 	
+	function __destruct() {
+		$this->bdd = null;
+	}
+	
+	// ---------------------------------------------------------------------------------------------
+	//
+	//	FONCTIONS REST
+	//
+	// ---------------------------------------------------------------------------------------------
 	function init() {
 		$methode = $_SERVER['REQUEST_METHOD'];
 		$requete = explode("/", substr(@$_SERVER['PATH_INFO'], 1));
@@ -67,6 +76,43 @@ class SmartFloreService {
 		return json_decode($input, true);
 	}
 	
+	
+	function put($requete) {
+	
+	}
+	
+	function post($requete) {
+	
+	}
+	
+	function get($requete) {
+	
+	}
+	
+	function head($requete) {
+	
+	}
+	
+	function delete($requete) {
+	
+	}
+	
+	function options($requete) {
+	
+	}
+	
+	function error($code, $texte) {
+		http_response_code($code);
+		echo $texte;
+		exit;
+	}
+	
+
+	// ---------------------------------------------------------------------------------------------
+	//
+	//	FONCTIONS SPECIFIQUES AU WIKI
+	//
+	// ---------------------------------------------------------------------------------------------
 	function splitNt($page) {
 		$page = str_replace('SmartFlore', '', $page);
 		return split('nt', $page);
@@ -107,7 +153,11 @@ class SmartFloreService {
 	
 	protected function completerPagesParInfosTaxon(&$pages_wiki) {
 		
-		$infos_indexees_par_nt = array();
+		$infos_indexees_par_referentiel_nt = array();
+		$infos_indexees_par_referentiel_nn = array();
+		
+		$retour = array('resultats' => array(), 'fiches_a_num_nom' => array());
+		
 		$nts = array();
 		foreach($pages_wiki as $resultat) {
 			list($referentiel, $nt) = $this->splitNt($resultat['tag']);
@@ -116,12 +166,15 @@ class SmartFloreService {
 			}
 			$nts[$referentiel][] = $nt;
 			$resultat['existe'] = true;
-			$infos_indexees_par_nt[$referentiel.$nt] = $resultat;
+			$resultat['favoris'] = false;
+			$infos_indexees_par_referentiel_nt[$referentiel.$nt] = $resultat;
 		}
 		
 		$url_eflore_tpl = $this->config['eflore']['infos_taxons_url'];
 		
 		// $nts est un tableau indexé par référentiel, puis par nt
+		// la fonction renvoie un tableau indexé par referentiel et nn pour pouvoir avoir tout 
+		// de même autant de résultats que de noms (et pas de taxons)
 		foreach($nts as $referentiel => $nts_a_ref) {
 			if(!empty($referentiel)) {
 				$nts_ref_tranches = array_chunk($nts_a_ref, 99, true);
@@ -130,48 +183,44 @@ class SmartFloreService {
 					$url = sprintf($url_eflore_tpl, strtolower($referentiel), implode(',', $tranche));
 					$infos = file_get_contents($url);
 					$infos = json_decode($infos, true);
-		
+							
 					foreach($infos['resultat'] as $num_nom => $infos_a_nt) {
+						
+						$nom_fiche = $this->formaterPageNom($referentiel, $infos_a_nt['num_taxonomique']);
+						$retour['fiches_a_num_nom'][$nom_fiche] = $num_nom;
+						
 						$infos_a_nt['num_nom'] = $num_nom;
 						$infos_a_nt['referentiel'] = $referentiel;
-						$infos_indexees_par_nt[$referentiel.$infos_a_nt['num_taxonomique']]['infos_taxon'] = $infos_a_nt;
+						$retour['resultats'][$referentiel.$infos_a_nt['num_nom']] = $infos_indexees_par_referentiel_nt[$referentiel.$infos_a_nt['num_taxonomique']];
+						$retour['resultats'][$referentiel.$infos_a_nt['num_nom']]['infos_taxon'] = $infos_a_nt;
 					}
 				}
 			}
 		}
 		
-		return $infos_indexees_par_nt;
+		return $retour;
 	}
 	
-	function put($requete) {
+	function formaterPageNom($referentiel, $nt) {
+		return 'SmartFlore'.strtoupper($referentiel).'nt'.$nt;
+	}
+	
+	function getFavorisPourUtilisateur($utilisateur, $tag_fiches = array()) {
+		$requete = 'SELECT * '.
+				'FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
+				'WHERE value = '.$this->bdd->quote($utilisateur).' '.
+				'AND property = "smartFlore.fiche.favoris" '.
+				(!empty($tag_fiches) ? 'AND resource IN ('.implode(',', array_map(array($this->bdd, 'quote'), $tag_fiches)).')' : '');
+
+		$res = $this->bdd->query($requete);
+		$res = $res->fetchAll(PDO::FETCH_ASSOC);
 		
+		return $res;
 	}
-	
-	function post($requete) {
-		
-	}
-	
-	function get($requete) {
-		
-	}
-	
-	function head($requete) {
-		
-	}
-	
-	function delete($requete) {
-		
-	}
-	
-	function options($requete) {
-		
-	}
-	
-	function error($code, $texte) {
-		http_response_code($code);
-		echo $texte;
-		exit;
-	}
+}
+
+function epprt($obj) {
+	echo '<pre>'.print_r($obj, true).'</pre>';
 }
 
 // Pour compenser d'éventuels manques des anciennes version de php

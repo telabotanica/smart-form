@@ -9,10 +9,17 @@ smartFormApp.controller('FavorisControleur', function ($scope, $rootScope, smart
 	$scope.$on('favoris.ajouter-fiche', function(event, fiche) {
 		lthis.ajouterFavoris(fiche);
 	});
+	$scope.$on('favoris.supprimer-fiche', function(event, fiche) {
+		lthis.supprimerFavoris(fiche);
+	});
 	
 	$scope.$on('utilisateur.utilisateur-connecte', function(event, utilisateur) {
-		this.afficherFavoris = utilisateur.connecte;
+		lthis.afficherFavoris = utilisateur.connecte;
 		lthis.getFavoris();
+	});
+	
+	$scope.$on('utilisateur.utilisateur-deconnecte', function(event) {
+		lthis.afficherFavoris = false;
 	});
 	
 	this.editerFiche = function(fiche) {
@@ -48,6 +55,7 @@ smartFormApp.controller('FavorisControleur', function ($scope, $rootScope, smart
 		smartFormService.supprimerFicheFavorite(etatApplicationService.utilisateur.nomWiki, fiche.tag,
 		function(data) {
 			if(data == 'OK') {
+				$rootScope.$broadcast('favoris.fiche-supprimee', fiche);
 				lthis.supprimerFicheDeLaListe(fiche);
 			}
 		}, 
@@ -77,5 +85,7 @@ smartFormApp.controller('FavorisControleur', function ($scope, $rootScope, smart
 	    }
 	};
 	
-	this.getFavoris();
+	if(this.afficherFavoris) {
+		this.getFavoris();
+	}
 });

@@ -36,6 +36,13 @@ class Pages extends SmartFloreService {
 			$retour = $this->getPagesToutes($recherche);
 		}
 		
+		if(!empty($_GET['utilisateur'])) {
+			$retour = $this->joindreFavoris($_GET['utilisateur'], $retour);
+		}
+		
+		unset($retour['fiches_a_num_nom']);
+		$retour['resultats'] = array_values($retour['resultats']);
+		
 		header('Content-type: application/json');
 		echo json_encode($retour);
 		exit;
@@ -46,23 +53,19 @@ class Pages extends SmartFloreService {
 		$recherche['noms_pages'] = 'SmartFlore'.$recherche['referentiel'].'nt'.$recherche['num_tax'];	
 		list($pages_wiki, $nb_pages) = $this->getPagesWikiParRechercheFloue($recherche);
 				
-		$retour = array('pagination' => array('total' => $nb_pages), 'resultats' => array());
-		
-		$infos_indexees_par_nt = $this->completerPagesParInfosTaxon($pages_wiki);
-		
-		$this->bdd = null;
-		$retour['resultats'] = array_values($infos_indexees_par_nt);
+		$retour = array('pagination' => array('total' => $nb_pages), 'resultats' => array());	
+		$retour = array_merge($retour, $this->completerPagesParInfosTaxon($pages_wiki));
 		
 		return $retour;
 	}
 	
 	function getPagesToutes($recherche) {	
 		
-		$retour = array('pagination' => array('total' => 0), 'resultats' => array());
+		$retour = array('pagination' => array('total' => 0), 'resultats' => array(), 'fiches_a_num_nom' => array());
 		
 		$url_eflore_tpl = $this->config['eflore']['recherche_noms_url'];
 		$url = sprintf($url_eflore_tpl, strtolower($recherche['referentiel']), urlencode($recherche['recherche'].'%'), $recherche['debut'], $recherche['limite']);
-
+		
 		$infos = @file_get_contents($url);
 		$infos = json_decode($infos, true);
 		
@@ -73,16 +76,18 @@ class Pages extends SmartFloreService {
 			$num_tax_a_nums_noms = array();
 			
 			foreach($infos['resultat'] as &$nom) {
-				if(!empty($nom['num_taxonomique']) && $nom['num_taxonomique'] != 0) {
+				if(isset($nom['num_taxonomique'])) {
 					$num_nom = $nom['id'];
 					$num_tax_a_nums_noms[$nom['num_taxonomique']][] = $num_nom;
 					
-					$nom_page = 'SmartFlore'.$recherche['referentiel'].'nt'.$nom['num_taxonomique'];
+					$nom_page = $this->formaterPageNom($recherche['referentiel'], $nom['num_taxonomique']);
+					$retour['fiches_a_num_nom'][$nom_page] = $num_nom;
 					// le faire maintenant nous fait économiser un array_map plus tard
 					$noms_pages[] = $this->bdd->quote($nom_page);
 					
-					$retour['resultats'][$num_nom] = array(
+					$retour['resultats'][$recherche['referentiel'].$num_nom] = array(
 						'existe' => false,
+						'favoris' => false,
 						'tag' => $nom_page,
 						'time' => '',
 						'owner' => '',
@@ -106,13 +111,22 @@ class Pages extends SmartFloreService {
 			foreach($pages_wiki as $page_wiki) {
 				list($referentiel, $nt) = $this->splitNt($page_wiki['tag']);
 				foreach($num_tax_a_nums_noms[$nt] as $num_nom_fiche) {
-					$retour['resultats'][$num_nom_fiche] = array_merge($retour['resultats'][$num_nom_fiche], $page_wiki);
-					$retour['resultats'][$num_nom_fiche]['existe'] = true;
+					$retour['resultats'][$referentiel.$num_nom_fiche] = array_merge($retour['resultats'][$referentiel.$num_nom_fiche], $page_wiki);
+					$retour['resultats'][$referentiel.$num_nom_fiche]['existe'] = true;
 				}
-			}	
+			}
 		}
 		
-		$retour['resultats'] = array_values($retour['resultats']);
+		return $retour;
+	}
+	
+	function joindreFavoris($utilisateur, $retour) {
+		$favoris = $this->getFavorisPourUtilisateur($utilisateur, array_keys($retour['fiches_a_num_nom']));
+		foreach($favoris as $pages_favorite) {
+			list($referentiel, $nt) = $this->splitNt($pages_favorite['resource']);
+			$num_nom = $retour['fiches_a_num_nom'][$pages_favorite['resource']];
+			$retour['resultats'][strtoupper($referentiel).$num_nom]['favoris'] = true; 
+		}
 		return $retour;
 	}
 }

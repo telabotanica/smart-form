@@ -2,14 +2,15 @@ smartFormApp.service('smartFormService', function($http) {
 	
 	var smartFormService = {};
 	
-	smartFormService.getListeFichesSmartFlore = function(recherche, pageCourante, taillePage, surSucces, surErreur) {
+	smartFormService.getListeFichesSmartFlore = function(recherche, utilisateur, pageCourante, taillePage, surSucces, surErreur) {
 		
 		var referentiel = "referentiel="+(!recherche.referentiel ? '%' : recherche.referentiel);
 		var rechercheLibre = "&recherche="+(!recherche.texte ? '%' : recherche.texte);
 		var pagesExistantes = '&pages_existantes='+(!!recherche.fichesExistantes);
 		var pagination = '&debut='+(pageCourante*taillePage)+"&limite="+taillePage;
+		var utilisateurConnecte = (utilisateur.connecte && utilisateur.nomWiki != '') ? '&utilisateur='+utilisateur.nomWiki : '';
 		
-		$http.get(config.url_service_pages+'?'+referentiel+rechercheLibre+pagesExistantes+pagination).
+		$http.get(config.url_service_pages+'?'+referentiel+rechercheLibre+pagesExistantes+pagination+utilisateurConnecte).
 		success(function(data, status, headers, config) {
 			surSucces(data);
 		}).

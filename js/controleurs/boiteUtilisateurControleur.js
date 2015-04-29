@@ -1,12 +1,10 @@
 smartFormApp.controller('BoiteUtilisateurControleur', function ($scope, $rootScope, etatApplicationService) {
 	
 	this.utilisateur = {};
-	this.utilisateur.connecte = false;
-	this.utilisateur.courriel = "";
-	this.utilisateur.mdp = "";
 	
+	// au cas où autre chose nous aurait connecté dans l'application
 	$scope.$on('utilisateur.utilisateur-connecte', function(event, utilisateur) {
-
+		this.utilisateur = utilisateur;
 	});
 
 	var lthis = this;
@@ -23,20 +21,41 @@ smartFormApp.controller('BoiteUtilisateurControleur', function ($scope, $rootSco
 	this.connaitreEtatUtilisateur = function() {
 		etatApplicationService.connaitreEtatUtilisateur( 
 		function(data) {
-			lthis.utilisateur.id = data.id;
-			lthis.utilisateur.prenom = data.prenom;
-			lthis.utilisateur.nom = data.nom;
-			lthis.utilisateur.connecte = true;
-				
-			etatApplicationService.utilisateur = {};
-			etatApplicationService.utilisateur.connecte = true; 
-			etatApplicationService.utilisateur.id = data.id; 
-			etatApplicationService.utilisateur.nomWiki = data.nomWiki; 
+			if(!!data && !!data.id) {
+				lthis.utilisateur = data;
+				lthis.utilisateur.connecte = true;
+				etatApplicationService.utilisateur = lthis.utilisateur;				
+				$rootScope.$broadcast('utilisateur.utilisateur-connecte', etatApplicationService.utilisateur);
+			}
 		},
 		function() {
 			
 		});
 	};
 	
+	this.deconnecterUtilisateur = function() {
+		etatApplicationService.deconnecterUtilisateur( 
+		function(data) {
+			lthis.initialiserUtilisateurVide();
+			etatApplicationService.utilisateur = lthis.utilisateur;
+			$rootScope.$broadcast('utilisateur.utilisateur-deconnecte');
+		},
+		function() {
+			
+		});
+	};
+	
+	this.initialiserUtilisateurVide = function() {
+		this.utilisateur = {};
+		this.utilisateur.connecte = false;
+		this.utilisateur.id = "";
+		this.utilisateur.prenom = "";
+		this.utilisateur.nom = "";
+		this.utilisateur.courriel = "";
+		this.utilisateur.nomWiki = "";
+		this.utilisateur.mdp = "";
+	};
+	
+	this.initialiserUtilisateurVide();
 	this.connaitreEtatUtilisateur();
 });

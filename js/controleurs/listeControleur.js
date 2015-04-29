@@ -12,6 +12,26 @@ smartFormApp.controller('ListeControleur', function ($scope, $rootScope, smartFo
 	$scope.$on('recherche.recherche-effectuee', function() {
 		lthis.getFiches();
 	});
+	
+	$scope.$on('favoris.fiche-supprimee', function(event, fiche) {
+	    var i;
+	    for (i = 0; i < lthis.fiches.length; i++) {
+	    	console.log(lthis.fiches[i].tag+' '+fiche.tag);
+	        if (lthis.fiches[i].tag === fiche.tag) {
+	        	lthis.fiches[i].favoris = false;
+	        	return;
+	        }
+	    }
+	});
+	
+	$scope.$on('utilisateur.utilisateur-connecte', function(event, utilisateur) {
+		lthis.afficherFavoris = utilisateur.connecte;
+		lthis.getFiches();
+	});
+	
+	$scope.$on('utilisateur.utilisateur-deconnecte', function(event, utilisateur) {
+		lthis.afficherFavoris = false;
+	});
 
 	this.getFiches = function() {
 		
@@ -24,7 +44,7 @@ smartFormApp.controller('ListeControleur', function ($scope, $rootScope, smartFo
 		}
 		
 		var lthis = this;
-		smartFormService.getListeFichesSmartFlore(etatApplicationService.recherche, paginationService.pageCourante, paginationService.taillePage,
+		smartFormService.getListeFichesSmartFlore(etatApplicationService.recherche, etatApplicationService.utilisateur, paginationService.pageCourante, paginationService.taillePage,
 		function(data) {
 				lthis.fiches = data.resultats;
 				$rootScope.$broadcast('pagination.construire-pagination', data.pagination);
@@ -41,7 +61,12 @@ smartFormApp.controller('ListeControleur', function ($scope, $rootScope, smartFo
 	};
 	
 	this.ajouterFavoris = function(fiche) {
-		$rootScope.$broadcast('favoris.ajouter-fiche', fiche);
+		if(!fiche.favoris) {
+			$rootScope.$broadcast('favoris.ajouter-fiche', fiche);
+		} else {
+			$rootScope.$broadcast('favoris.supprimer-fiche', fiche);
+		}
+		fiche.favoris = !fiche.favoris;
 	};
 	
 	this.getFiches();

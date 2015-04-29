@@ -13,6 +13,7 @@
 	</form>
 	
 	<div id="boite-infos-utilisateur" ng-show='boiteUtilisateurCtrl.utilisateur.connecte' >
-		Bienvenue {{boiteUtilisateurCtrl.utilisateur.prenom}} {{boiteUtilisateurCtrl.utilisateur.nom}}
+		<div>Bienvenue {{boiteUtilisateurCtrl.utilisateur.prenom}} {{boiteUtilisateurCtrl.utilisateur.nom}} </div>
+		<div><a href="#" ng-click="boiteUtilisateurCtrl.deconnecterUtilisateur()"> Deconnexion </a></div>
 	</div>
 </div>
