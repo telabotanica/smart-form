@@ -70,8 +70,8 @@ body {
 }
 
 #boite-infos-utilisateur {
-	position: absolute;
-    top: 55px;
+	position: relative;
+    top: 15px;
 }
 
 .bouton-inscription {
