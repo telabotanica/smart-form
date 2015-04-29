@@ -16,5 +16,9 @@ smartFormApp.service('liensService', function() {
 		window.open(url);
 	};
 	
+	liensService.ouvrirPageInscription = function() {
+		window.open(config.url_inscription);
+	};
+	
 	return liensService;	
 });

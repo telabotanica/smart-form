@@ -1,15 +1,20 @@
 <!-- FORMULAIRE DE CONNEXION UTILISATEUR -->
 <div id="boite-utilisateur" ng-controller="BoiteUtilisateurControleur as boiteUtilisateurCtrl">
 	<form ng-submit="boiteUtilisateurCtrl.connecterUtilisateur()" ng-show='!boiteUtilisateurCtrl.utilisateur.connecte'>
-		<div id="formulaire-connexion-utilisateur" ng-show='!boiteUtilisateurCtrl.utilisateur.connecte' >
-			<div class="form-group">
-		    	<input type="email" class="form-control" id="utilisateur-courriel" ng-model="boiteUtilisateurCtrl.utilisateur.courriel" placeholder="Courriel">
+		<div id="formulaire-connexion-utilisateur" ng-show='!boiteUtilisateurCtrl.utilisateur.connecte' class="{{boiteUtilisateurCtrl.erreur ? 'has-error' : ''}}" >
+			<div class="form-group {{boiteUtilisateurCtrl.courrielOK && !boiteUtilisateurCtrl.erreur ? 'has-success' : ''}}">
+		    	<input type="email" class="form-control" id="utilisateur-courriel" ng-change="boiteUtilisateurCtrl.verifierValiditeFormulaire()"
+		    		ng-model="boiteUtilisateurCtrl.utilisateur.courriel" placeholder="Courriel">
 		  	</div>
-		  <div class="form-group">
-		    <input type="password" class="form-control" id="utilisateur-mdp" ng-model="boiteUtilisateurCtrl.utilisateur.mdp" placeholder="Mot de passe">
+		  <div class="form-group {{boiteUtilisateurCtrl.mdpOK && !boiteUtilisateurCtrl.erreur ? 'has-success' : ''}} ">
+		    <input type="password" class="form-control" id="utilisateur-mdp" ng-change="boiteUtilisateurCtrl.verifierValiditeFormulaire()" 
+		    		ng-model="boiteUtilisateurCtrl.utilisateur.mdp" placeholder="Mot de passe">
 		  </div>
-		  <button type="submit" class="btn btn-default">Se connecter</button>
+		  <button type="submit" class="btn btn-success">Se connecter</button>
+		  <a href="{{boiteUtilisateurCtrl.urlInscription}}" target="_blank" class="btn btn-default bouton-inscription">S'inscrire</a>
 		</div>
+		
+		<span class="message-erreur-connexion" ng-show="boiteUtilisateurCtrl.message != ''">{{boiteUtilisateurCtrl.message}}</span>
 	</form>
 	
 	<div id="boite-infos-utilisateur" ng-show='boiteUtilisateurCtrl.utilisateur.connecte' >

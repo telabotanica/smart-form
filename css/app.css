@@ -55,7 +55,6 @@ body {
 }
 
 .liste-favoris {
-   background-color: #eeeeee;
    padding: 1px 10px 0;
 }
 
@@ -73,6 +72,16 @@ body {
 #boite-infos-utilisateur {
 	position: absolute;
     top: 55px;
+}
+
+.bouton-inscription {
+	float: right;
+}
+
+.message-erreur-connexion {
+	display: inline-block;
+	margin-top: 3px;
+	color: red;
 }
 
 #masque-chargement {
