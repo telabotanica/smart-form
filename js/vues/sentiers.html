@@ -7,19 +7,16 @@
 			<div>
 				<div ng-show="sentiersCtrl.sentiers.length > 0" class="col-md-6">
 					<select name="sentier" id="sentier" class="form-control"
-						ng-model="sentiersCtrl.sentierSelectionne.titre"
-						ng-change="sentiersCtrl.surChangementSentier()">
-						<option ng-repeat="sentier in sentiersCtrl.sentiers" value="{{sentier.titre}}" 
-							title="créé par {{sentier.auteur}}">
-							{{sentier.titre}}
-						</option>
+						ng-model="sentiersCtrl.sentierSelectionne"
+						ng-change="sentiersCtrl.surChangementSentier()"
+						ng-options="sentier.titre for sentier in sentiersCtrl.sentiers">
 					</select>
 				</div>
 			
 				<form ng-submit="sentiersCtrl.ajouterSentier()" class="col-md-6">
 					<div class="col-md-10">
 						<input type="text" class="form-control"
-							placeholder="Ajouter un sentier" ng-model="sentiersCtrl.nouveauSentier"
+							placeholder="Ajouter un sentier" ng-model="sentiersCtrl.nouveauSentierTitre"
 							ng-change="rechercheCtrl.surChangementSaisieSentier()">
 					</div>
 					<div class="col-md-2 bouton-ajout-sentier">
@@ -32,10 +29,27 @@
 			
 			<hr class="nettoyage" />
 		
-			<div ng-show="sentiersCtrl.sentiers.length > 0" >
-				<div class="row" ng-show="sentiersCtrl.sentierSelectionne.fiches.length > 0">
+			<div class="liste-fiches-sentier" ng-show="sentiersCtrl.sentiers.length > 0" >
+				<div class="bouton-suppression-sentier" ng-show="sentiersCtrl.sentierSelectionne.auteur = sentiersCtrl.utilisateurNomWiki" >
+					<button ng-click="sentiersCtrl.supprimerSentier(sentiersCtrl.sentierSelectionne)" type="button" class="btn btn-default btn-md" title="supprimer ce sentier">
+						<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+					</button>
+				</div>
+				
+				<div class="sentier-aucune-fiche col-md-8">
+					<h4 class="titre-sentier">{{sentiersCtrl.sentierSelectionne.titre}}</h4> : 
+					{{sentiersCtrl.sentierSelectionne.fiches.length <= 1 ?
+						sentiersCtrl.sentierSelectionne.fiches.length+' fiche dans le sentier' : 
+						sentiersCtrl.sentierSelectionne.fiches.length+' fiches dans le sentier'
+					}}
+				</div>
+			
+				<div class="row table-fiches-sentier col-md-12">
 					<table class="table table-striped table-bordered table-condensed">
-						<tr ng-repeat="fiche in sentiersCtrl.sentierSelectionne.fiches"
+						<tr class="zone-drop-fiches-sentier" >
+							<td colspan="4" drop="true" dropStyle="element-droppable" > Glissez-déposez des fiches depuis les favoris ou la liste </td>
+						</tr>
+						<tr ng-show="sentiersCtrl.sentierSelectionne.fiches.length > 0" ng-repeat="fiche in sentiersCtrl.sentierSelectionne.fiches"
 							class="fiche-sentiers">
 							<td>{{fiche.infos_taxon.nom_sci}}</td>
 							<td>{{fiche.infos_taxon.referentiel}}</td>
@@ -60,15 +74,12 @@
 								</button>
 								<button type="button" class="btn btn-default btn-sm"
 									title="Supprimer cette fiche du sentier"
-									ng-click="sentiersCtrl.supprimerDuSentier(fiche)">
+									ng-click="sentiersCtrl.supprimerFicheASentier(sentiersCtrl.sentierSelectionne, fiche)">
 									<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
 								</button>
 							</td>
 						</tr>
 					</table>
-				</div>
-				<div ng-show="sentiersCtrl.sentierSelectionne.fiches.length == 0">
-					Aucune fiche dans le sentier
 				</div>
 			</div>
 			<div ng-show="sentiersCtrl.sentiers.length == 0" >

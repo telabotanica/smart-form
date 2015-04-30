@@ -21,7 +21,7 @@
 						<th>Révisions</th>
 						<th>Actions</th>
 					</tr>
-					<tr ng-repeat="fiche in listeCtrl.fiches"
+					<tr drag="fiche" dragStyle="element-draggable" ng-repeat="fiche in listeCtrl.fiches"
 						class="{{fiche.existe ? 'fiche-existante' : 'fiche-inexistante'}} {{!fiche.infos_taxon ? 'fiche-nt-inexistant' : ''}}">
 						<td>{{fiche.infos_taxon.nom_sci}}</td>
 						<td>{{fiche.infos_taxon.num_nom}}</td>

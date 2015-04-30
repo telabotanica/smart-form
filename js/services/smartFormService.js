@@ -72,7 +72,7 @@ smartFormApp.service('smartFormService', function($http) {
 	};
 	
 	smartFormService.ajouterSentier = function(utilisateur, sentierTitre, surSucces, surErreur) {
-		donnees_post = {"utilisateur" : utilisateur, "sentierTitre" : sentierTitre};
+		var donnees_post = {"utilisateur" : utilisateur, "sentierTitre" : sentierTitre};
 		$http.put(config.url_service_sentiers+'/sentier/', donnees_post).
 		success(function(data, status, headers, config) {
 			surSucces(data);
@@ -82,7 +82,53 @@ smartFormApp.service('smartFormService', function($http) {
 		});
 	};
 	
+	smartFormService.supprimerSentier = function(utilisateur, sentierTitre, surSucces, surErreur) {
+		var donnees_post = {"utilisateur" : utilisateur, "sentierTitre" : sentierTitre};
+		// Attention lors d'un delete les données supplémentaires doivent être encapsulé dans la propriété
+		// data de l'objet à envoyer (pourquoi ? je ne sais pas)
+		$http.delete(config.url_service_sentiers+'/sentier/', {data : donnees_post}).
+		success(function(data, status, headers, config) {
+			surSucces(data);
+		}).
+		error(function(data, status, headers, config) {
+			surEchec();
+		});
+	};
 	
+	smartFormService.getFichesASentier = function(sentierTitre, surSucces, surErreur) {
+		var sentier = "sentierTitre="+sentierTitre;
+		$http.get(config.url_service_sentiers+'/sentier-fiche/?'+sentier).
+		success(function(data, status, headers, config) {
+			surSucces(data);
+		}).
+		error(function(data, status, headers, config) {
+			surEchec();
+		});
+	};
+	
+	smartFormService.ajouterFicheASentier = function(utilisateur, sentierTitre, pageTag, surSucces, surErreur) {
+		donnees_post = {"utilisateur" : utilisateur, "sentierTitre" : sentierTitre, "pageTag" : pageTag};
+		$http.put(config.url_service_sentiers+'/sentier-fiche/', donnees_post).
+		success(function(data, status, headers, config) {
+			surSucces(data);
+		}).
+		error(function(data, status, headers, config) {
+			surEchec();
+		});
+	};
+	
+	smartFormService.supprimerFicheASentier = function(sentierTitre, pageTag, surSucces, surErreur) {
+		var donnees_post = {"sentierTitre" : sentierTitre, "pageTag" : pageTag};
+		// Attention lors d'un delete les données supplémentaires doivent être encapsulé dans la propriété
+		// data de l'objet à envoyer (pourquoi ? je ne sais pas)
+		$http.delete(config.url_service_sentiers+'/sentier-fiche/', {data : donnees_post}).
+		success(function(data, status, headers, config) {
+			surSucces(data);
+		}).
+		error(function(data, status, headers, config) {
+			surEchec();
+		});
+	};
 	
 	return smartFormService;	
 });

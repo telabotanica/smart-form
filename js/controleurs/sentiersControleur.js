@@ -5,20 +5,37 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, smar
 	this.sentierSelectionne.titre = "";
 	this.sentierSelectionne.fiches = [];
 	
-	this.nouveauSentier = "";
+	this.nouveauSentierTitre = "";
 	
 	this.afficherSentiers = etatApplicationService.utilisateur.connecte;
+	this.utilisateurNomWiki = etatApplicationService.utilisateur.nomWiki;
 	
 	this.liensService = liensService;
 	
 	var lthis = this;
 	$scope.$on('utilisateur.utilisateur-connecte', function(event, utilisateur) {
 		lthis.afficherSentiers = true;
+		lthis.utilisateurNomWiki = utilisateur.nomWiki;
 	});
 	
 	$scope.$on('utilisateur.utilisateur-deconnecte', function(event) {
 		lthis.afficherSentiers = false;
+		lthis.utilisateurNomWiki = "";
 	});
+	
+	$scope.$on('dropEvent', function(evt, dragged, dropped) {
+		lthis.ajouterFicheASentier(lthis.sentierSelectionne, dragged);
+	});
+	
+	this.surChangementSentier = function() {
+		smartFormService.getFichesASentier(this.sentierSelectionne.titre,
+		function(data) {
+			lthis.sentierSelectionne.fiches = data.resultats;
+		}, 
+		function() {
+			
+		});
+	};
 	
 	this.getSentiers = function() {
 		var lthis = this;
@@ -27,8 +44,8 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, smar
 			lthis.sentiers = data.resultats;
 			if(lthis.sentiers.length > 0) {
 				lthis.sentierSelectionne = lthis.sentiers[0];
+				lthis.surChangementSentier();
 			}
-			console.log(lthis.sentiers);
 		}, 
 		function() {
 			
@@ -38,11 +55,66 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, smar
 	this.ajouterSentier = function() {
 		var lthis = this;
 		if(this.verifierValiditeSentier()) {
-			smartFormService.ajouterSentier(etatApplicationService.utilisateur.nomWiki, this.nouveauSentier,
+			smartFormService.ajouterSentier(etatApplicationService.utilisateur.nomWiki, this.nouveauSentierTitre,
 			function(data) {
 				if(data == 'OK') {
-					lthis.initialiserNouveauSentier(lthis.nouveauSentier);
-					lthis.nouveauSentier = "";
+					lthis.initialiserNouveauSentier(lthis.nouveauSentierTitre);
+					lthis.nouveauSentierTitre = "";
+				}
+			}, 
+			function() {
+				console.log('C\'est pas bon !');
+			});
+		}
+	};
+	
+	this.supprimerSentier = function(sentier) {
+		var lthis = this;
+		if(window.confirm("Êtes-vous sûr de vouloir supprimer ce sentier ?")) {
+			smartFormService.supprimerSentier(etatApplicationService.utilisateur.nomWiki, sentier.titre,
+			function(data) {
+				if(data == 'OK') {
+					lthis.supprimerSentierDeLaListe(sentier);
+					if(lthis.sentiers.length > 0) {
+						lthis.sentierSelectionne = lthis.sentiers[lthis.sentiers.length - 1];
+					} else {
+						lthis.sentierSelectionne = {};
+						lthis.sentierSelectionne.titre = "";
+						lthis.sentierSelectionne.fiches = [];
+					}
+				}
+			}, 
+			function() {
+				console.log('C\'est pas bon !');
+			});
+		}
+	};
+	
+	this.ajouterFicheASentier = function(sentier, fiche) {
+		var lthis = this;
+		if(!lthis.sentierSelectionneContientFiche(fiche.tag)) {
+			smartFormService.ajouterFicheASentier(etatApplicationService.utilisateur.nomWiki, sentier.titre, fiche.tag,
+			function(data) {
+				if(data == 'OK') {
+					lthis.sentierSelectionne.fiches.push(fiche);
+					// nécéssaire pour mettre à jour l'affichage à cause du contexte inhabituel
+					// dans lequel est appelée la fonction (directive drag and drop)
+					//$scope.$apply();
+				}
+			}, 
+			function() {
+				console.log('C\'est pas bon !');
+			});
+		}
+	};
+	
+	this.supprimerFicheASentier = function(sentier, fiche) {
+		var lthis = this;
+		if(window.confirm("Êtes-vous sûr de vouloir supprimer cette fiche du sentier ?")) {
+			smartFormService.supprimerFicheASentier(sentier.titre, fiche.tag,
+			function(data) {
+				if(data == 'OK') {
+					lthis.supprimerFicheDuSentier(sentier, fiche);
 				}
 			}, 
 			function() {
@@ -57,18 +129,48 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, smar
 		nouveauSentier.auteur = etatApplicationService.utilisateur.nomWiki;
 		nouveauSentier.fiches = [];
 		this.sentiers.push(nouveauSentier);
-		this.sentierSelectionne = nouveauSentier;
-	}
-	
-	this.verifierValiditeSentier = function() {
-		return !!this.nouveauSentier && !this.contientSentier(this.nouveauSentier);
+		this.sentierSelectionne = this.sentiers[this.sentiers.length - 1];
 	};
 	
-	this.contientSentier = function(sentier) {
+	this.verifierValiditeSentier = function() {
+		return !!this.nouveauSentierTitre && !this.contientSentier(this.nouveauSentierTitre);
+	};
+	
+	this.contientSentier = function(sentierTitre) {
 	    var i;
 	    for (i = 0; i < this.sentiers.length; i++) {
-	        if (this.sentiers[i] === sentier) {
+	        if (this.sentiers[i].titre === sentierTitre) {
 	        	return true;
+	        }
+	    }
+	    return false;
+	};
+	
+	this.sentierSelectionneContientFiche = function(ficheTitre) {
+	    var i;
+	    for (i = 0; i < this.sentierSelectionne.fiches.length; i++) {
+	        if (this.sentierSelectionne.fiches[i].tag === ficheTitre) {
+	        	return true;
+	        }
+	    }
+	    return false;
+	};
+	
+	this.supprimerSentierDeLaListe = function(sentier) {
+	    var i;
+	    for (i = 0; i < this.sentiers.length; i++) {
+	    	 if (this.sentiers[i].titre === sentier.titre) {
+	        	this.sentiers.splice(i, 1);
+	        }
+	    }
+	    return false;
+	};
+	
+	this.supprimerFicheDuSentier = function(sentier, fiche) {
+	    var i;
+	    for (i = 0; i < sentier.fiches.length; i++) {
+	    	 if (sentier.fiches[i].tag === fiche.tag) {
+	    		 sentier.fiches.splice(i, 1);
 	        }
 	    }
 	    return false;

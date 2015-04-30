@@ -66,7 +66,43 @@ body {
 	margin-left : 0px;
     position: relative;
     right: 26px;
-    top: 1px;
+    top: 2px;
+}
+
+.bouton-suppression-sentier {
+	position: relative;	
+	float: right;
+	z-index: 999;
+}
+
+.bouton-suppression-sentier .btn-default {
+	color: red;
+}
+
+.liste-fiches-sentier {
+    margin: 45px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.sentier-aucune-fiche {
+    position: relative;
+    top: 6px;
+}
+
+.zone-drop-fiches-sentier {
+	border: 2px dashed #999;	
+	text-align: center;
+}
+
+.titre-sentier {
+	display: inline;
+}
+
+.table-fiches-sentier {
+    position: relative;
+    right: 10px;
+    top: 15px;
 }
 
 .boite-utilisateur {
@@ -104,4 +140,13 @@ body {
 .nettoyage {
 	clear:both;
 	visibility: hidden;
+}
+
+.element-draggable { 
+    opacity: 0.9;
+    background-color: #C2C0AD;
+}
+
+.element-droppable {
+    background-color: #9AC343; 
 }

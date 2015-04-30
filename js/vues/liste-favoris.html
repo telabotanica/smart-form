@@ -8,36 +8,39 @@
 	
 				<div class="row" ng-show="favorisCtrl.fiches.length > 0">
 					<table class="table table-striped table-bordered table-condensed">
-						<tr ng-repeat="fiche in favorisCtrl.fiches"
-							class="fiche-favoris">
-							<td>{{fiche.infos_taxon.nom_sci}}</td>
-							<td>{{fiche.infos_taxon.referentiel}}</td>
-							<td>{{fiche.nb_revisions}}</td>
-							<td>
-								<button type="button" class="btn btn-default btn-sm"
-									title="{{fiche.existe ? 'Éditer cette fiche' : 'Créer cette fiche'}}"
-									ng-click="favorisCtrl.editerFiche(fiche)">
-									<span
-										class="glyphicon {{fiche.existe ? 'glyphicon-edit' : 'glyphicon-plus'}}"
-										aria-hidden="true"></span>
-								</button>
-								<button type="button" class="btn btn-default btn-sm"
-									title="Voir cette fiche" 
-									ng-click="favorisCtrl.liensService.ouvrirFicheMobile(fiche)">
-									<span class="glyphicon glyphicon-phone" aria-hidden="true"></span>
-								</button>
-								<button type="button" class="btn btn-default btn-sm"
-									title="Voir le qr code de cette fiche" 
-									ng-click="favorisCtrl.liensService.ouvrirQrCode(fiche)">
-									<span class="glyphicon glyphicon-qrcode" aria-hidden="true"></span>
-								</button>
-								<button type="button" class="btn btn-default btn-sm"
-									title="Supprimer cette fiche des favoris"
-									ng-click="favorisCtrl.supprimerFavoris(fiche)">
-									<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-								</button>
-							</td>
-						</tr>
+						<tbody>
+							<tr ng-repeat="fiche in favorisCtrl.fiches"
+								class="fiche-favoris"
+								drag="fiche" dragStyle="element-draggable">
+								<td>{{fiche.infos_taxon.nom_sci}}</td>
+								<td>{{fiche.infos_taxon.referentiel}}</td>
+								<td>{{fiche.nb_revisions}}</td>
+								<td>
+									<button type="button" class="btn btn-default btn-sm"
+										title="{{fiche.existe ? 'Éditer cette fiche' : 'Créer cette fiche'}}"
+										ng-click="favorisCtrl.editerFiche(fiche)">
+										<span
+											class="glyphicon {{fiche.existe ? 'glyphicon-edit' : 'glyphicon-plus'}}"
+											aria-hidden="true"></span>
+									</button>
+									<button type="button" class="btn btn-default btn-sm"
+										title="Voir cette fiche" 
+										ng-click="favorisCtrl.liensService.ouvrirFicheMobile(fiche)">
+										<span class="glyphicon glyphicon-phone" aria-hidden="true"></span>
+									</button>
+									<button type="button" class="btn btn-default btn-sm"
+										title="Voir le qr code de cette fiche" 
+										ng-click="favorisCtrl.liensService.ouvrirQrCode(fiche)">
+										<span class="glyphicon glyphicon-qrcode" aria-hidden="true"></span>
+									</button>
+									<button type="button" class="btn btn-default btn-sm"
+										title="Supprimer cette fiche des favoris"
+										ng-click="favorisCtrl.supprimerFavoris(fiche)">
+										<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+									</button>
+								</td>
+							</tr>
+						</tbody>
 					</table>
 				</div>
 				<div class="row" ng-show="favorisCtrl.fiches.length == 0 && !chargement">

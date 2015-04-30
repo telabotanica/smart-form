@@ -10,7 +10,9 @@
 		    <input type="password" class="form-control" id="utilisateur-mdp" ng-change="boiteUtilisateurCtrl.verifierValiditeFormulaire()" 
 		    		ng-model="boiteUtilisateurCtrl.utilisateur.mdp" placeholder="Mot de passe">
 		  </div>
-		  <button type="submit" class="btn btn-success">Se connecter</button>
+		  <button title="Identifiez-vous afin de pouvoir saisir et modifier des fiches et des sentiers" type="submit" class="btn btn-success">
+		  	Se connecter
+		  </button>
 		  <a href="{{boiteUtilisateurCtrl.urlInscription}}" target="_blank" class="btn btn-default bouton-inscription">S'inscrire</a>
 		</div>
 		

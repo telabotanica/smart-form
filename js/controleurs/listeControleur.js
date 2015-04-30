@@ -16,7 +16,6 @@ smartFormApp.controller('ListeControleur', function ($scope, $rootScope, smartFo
 	$scope.$on('favoris.fiche-supprimee', function(event, fiche) {
 	    var i;
 	    for (i = 0; i < lthis.fiches.length; i++) {
-	    	console.log(lthis.fiches[i].tag+' '+fiche.tag);
 	        if (lthis.fiches[i].tag === fiche.tag) {
 	        	lthis.fiches[i].favoris = false;
 	        	return;

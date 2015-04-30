@@ -19,7 +19,7 @@ smartFormApp.controller('BoiteUtilisateurControleur', function ($scope, $rootSco
 			etatApplicationService.connecterUtilisateur(this.utilisateur, 
 			function(data) {
 				lthis.connaitreEtatUtilisateur();
-				lretirerEnErreur();
+				lthis.retirerEnErreur();
 			},
 			function(data) {
 				lthis.mettreEnErreur();

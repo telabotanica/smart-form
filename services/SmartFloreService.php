@@ -132,8 +132,8 @@ class SmartFloreService {
 		return $this->getPagesWiki('tag IN ('.implode(',', $recherche['noms_pages']).')', $recherche['debut'], $recherche['limite']);
 	}
 	
-	private function getPagesWiki($condition, $debut, $limite) {
-	
+	private function getPagesWiki($condition, $debut = null, $limite = null) {
+		
 		$champs = "id, tag, time, owner, user, latest";
 	
 		$requete = 'SELECT '.$champs.', COUNT(tag) as nb_revisions '.
@@ -141,8 +141,8 @@ class SmartFloreService {
 				'WHERE '.$condition.' '.
 				'GROUP BY tag '.
 				'ORDER BY nb_revisions DESC '.
-				'LIMIT '.$debut.', '.$limite;
-	
+				($debut !== null ? 'LIMIT '.$debut.', '.$limite : '');
+
 		$res = $this->bdd->query($requete);
 		$res = $res->fetchAll(PDO::FETCH_ASSOC);
 	

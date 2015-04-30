@@ -101,8 +101,7 @@ class Favoris extends SmartFloreService {
 				'WHERE resource = '.$this->bdd->quote($page_tag).' AND '.
 				'property = "'.$this->triple_favoris_fiche.'" AND '.
 				'value = '.$this->bdd->quote($utilisateur);
-
-			
+	
 		$res_suppression = $this->bdd->exec($requete_suppression);
 		$retour = ($res_suppression !== false) ? 'OK' : false;
 		
