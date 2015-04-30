@@ -98,11 +98,10 @@ class Sentiers extends SmartFloreService {
 		$sentier_titre = $data['sentierTitre'];
 		$utilisateur = $data['utilisateur'];
 		
-		$requete_existe = 'SELECT COUNT(resource) > 1 as sentier_existe '.
+		$requete_existe = 'SELECT COUNT(resource) >= 1 as sentier_existe '.
 				'FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
-				'WHERE value = '.$this->bdd->quote($utilisateur).' '.
-				'AND property = "'.$this->triple_sentier.'" '.
-				'AND resource = '.$this->bdd->quote($sentier_titre);
+				'WHERE property = "'.$this->triple_sentier.'" '.
+				'AND TRIM(resource) = '.$this->bdd->quote(trim($sentier_titre));
 		
 		$res_existe = $this->bdd->query($requete_existe);
 		$res_existe = $res_existe->fetch(PDO::FETCH_ASSOC);
@@ -121,7 +120,7 @@ class Sentiers extends SmartFloreService {
 				$this->enregistrerEvenement($utilisateur, $this->triple_evenement_sentier_ajout, $sentier_titre);
 			}
 		} else {
-			$retour = 'OK';
+			$retour = $this->error('400', 'Un sentier portant ce nom a déjà été saisi');
 		}
 		
 		header('Content-type: text/plain');

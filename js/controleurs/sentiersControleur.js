@@ -36,7 +36,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, smar
 		function(data) {
 			lthis.sentierSelectionne.fiches = data.resultats;
 		}, 
-		function() {
+		function(data) {
 			
 		});
 	};
@@ -51,7 +51,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, smar
 				lthis.surChangementSentier();
 			}
 		}, 
-		function() {
+		function(data) {
 			
 		});
 	};
@@ -66,11 +66,11 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, smar
 					lthis.nouveauSentierTitre = "";
 				}
 			}, 
-			function() {
-				console.log('C\'est pas bon !');
+			function(data) {
+				window.alert(data);
 			});
 		} else {
-			window.alert("Le nom du sentier n'est pas valide, vérifiez que n'avez pas saisi un nom qui existe déjà.");
+			window.alert("Le nom du sentier n'est pas valide, vérifiez que n'avez pas saisi un nom vide ou qui existe déjà.");
 		}
 	};
 	
@@ -90,7 +90,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, smar
 					}
 				}
 			}, 
-			function() {
+			function(data) {
 				console.log('C\'est pas bon !');
 			});
 		}
@@ -103,12 +103,9 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, smar
 			function(data) {
 				if(data == 'OK') {
 					lthis.sentierSelectionne.fiches.push(fiche);
-					// nécéssaire pour mettre à jour l'affichage à cause du contexte inhabituel
-					// dans lequel est appelée la fonction (directive drag and drop)
-					//$scope.$apply();
 				}
 			}, 
-			function() {
+			function(data) {
 				console.log('C\'est pas bon !');
 			});
 		}

@@ -60,7 +60,7 @@ class Favoris extends SmartFloreService {
 		$page_tag = $data['pageTag'];
 		$utilisateur = $data['utilisateur'];
 		
-		$requete_existe = 'SELECT COUNT(resource) > 1 as favoris_existe '.
+		$requete_existe = 'SELECT COUNT(resource) >= 1 as favoris_existe '.
 				'FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
 				'WHERE value = '.$this->bdd->quote($utilisateur).' '.
 				'AND property = "'.$this->triple_favoris_fiche.'" '.

@@ -60,7 +60,7 @@ smartFormApp.controller('EditionControleur', function ($scope, $rootScope, $sce,
 						// rien à faire en cas d'échec
 					});
 				},
-				function() {
+				function(data) {
 					// rien à faire en cas d'échec
 				});
 		} else {

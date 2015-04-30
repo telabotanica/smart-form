@@ -32,7 +32,7 @@ smartFormApp.controller('FavorisControleur', function ($scope, $rootScope, smart
 		function(data) {
 			lthis.fiches = data.resultats;
 		}, 
-		function() {
+		function(data) {
 			
 		});
 	};
@@ -45,7 +45,7 @@ smartFormApp.controller('FavorisControleur', function ($scope, $rootScope, smart
 				lthis.ajouterOuMettreAJourFavoris(fiche);
 			}
 		}, 
-		function() {
+		function(data) {
 			console.log('C\'est pas bon !');
 		});
 	};
@@ -59,7 +59,7 @@ smartFormApp.controller('FavorisControleur', function ($scope, $rootScope, smart
 				lthis.supprimerFicheDeLaListe(fiche);
 			}
 		}, 
-		function() {
+		function(data) {
 			console.log('C\'est pas bon !');
 		});
 	};

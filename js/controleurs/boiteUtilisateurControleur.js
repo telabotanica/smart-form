@@ -70,7 +70,7 @@ smartFormApp.controller('BoiteUtilisateurControleur', function ($scope, $rootSco
 				$rootScope.$broadcast('utilisateur.utilisateur-connecte', etatApplicationService.utilisateur);
 			}
 		},
-		function() {
+		function(data) {
 			
 		});
 	};
@@ -82,7 +82,7 @@ smartFormApp.controller('BoiteUtilisateurControleur', function ($scope, $rootSco
 			etatApplicationService.utilisateur = lthis.utilisateur;
 			$rootScope.$broadcast('utilisateur.utilisateur-deconnecte');
 		},
-		function() {
+		function(data) {
 			
 		});
 	};
