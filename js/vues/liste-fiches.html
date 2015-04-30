@@ -31,6 +31,7 @@
 						<td>
 							<button type="button" class="btn btn-default btn-sm"
 								title="{{fiche.existe ? 'Éditer cette fiche' : 'Créer cette fiche'}}"
+								ng-show="listeCtrl.afficherFonctionsUtilisateurIdentifie" 
 								ng-click="listeCtrl.editerFiche(fiche)">
 								<span
 									class="glyphicon {{fiche.existe ? 'glyphicon-edit' : 'glyphicon-plus'}}"
@@ -48,7 +49,7 @@
 							</button>
 							<button type="button" class="btn btn-default btn-sm"
 								title="{{fiche.favoris ? 'Supprimer cette fiche des favoris' : 'Mettre cette fiche en favoris'}}"
-								ng-show="listeCtrl.afficherFavoris && fiche.existe"
+								ng-show="listeCtrl.afficherFonctionsUtilisateurIdentifie && fiche.existe"
 								ng-click="listeCtrl.ajouterFavoris(fiche)">
 								<span class="glyphicon {{fiche.favoris ? 'fiche-favorite glyphicon-star' : 'glyphicon-star-empty'}}" aria-hidden="true"></span>
 							</button>

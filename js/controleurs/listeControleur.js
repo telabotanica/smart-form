@@ -1,7 +1,7 @@
 smartFormApp.controller('ListeControleur', function ($scope, $rootScope, smartFormService, wikiniService, paginationService, etatApplicationService, liensService) {
 	
-	this.fiches = [];
-	this.afficherFavoris = etatApplicationService.utilisateur.connecte;
+	this.fiches = [];	
+	this.afficherFonctionsUtilisateurIdentifie = etatApplicationService.utilisateur.connecte;
 	
 	this.liensService = liensService;
 		
@@ -24,12 +24,12 @@ smartFormApp.controller('ListeControleur', function ($scope, $rootScope, smartFo
 	});
 	
 	$scope.$on('utilisateur.utilisateur-connecte', function(event, utilisateur) {
-		lthis.afficherFavoris = utilisateur.connecte;
+		lthis.afficherFonctionsUtilisateurIdentifie = utilisateur.connecte;
 		lthis.getFiches();
 	});
 	
 	$scope.$on('utilisateur.utilisateur-deconnecte', function(event, utilisateur) {
-		lthis.afficherFavoris = false;
+		lthis.afficherFonctionsUtilisateurIdentifie = false;
 	});
 
 	this.getFiches = function() {
