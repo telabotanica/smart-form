@@ -43,7 +43,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, smar
 	
 	this.getSentiers = function() {
 		var lthis = this;
-		smartFormService.getSentiers(etatApplicationService.utilisateur.nomWiki,
+		smartFormService.getSentiers(etatApplicationService.utilisateur.nomWiki, etatApplicationService.voirTousLesSentiers, 
 		function(data) {
 			lthis.sentiers = data.resultats;
 			if(lthis.sentiers.length > 0) {

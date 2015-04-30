@@ -70,8 +70,8 @@ class Sentiers extends SmartFloreService {
 		$requete = 'SELECT '.$champs_requete.' '.
 				'FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
 				'WHERE property = "'.$this->triple_sentier.'" '.
-				$ordre;
-		
+				(!empty($_GET['utilisateur']) ? 'AND value = '.$this->bdd->quote($utilisateur) : '');
+					
 		$res = $this->bdd->query($requete);
 		$res = $res->fetchAll(PDO::FETCH_ASSOC);
 		
@@ -115,6 +115,11 @@ class Sentiers extends SmartFloreService {
 				
 			$res_insertion = $this->bdd->exec($requete_insertion);
 			$retour = ($res_insertion !== false) ? 'OK' : false;
+			
+			if($retour == 'OK') {
+				// Enregistrement de l'évènement pour des stats ultérieures
+				$this->enregistrerEvenement($utilisateur, $this->triple_evenement_sentier_ajout, $sentier_titre);
+			}
 		} else {
 			$retour = 'OK';
 		}
@@ -180,14 +185,29 @@ class Sentiers extends SmartFloreService {
 			list($pages, $nb_sentiers) = $this->getPagesWikiParRechercheExacte($sentiers_a_fiches);
 			$pages_enrichies = $this->completerPagesParInfosTaxon($pages);
 			$sentiers = array_values($pages_enrichies['resultats']);
+			usort($sentiers, array($this, 'trierParNomSci'));
 			unset($sentiers['fiches_a_num_nom']);
 		}
-	
+		
 		$retour = array('pagination' => array('total' => $nb_sentiers), 'resultats' => $sentiers);
 	
 		header('Content-type: application/json');
 		echo json_encode($retour);
 		exit;
+	}
+	
+	private function trierParNomSci($a, $b) {
+		$a1 = $a;
+		if(empty($a1['infos_taxon'])) {
+			$a1['infos_taxon']['nom_sci'] = '';
+		}
+		
+		$b1 = $b;
+		if(empty($b1['infos_taxon'])) {
+			$b1['infos_taxon']['nom_sci'] = '';
+		}
+		
+		return strcasecmp($a1['infos_taxon']['nom_sci'], $b1['infos_taxon']['nom_sci']);
 	}
 	
 	private function ajouterFicheASentier($data) {
@@ -219,6 +239,7 @@ class Sentiers extends SmartFloreService {
 	
 			$res_insertion = $this->bdd->exec($requete_insertion);
 			$retour = ($res_insertion !== false) ? 'OK' : false;
+			
 		} else {
 			$retour = 'OK';
 		}

@@ -20,6 +20,11 @@ class SmartFloreService {
 	
 	protected $triple_favoris_fiche = "smartFlore.favoris.fiche";
 	
+	protected $triple_evenement = "smartFlore.evenements";
+	protected $triple_evenement_sentier_ajout = "smartFlore.evenements.sentiers.ajout";
+	protected $triple_evenement_sentier_fiche_ajout = "smartFlore.evenements.sentiers.fiche.ajout";
+	protected $triple_evenement_favoris_ajout = "smartFlore.evenements.favoris.ajout";
+	
 	public function __construct() {
 		$this->config = parse_ini_file('config.ini', true);
 		try {
@@ -220,6 +225,33 @@ class SmartFloreService {
 		$res = $this->bdd->query($requete);
 		$res = $res->fetchAll(PDO::FETCH_ASSOC);
 
+		return $res;
+	}
+	
+	// ---------------------------------------------------------------------------------------------
+	//
+	//	FONCTIONS SPECIFIQUES AUX EVENEMENTS
+	//
+	// ---------------------------------------------------------------------------------------------
+	function enregistrerEvenement($utilisateur, $evenement, $cible) {
+		$requete_insertion = 'INSERT INTO '.$this->config['bdd']['table_prefixe'].'_triples '.
+				'(resource, property, value) VALUES '.
+				' ("'.date('Y-m-d H:i:s').'","'.$evenement.'", '.$this->bdd->quote($utilisateur.' -> '.$cible).') ';
+				
+		$res_insertion = $this->bdd->exec($requete_insertion);
+		$retour = ($res_insertion !== false) ? 'OK' : false;
+	}
+	
+	function getEvenements($debut = 0, $limite = 100) {
+		$requete = 'SELECT * '.
+				'FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
+				'WHERE property LIKE "'.$this->triple_evenement.'%" '.
+				'ORDER BY resource DESC '.
+				'LIMIT '.$debut.','.$limite.' ';
+	
+		$res = $this->bdd->query($requete);
+		$res = $res->fetchAll(PDO::FETCH_ASSOC);
+	
 		return $res;
 	}
 }

@@ -19,6 +19,8 @@ smartFormApp.service('etatApplicationService', function($http) {
 	etatApplicationService.utilisateur.courriel = "";
 	etatApplicationService.utilisateur.nomWiki = "";
 	
+	etatApplicationService.voirTousLesSentiers = false;
+	
 	etatApplicationService.connecterUtilisateur  = function(utilisateur, surSucces, surErreur) {	
 		var url_service = config.url_service_annuaire.replace("{service}", "connexion");
 		donnees_post = {courriel : utilisateur.courriel, mdp : utilisateur.mdp, persistance : true, methode : "connexion"};

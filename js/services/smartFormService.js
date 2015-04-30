@@ -59,10 +59,13 @@ smartFormApp.service('smartFormService', function($http) {
 	};
 	
 	/** SENTIERS **/
-	smartFormService.getSentiers = function(utilisateur, surSucces, surErreur) {
-		var utilisateur = "utilisateur="+utilisateur;
+	smartFormService.getSentiers = function(utilisateur, voirTousLesSentiers, surSucces, surErreur) {
+		var params = "";
+		if(!voirTousLesSentiers) {
+			params = "?utilisateur="+utilisateur;
+		}
 		
-		$http.get(config.url_service_sentiers+'/sentier/'+'?'+utilisateur).
+		$http.get(config.url_service_sentiers+'/sentier/'+params).
 		success(function(data, status, headers, config) {
 			surSucces(data);
 		}).

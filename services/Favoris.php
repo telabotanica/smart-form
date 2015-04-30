@@ -13,7 +13,7 @@ require_once('SmartFloreService.php');
  */
 class Favoris extends SmartFloreService {
 	
-	public function get() {
+	public function get($requete) {
 		$this->getFavoris();
 	}
 	
@@ -77,6 +77,7 @@ class Favoris extends SmartFloreService {
 					
 			$res_insertion = $this->bdd->exec($requete_insertion);			
 			$retour = ($res_insertion !== false) ? 'OK' : false;
+			
 		} else {
 			$retour = 'OK';
 		}
