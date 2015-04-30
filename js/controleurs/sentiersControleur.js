@@ -27,6 +27,10 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, smar
 		lthis.ajouterFicheASentier(lthis.sentierSelectionne, dragged);
 	});
 	
+	this.editerFiche = function(fiche) {
+		$rootScope.$broadcast('edition.editer-fiche', fiche);
+	};
+	
 	this.surChangementSentier = function() {
 		smartFormService.getFichesASentier(this.sentierSelectionne.titre,
 		function(data) {
@@ -65,6 +69,8 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, smar
 			function() {
 				console.log('C\'est pas bon !');
 			});
+		} else {
+			window.alert("Le nom du sentier n'est pas valide, vérifiez que n'avez pas saisi un nom qui existe déjà.");
 		}
 	};
 	
@@ -177,7 +183,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, smar
 	};
 	
 	this.surChangementSaisieSentier = function() {
-		
+		//TODO: Avertir l'utilisateur en cas de saisie d'un sentier déjà existant ?
 	};	
 	
 	this.getSentiers();
