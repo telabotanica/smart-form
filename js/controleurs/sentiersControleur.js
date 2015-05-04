@@ -59,7 +59,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, smar
 	this.ajouterSentier = function() {
 		var lthis = this;
 		if(this.verifierValiditeSentier()) {
-			smartFormService.ajouterSentier(etatApplicationService.utilisateur.nomWiki, this.nouveauSentierTitre,
+			smartFormService.ajouterSentier(etatApplicationService.utilisateur.nomWiki, etatApplicationService.utilisateur.courriel, this.nouveauSentierTitre,
 			function(data) {
 				if(data == 'OK') {
 					lthis.initialiserNouveauSentier(lthis.nouveauSentierTitre);

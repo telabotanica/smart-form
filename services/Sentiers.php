@@ -91,8 +91,8 @@ class Sentiers extends SmartFloreService {
 		
 		$retour = false;
 		
-		if(empty($data['sentierTitre']) || empty($data['utilisateur'])) {
-			$this->error('400', 'Les paramètres sentierTitre et utilisateur sont obligatoires');
+		if(empty($data['sentierTitre']) || empty($data['utilisateur']) || empty($data['utilisateurCourriel'])) {
+			$this->error('400', 'Les paramètres sentierTitre, utilisateur et utilisateurCourriel sont obligatoires');
 		}
 		
 		$sentier_titre = $data['sentierTitre'];
@@ -116,8 +116,9 @@ class Sentiers extends SmartFloreService {
 			$retour = ($res_insertion !== false) ? 'OK' : false;
 			
 			if($retour == 'OK') {
+				$infos_evenement = array('utilisateur' => $utilisateur, 'utilisateur_courriel' => $data['utilisateurCourriel'], 'titre' => $sentier_titre);
 				// Enregistrement de l'évènement pour des stats ultérieures
-				$this->enregistrerEvenement($utilisateur, $this->triple_evenement_sentier_ajout, $sentier_titre);
+				$this->enregistrerEvenement($this->triple_evenement_sentier_ajout, $infos_evenement);
 			}
 		} else {
 			$retour = $this->error('400', 'Un sentier portant ce nom a déjà été saisi');

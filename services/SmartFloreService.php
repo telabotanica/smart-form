@@ -233,10 +233,12 @@ class SmartFloreService {
 	//	FONCTIONS SPECIFIQUES AUX EVENEMENTS
 	//
 	// ---------------------------------------------------------------------------------------------
-	function enregistrerEvenement($utilisateur, $evenement, $cible) {
+	function enregistrerEvenement($evenement, $cible) {
+		$cible = $this->bdd->quote(json_encode($cible));
+		
 		$requete_insertion = 'INSERT INTO '.$this->config['bdd']['table_prefixe'].'_triples '.
 				'(resource, property, value) VALUES '.
-				' ("'.date('Y-m-d H:i:s').'","'.$evenement.'", '.$this->bdd->quote($utilisateur.' -> '.$cible).') ';
+				' ("'.date('Y-m-d H:i:s').'","'.$evenement.'", '.$cible.') ';
 				
 		$res_insertion = $this->bdd->exec($requete_insertion);
 		$retour = ($res_insertion !== false) ? 'OK' : false;

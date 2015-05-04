@@ -74,8 +74,10 @@ smartFormApp.service('smartFormService', function($http) {
 		});
 	};
 	
-	smartFormService.ajouterSentier = function(utilisateur, sentierTitre, surSucces, surErreur) {
-		var donnees_post = {"utilisateur" : utilisateur, "sentierTitre" : sentierTitre};
+	smartFormService.ajouterSentier = function(utilisateur, utilisateurCourriel, sentierTitre, surSucces, surErreur) {
+		// le courriel est nécéssaire pour des fonctions de suivi
+		// TODO : quand on aura un sso bien implémenté on devrait pouvoir s'en passer
+		var donnees_post = {"utilisateur" : utilisateur, "sentierTitre" : sentierTitre, "utilisateurCourriel" : utilisateurCourriel};
 		$http.put(config.url_service_sentiers+'/sentier/', donnees_post).
 		success(function(data, status, headers, config) {
 			surSucces(data);

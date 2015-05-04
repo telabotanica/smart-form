@@ -36,7 +36,7 @@ class Pages extends SmartFloreService {
 			$retour = $this->getPagesToutes($recherche);
 		}
 		
-		if(!empty($_GET['utilisateur'])) {
+		if(!empty($_GET['utilisateur']) && !empty($retour['resultats'])) {
 			$retour = $this->joindreFavoris($_GET['utilisateur'], $retour);
 		}
 		
