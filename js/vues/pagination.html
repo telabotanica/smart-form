@@ -1,6 +1,6 @@
 <!-- PAGINATION  DE LA LISTE -->
 <div ng-show="paginationCtrl.afficherPagination" ng-controller="PaginationControleur as paginationCtrl">
-	<div class="pagination_total ng-cloak">
+	<div class="pagination-total ng-cloak">
 		<span class="ng-cloak">Affichage des {{paginationCtrl.nomElementTrouve}}
 			{{paginationCtrl.getBorneMinIntervalleAffiche()}} à
 			{{paginationCtrl.getBorneMaxIntervalleAffiche()}} sur un total de {{paginationCtrl.totalResultats}}
@@ -23,4 +23,11 @@
 				aria-hidden="true">&raquo;</span>
 		</a></li>
 	</ul>
+	
+	<span class="pagination-taille-page">Afficher <select name="taillePage" id="taillePage" class="form-control"
+						ng-model="paginationCtrl.taillePage"
+						ng-change="paginationCtrl.surChangementTaillePage()"
+						ng-options="taillePage for taillePage in paginationCtrl.taillesPages">
+					</select> {{paginationCtrl.nomElementTrouve}} par page
+	</span>
 </div>

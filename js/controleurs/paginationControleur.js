@@ -13,6 +13,8 @@ smartFormApp.controller('PaginationControleur', function ($scope, $rootScope, pa
 	this.nomElementTrouvePluriel = paginationService.nomElementTrouvePluriel;
 	this.taillePage = paginationService.taillePage;
 	
+	this.taillesPages = [Math.ceil(paginationService.taillePage/2), paginationService.taillePage, paginationService.taillePage*2, paginationService.taillePage*4];
+	
 	lthis = this;
 	$scope.$on('pagination.construire-pagination', function(event, paginationResultats) {
 		lthis.construireNbPages(paginationResultats);
@@ -20,6 +22,12 @@ smartFormApp.controller('PaginationControleur', function ($scope, $rootScope, pa
 	$scope.$on('pagination.reset-pagination', function(event, paginationResultats) {
 		lthis.resetPagination();
 	});
+	
+	this.surChangementTaillePage = function() {
+		paginationService.taillePage = this.taillePage;
+		this.resetPagination();
+		$rootScope.$broadcast('pagination.page-changee');
+	};
 		
 	this.resetPagination = function() {
 		this.pages = [];

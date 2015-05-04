@@ -1,6 +1,6 @@
 <!-- MOTEUR DE RECHERCHE -->
 <div class="recherche row" ng-controller="RechercheControleur as rechercheCtrl">
-	<form ng-submit="rechercheCtrl.soumettreRecherche()">
+	<form id="formulaire-recherche" ng-submit="rechercheCtrl.soumettreRecherche()">
 		<div class="col-md-6">
 			<input type="text" class="form-control"
 				placeholder="Rechercher une fiche" ng-model="rechercheCtrl.recherche.texte"
