@@ -14,8 +14,8 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, smar
 	
 	var lthis = this;
 	$scope.$on('utilisateur.utilisateur-connecte', function(event, utilisateur) {
-		lthis.afficherSentiers = true;
 		lthis.utilisateurNomWiki = utilisateur.nomWiki;
+		lthis.getSentiers();
 	});
 	
 	$scope.$on('utilisateur.utilisateur-deconnecte', function(event) {
@@ -50,6 +50,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, smar
 				lthis.sentierSelectionne = lthis.sentiers[0];
 				lthis.surChangementSentier();
 			}
+			lthis.afficherSentiers = etatApplicationService.utilisateur.connecte;
 		}, 
 		function(data) {
 			
@@ -183,5 +184,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, smar
 		//TODO: Avertir l'utilisateur en cas de saisie d'un sentier déjà existant ?
 	};	
 	
-	this.getSentiers();
+	if(this.afficherSentiers) {
+		this.getSentiers();
+	}
 });
