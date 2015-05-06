@@ -16,7 +16,7 @@ smartFormApp.directive('colonneCollapsible', function($timeout) {
 									'</button>';				
 				elementEntete.html(htmlEntete+htmlCollapser);
 				
-        		var collapser = angular.element(document.querySelector('.colonne-collapser'));
+        		var collapser = angular.element(entetes[0].querySelector('.colonne-collapser'));
         		if(visible) {
         			collapser.find('span').removeClass("glyphicon-plus"); 
         			collapser.find('span').addClass("glyphicon-minus");
