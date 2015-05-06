@@ -34,7 +34,7 @@ class SmartFloreService {
 		}
 		catch (PDOException $e) {
 			$error_message = $e->getMessage();
-			echo "this is displayed because an error was found";
+			echo "Erreur de connexion à la base de données";
 			exit();
 		}
 		
