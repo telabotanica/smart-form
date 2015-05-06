@@ -27,7 +27,7 @@ smartFormApp.directive('colonneCollapsible', function($timeout) {
         		}
         		
         		collapser.bind('click', function() {
-        			var collapser = angular.element(document.querySelector('.colonne-collapser'));	    			
+        			var collapser = angular.element(entetes[0].querySelector('.colonne-collapser'));	    			
             		collapser.find('span').toggleClass("glyphicon-plus"); 
             		collapser.find('span').toggleClass("glyphicon-minus");
             		element.toggleClass('colonnes-collapsed');
