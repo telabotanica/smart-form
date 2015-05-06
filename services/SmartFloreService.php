@@ -86,7 +86,8 @@ class SmartFloreService {
 		return json_decode($input, true);
 	}
 	
-	
+	// Fonctions à surcharger dans les classes filles si besoin
+	// fonctions pseudo abstraites
 	function put($requete) {
 	
 	}
@@ -166,6 +167,8 @@ class SmartFloreService {
 		return array($res, $res_comptage['nb_pages']);
 	}
 	
+	// TODO: ça serait bien si on pouvait passer à cette fonction un tableau par référence
+	// afin que ça soit plus cohérent
 	protected function completerPagesParInfosTaxon(&$pages_wiki) {
 		
 		$infos_indexees_par_referentiel_nt = array();
@@ -216,6 +219,8 @@ class SmartFloreService {
 				
 				$cle_ref = 'referentiel_verna_'.strtolower($referentiel);
 				if(!empty($this->config['eflore'][$cle_ref])) {
+					// retour est modifié par référence dans la fonction compléter par noms vernaculaires
+					// TODO: faire ceci aussi souvent que possible !
 					$this->completerPagesParNomsVernaculaires($referentiel, $this->config['eflore'][$cle_ref], $num_tax_a_nums_noms, $retour);
 				}
 			}
@@ -224,6 +229,7 @@ class SmartFloreService {
 		return $retour;
 	}
 	
+	// Attention le tableau retour est passé par référence
 	function completerPagesParNomsVernaculaires($referentiel, $referentiel_verna, $nts_a_nn, &$retour) {	
 		$url_eflore_tpl = $this->config['eflore']['infos_noms_vernaculaires_url'];
 		$url = sprintf($url_eflore_tpl, strtolower($referentiel_verna), implode(',', array_keys($nts_a_nn)));
@@ -292,6 +298,7 @@ class SmartFloreService {
 	}
 }
 
+// echo '<pre>'.print_r($obj, true).'</pre>' -> epprt
 function epprt($obj) {
 	echo '<pre>'.print_r($obj, true).'</pre>';
 }

@@ -96,8 +96,6 @@ class Favoris extends SmartFloreService {
 		$page_tag = $data['pageTag'];
 		$utilisateur = $data['utilisateur'];
 		
-		$utilisateur = 'AurelienPeronnet';
-		
 		$requete_suppression = 'DELETE FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
 				'WHERE resource = '.$this->bdd->quote($page_tag).' AND '.
 				'property = "'.$this->triple_favoris_fiche.'" AND '.

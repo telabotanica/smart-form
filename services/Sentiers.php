@@ -59,6 +59,8 @@ class Sentiers extends SmartFloreService {
 	private function getSentiers() {
 		
 		if(!empty($_GET['utilisateur'])) {
+			// permet de renvoyer les sentiers de l'utilisateur en premier
+			// si celui ci est précisé
 			$utilisateur = $_GET['utilisateur'];
 			$champs_requete = '*, IF(value = '.$this->bdd->quote($utilisateur).', 1, 0) as sentier_utilisateur';
 			$ordre = "ORDER BY sentier_utilisateur DESC, resource ASC";
@@ -146,7 +148,7 @@ class Sentiers extends SmartFloreService {
 			
 		$res_suppression = $this->bdd->exec($requete_suppression);
 		
-		// Supprimer également les fiches
+		// Supprimer également les liens des fiches appartenant au sentier (et pas les fiches elles mêmes)
 		$requete_suppression_fiches = 'DELETE FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
 				'WHERE value = '.$this->bdd->quote($sentier_titre).' '.
 				'AND property = "'.$this->triple_sentier_fiche.'"';

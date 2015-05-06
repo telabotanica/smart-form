@@ -43,6 +43,8 @@ class Pages extends SmartFloreService {
 			}
 		}
 		
+		// Si l'utilisateur est connecté, on recherche également quelles sont les pages 
+		// présentes dans les résultats qui sont dans ses favoris
 		if(!empty($_GET['utilisateur']) && !empty($retour['resultats'])) {
 			$retour = $this->joindreFavoris($_GET['utilisateur'], $retour);
 		}
@@ -50,7 +52,7 @@ class Pages extends SmartFloreService {
 		// tri et d'accès, on le supprime avant de renvoyer les résultats
 		unset($retour['fiches_a_num_nom']);
 		// $retour['resultats'] est indexé par referentiel.num_nom pour des raisons pratique de
-		// tri et d'accès, on désindexe avant de renvoyer les résultats
+		// tri et d'accès, on désindexe avant de renvoyer les résultats (l'ordre est conservé)
 		$retour['resultats'] = array_values($retour['resultats']);
 		
 		header('Content-type: application/json');
@@ -96,7 +98,7 @@ class Pages extends SmartFloreService {
 					$retour['fiches_a_num_nom'][$nom_page] = $num_nom;
 					// le faire maintenant nous fait économiser un array_map plus tard
 					$noms_pages[] = $this->bdd->quote($nom_page);
-					
+					// On indexe par num nom pour avoir une ligne par nom et pas par taxon
 					$retour['resultats'][$recherche['referentiel'].$num_nom] = array(
 						'existe' => false,
 						'favoris' => false,
@@ -119,9 +121,13 @@ class Pages extends SmartFloreService {
 			}
 
 			if($recherche['referentiel_verna'] != null) {
+				// retour est modifié par référence dans la fonction compléter par noms vernaculaires
+				// TODO: faire ceci aussi souvent que possible !
 				$this->completerPagesParNomsVernaculaires($recherche['referentiel'], $recherche['referentiel_verna'], $num_tax_a_nums_noms, $retour);
 			}
-				
+
+			
+			// Ajout des informations des pages du wiki si elles existent
 			$recherche['noms_pages'] = $noms_pages;
 			list($pages_wiki, $nb_pages_wiki) = $this->getPagesWikiParRechercheExacte($recherche);
 			
@@ -158,7 +164,7 @@ class Pages extends SmartFloreService {
 				
 			foreach($infos_verna['resultat'] as $num_nom_verna => &$nom_verna) {
 				// Des fois eflore est très con et dans un référentiel num_taxon est dans "numero_taxonomique"
-				// et des fois dans "num_taxon"
+				// et des fois dans "num_taxon", CECI DOIT CESSER !!!
 				$num_taxon_nom_verna_virg = isset($nom_verna['num_taxon']) ? $nom_verna['num_taxon'] : $nom_verna['num_tax'];
 				
 				$tableau_nums_taxons_nom_verna = explode(',', $num_taxon_nom_verna_virg);
@@ -167,7 +173,8 @@ class Pages extends SmartFloreService {
 					$nom_page = $this->formaterPageNom($recherche['referentiel'], $num_taxon_nom_verna);
 					// le faire maintenant nous fait économiser un array_map plus tard
 					$noms_pages[] = $this->bdd->quote($nom_page);
-					
+					// Pour ne pas perdre de ligne on indexe par référentiel et num taxonomique
+					// (car un nom verna peut correspondre à plusieurs taxons et vice versa)
 					if(!isset($retour['resultats'][$recherche['referentiel'].$num_taxon_nom_verna])) {
 						$retour['resultats'][$recherche['referentiel'].$num_taxon_nom_verna] = array(
 								'existe' => false,
@@ -195,6 +202,7 @@ class Pages extends SmartFloreService {
 				}
 			}
 			
+			// Ajout des informations des pages du wiki si elles existent
 			$recherche['noms_pages'] = $noms_pages;
 			list($pages_wiki, $nb_pages_wiki) = $this->getPagesWikiParRechercheExacte($recherche);
 			
@@ -204,6 +212,7 @@ class Pages extends SmartFloreService {
 				$retour['resultats'][$recherche['referentiel'].$nt] = array_merge($infos_page_nom, $page_wiki);
 			}
 			
+			// Ajout des informations des noms scientifiques
 			$url_eflore_sci_tpl = $this->config['eflore']['infos_taxons_url'];
 			$url_sci = sprintf($url_eflore_sci_tpl, strtolower($recherche['referentiel']), implode(',', array_keys($nts_a_num_noms_verna)));
 
