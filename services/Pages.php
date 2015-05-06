@@ -24,23 +24,33 @@ class Pages extends SmartFloreService {
 		$recherche['limite'] = !empty($_GET['limite']) ? intval($_GET['limite']) : 20;
 		
 		$recherche['referentiel'] = !empty($_GET['referentiel']) ? $_GET['referentiel'] : '%';
+		$recherche['referentiel_verna'] = !empty($_GET['referentiel_verna']) && $_GET['referentiel_verna'] != "null" ? $_GET['referentiel_verna'] : null;
+		
 		$recherche['num_tax'] = !empty($_GET['num_tax']) ? $_GET['num_tax'] : '%';
 		
 		$recherche['recherche'] = !empty($_GET['recherche']) ? $_GET['recherche'] : '%';
 		
 		$recherche['pages_existantes'] = isset($_GET['pages_existantes']) ? $_GET['pages_existantes'] == 'true' : false;
+		$recherche['nom_verna'] = isset($_GET['nom_verna']) ? $_GET['nom_verna'] == 'true' : false;
 		
 		if($recherche['pages_existantes']) {
 			$retour = $this->getPagesExistantes($recherche);
 		} else {
-			$retour = $this->getPagesToutes($recherche);
+			if($recherche['nom_verna']) {
+				$retour = $this->getPagesToutesParRechercheVernaculaire($recherche);
+			} else {
+				$retour = $this->getPagesToutesParRechercheScientifique($recherche);
+			}
 		}
 		
 		if(!empty($_GET['utilisateur']) && !empty($retour['resultats'])) {
 			$retour = $this->joindreFavoris($_GET['utilisateur'], $retour);
 		}
-		
+		// $retour['fiches_a_num_nom'] était là pour des raisons pratique de
+		// tri et d'accès, on le supprime avant de renvoyer les résultats
 		unset($retour['fiches_a_num_nom']);
+		// $retour['resultats'] est indexé par referentiel.num_nom pour des raisons pratique de
+		// tri et d'accès, on désindexe avant de renvoyer les résultats
 		$retour['resultats'] = array_values($retour['resultats']);
 		
 		header('Content-type: application/json');
@@ -59,17 +69,19 @@ class Pages extends SmartFloreService {
 		return $retour;
 	}
 	
-	function getPagesToutes($recherche) {	
+	function getPagesToutesParRechercheScientifique($recherche) {	
 		
 		$retour = array('pagination' => array('total' => 0), 'resultats' => array(), 'fiches_a_num_nom' => array());
 		
 		$url_eflore_tpl = $this->config['eflore']['recherche_noms_url'];
 		$url = sprintf($url_eflore_tpl, strtolower($recherche['referentiel']), urlencode($recherche['recherche'].'%'), $recherche['debut'], $recherche['limite']);
 		
+		// Quand il n'y pas de résultats eflore renvoie une erreur 404 (l'imbécile !)
+		// or le cas où l'on n'a pas de résultats est parfaitement valide
 		$infos = @file_get_contents($url);
 		$infos = json_decode($infos, true);
 		
-		if(!empty($infos['entete'])) {
+		if(!empty($infos['entete']) && $infos['entete']['total'] > 0) {
 			
 			$retour['pagination']['total'] = $infos['entete']['total'];
 			$noms_pages = array();
@@ -99,10 +111,15 @@ class Pages extends SmartFloreService {
 								"nom_sci_complet" => $nom['nom_sci_complet'],
 								"retenu" => $nom['retenu'],
 								"num_nom" => $nom['id'],
-								"referentiel" => $recherche['referentiel']
+								"referentiel" => $recherche['referentiel'],
+								"noms_vernaculaires" => array()
 						)
 					);
 				}
+			}
+
+			if($recherche['referentiel_verna'] != null) {
+				$this->completerPagesParNomsVernaculaires($recherche['referentiel'], $recherche['referentiel_verna'], $num_tax_a_nums_noms, $retour);
 			}
 				
 			$recherche['noms_pages'] = $noms_pages;
@@ -113,6 +130,92 @@ class Pages extends SmartFloreService {
 				foreach($num_tax_a_nums_noms[$nt] as $num_nom_fiche) {
 					$retour['resultats'][$referentiel.$num_nom_fiche] = array_merge($retour['resultats'][$referentiel.$num_nom_fiche], $page_wiki);
 					$retour['resultats'][$referentiel.$num_nom_fiche]['existe'] = true;
+				}
+			}
+		}
+		
+		return $retour;
+	}
+	
+	function getPagesToutesParRechercheVernaculaire($recherche) {
+	
+		$retour = array('pagination' => array('total' => 0), 'resultats' => array(), 'fiches_a_num_nom' => array());
+		
+		$url_eflore_verna_tpl = $this->config['eflore']['recherche_noms_vernaculaires_url'];
+		$referentiel_verna = $this->config['eflore']['referentiel_verna_'.strtolower($recherche['referentiel'])];
+		$url_verna = sprintf($url_eflore_verna_tpl, $referentiel_verna, urlencode($recherche['recherche'].'%'), $recherche['debut'], $recherche['limite']);
+
+		// Quand il n'y pas de résultats eflore renvoie une erreur 404 (l'imbécile !)
+		// or le cas où l'on n'a pas de résultats est parfaitement valide
+		$infos_verna = @file_get_contents($url_verna);
+		$infos_verna = json_decode($infos_verna, true);
+		
+		if(!empty($infos_verna['entete']) && $infos_verna['entete']['total'] > 0) {
+				
+			$retour['pagination']['total'] = $infos_verna['entete']['total'];
+			$noms_pages = array();
+			$nts_a_num_noms_verna = array();
+				
+			foreach($infos_verna['resultat'] as $num_nom_verna => &$nom_verna) {
+				// Des fois eflore est très con et dans un référentiel num_taxon est dans "numero_taxonomique"
+				// et des fois dans "num_taxon"
+				$num_taxon_nom_verna_virg = isset($nom_verna['num_taxon']) ? $nom_verna['num_taxon'] : $nom_verna['num_tax'];
+				
+				$tableau_nums_taxons_nom_verna = explode(',', $num_taxon_nom_verna_virg);
+				
+				foreach($tableau_nums_taxons_nom_verna as $num_taxon_nom_verna) {
+					$nom_page = $this->formaterPageNom($recherche['referentiel'], $num_taxon_nom_verna);
+					// le faire maintenant nous fait économiser un array_map plus tard
+					$noms_pages[] = $this->bdd->quote($nom_page);
+					
+					if(!isset($retour['resultats'][$recherche['referentiel'].$num_taxon_nom_verna])) {
+						$retour['resultats'][$recherche['referentiel'].$num_taxon_nom_verna] = array(
+								'existe' => false,
+								'favoris' => false,
+								'tag' => $nom_page,
+								'time' => '',
+								'owner' => '',
+								'user' => '',
+								'nb_revisions' => 0,
+								'infos_taxon' => array(
+										"num_taxonomique" => $num_taxon_nom_verna,
+										"nom_sci"=> '',
+										"nom_sci_complet" => '',
+										"retenu" => '',
+										"num_nom" => '',
+										"referentiel" => $recherche['referentiel'],
+										"noms_vernaculaires" => array($nom_verna['nom'])
+								)
+						);
+					} else {
+						$retour['resultats'][$recherche['referentiel'].$num_taxon_nom_verna]['infos_taxon']['noms_vernaculaires'][] = $nom_verna['nom'];
+					}
+		
+					$nts_a_num_noms_verna[$num_taxon_nom_verna][] = $num_nom_verna;
+				}
+			}
+			
+			$recherche['noms_pages'] = $noms_pages;
+			list($pages_wiki, $nb_pages_wiki) = $this->getPagesWikiParRechercheExacte($recherche);
+			
+			foreach($pages_wiki as $page_wiki) {
+				list($referentiel, $nt) = $this->splitNt($page_wiki['tag']);
+				$infos_page_nom = $retour['resultats'][$referentiel.$nt];
+				$retour['resultats'][$recherche['referentiel'].$nt] = array_merge($infos_page_nom, $page_wiki);
+			}
+			
+			$url_eflore_sci_tpl = $this->config['eflore']['infos_taxons_url'];
+			$url_sci = sprintf($url_eflore_sci_tpl, strtolower($recherche['referentiel']), implode(',', array_keys($nts_a_num_noms_verna)));
+
+			$infos_noms_sci = file_get_contents($url_sci);
+			$infos_noms_sci = json_decode($infos_noms_sci, true);
+
+			if(!empty($infos_noms_sci['entete'])) {
+				foreach($infos_noms_sci['resultat'] as $num_nom => $infos_a_nt) {
+					$retour['fiches_a_num_nom'][$this->formaterPageNom($recherche['referentiel'], $infos_a_nt['num_taxonomique'])] = $num_nom;
+					$infos_taxon_t = $retour['resultats'][$recherche['referentiel'].$infos_a_nt['num_taxonomique']]['infos_taxon'];
+					$infos_taxon_t['num_nom'] = $num_nom;
+					$retour['resultats'][$recherche['referentiel'].$infos_a_nt['num_taxonomique']]['infos_taxon'] = array_merge($infos_taxon_t, $infos_a_nt);
 				}
 			}
 		}

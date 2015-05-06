@@ -1,5 +1,24 @@
 var config = {
 		referentiels : ["BDTFX", "BDTXA", "ISFAN", "APD"],
+		infos_referentiels : 
+		{
+			"BDTFX" : {
+				label : "France métropolitaine",
+				noms_vernaculaires : "nvjfl"
+			}, 
+			"BDTXA" : {
+				label : "Antilles Françaises",
+				noms_vernaculaires : "nva"
+			}, 
+			"ISFAN" : {
+				label : "Afrique du Nord",
+				noms_vernaculaires : null
+			}, 
+			"APD" : {
+				label : "Afrique du centre et de l'ouest",
+				noms_vernaculaires : null
+			}
+		},
 		nom_fiche : 'SmartFlore{referentiel}nt{num_tax}',
 		url_wikini : "http://www.tela-botanica.org/wikini/eFloreRedaction/wakka.php?wiki={tag}",
 		url_service_pages : "http://localhost/smart-form/services/Pages.php",

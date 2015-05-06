@@ -1,30 +1,49 @@
 <!-- MOTEUR DE RECHERCHE -->
 <div class="recherche row" ng-controller="RechercheControleur as rechercheCtrl">
 	<form id="formulaire-recherche" ng-submit="rechercheCtrl.soumettreRecherche()">
-		<div class="col-md-6">
-			<input type="text" class="form-control"
-				placeholder="Rechercher une fiche" ng-model="rechercheCtrl.recherche.texte"
-				ng-disabled="rechercheCtrl.recherche.fichesExistantes"
-				ng-change="rechercheCtrl.surChangementRecherche()">
-		</div>
-		<div class="col-md-2">
-			<select name="referentiel" id="referentiel" class="form-control"
-				ng-model="rechercheCtrl.recherche.referentiel"
-				ng-change="rechercheCtrl.surChangementRecherche()">
-				<option ng-repeat="referentiel in rechercheCtrl.referentiels" value="{{referentiel}}">
-					{{referentiel}}
-				</option>
-			</select>
-		</div>
-		<div id="fiches-existantes" class="checkbox col-md-2">
-			<label> <input type="checkbox"
-				ng-model="rechercheCtrl.recherche.fichesExistantes"
-				ng-change="rechercheCtrl.surChangementRecherche()"> Uniquement les fiches
-				existantes
-			</label>
-		</div>
-		<div class="col-md-1">
-			<button type="submit" class="btn btn-default btn-sm">OK</button>
+		<div class="row">
+		<div class="col-md-6 container">
+				<div class="row">
+					<div class="col-md-2 conteneur-boutons-vs">
+						<button type='button'
+								ng-click="rechercheCtrl.surChangementTypeRecherche('vernaculaire')"
+								title="Rechercher par nom vernaculaire"
+								ng-disabled="rechercheCtrl.recherche.referentielVerna == null" 
+								class="btn btn-default {{rechercheCtrl.recherche.nomVernaculaire ? 'active' : ''}}">V</button>
+						<button type='button'
+								ng-click="rechercheCtrl.surChangementTypeRecherche('scientifique')" 
+								title="Rechercher par nom scientifique"
+								class="btn btn-default {{!rechercheCtrl.recherche.nomVernaculaire ? 'active' : ''}}">S</button>
+					</div>
+					<div class="col-md-10 formulaire-recherche-champ">
+						<input type="text" class="form-control"
+							placeholder="Rechercher une fiche par nom {{rechercheCtrl.recherche.nomVernaculaire ? 'vernaculaire' : 'scientifique'}}" 
+							ng-model="rechercheCtrl.recherche.texte"
+							ng-disabled="rechercheCtrl.recherche.fichesExistantes"
+							ng-change="rechercheCtrl.surChangementRecherche()">
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-2">
+				<select name="referentiel" id="referentiel" class="form-control"
+					ng-model="rechercheCtrl.recherche.referentiel"
+					ng-change="rechercheCtrl.surChangementRecherche()">
+					<option ng-repeat="referentiel in rechercheCtrl.referentiels" value="{{referentiel}}">
+						{{rechercheCtrl.infosReferentiels[referentiel].label}}
+					</option>
+				</select>
+			</div>
+			<div id="fiches-existantes" class="checkbox col-md-2">
+				<label> <input type="checkbox"
+					ng-model="rechercheCtrl.recherche.fichesExistantes"
+					ng-change="rechercheCtrl.surChangementRecherche()"> Uniquement les fiches
+					existantes
+				</label>
+			</div>
+			<div class="col-md-1">
+				<button type="submit" class="btn btn-default btn-sm">OK</button>
+			</div>
 		</div>
 	</form>
 </div>

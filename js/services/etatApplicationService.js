@@ -2,11 +2,18 @@ smartFormApp.service('etatApplicationService', function($http) {
 	
 	// Etat de la recherche, du chargement etc...
 	var etatApplicationService = {};
+	
+	etatApplicationService.referentiels = config.referentiels;
+	etatApplicationService.infosReferentiels = config.infos_referentiels;
+	
 	etatApplicationService.recherche = {};
 	etatApplicationService.recherche.texte = "";
-	etatApplicationService.referentiels = config.referentiels;
-	etatApplicationService.recherche.referentiel = config.referentiels[0];
 	etatApplicationService.recherche.fichesExistantes = false;
+	etatApplicationService.recherche.referentiel = etatApplicationService.referentiels[0];
+	etatApplicationService.recherche.nomVernaculaire = false;
+	etatApplicationService.recherche.referentielVerna = etatApplicationService.infosReferentiels[etatApplicationService.recherche.referentiel].noms_vernaculaires;
+	
+	
 	etatApplicationService.rechercheModifiee = false;
 	etatApplicationService.premierChargement = true; 
 	

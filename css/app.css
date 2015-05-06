@@ -7,15 +7,28 @@ body {
 	padding-bottom: 3px;
 }
 
+.conteneur-boutons-vs {	
+    z-index: 999;
+}
+
+.formulaire-recherche-champ {
+	float: none;
+}
+
+.pagination {
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
 .pagination-total {
 	padding-bottom: 3px;	
 }
 
 .pagination-taille-page {
-	display: inline-block;
-    margin: 20px 0 20px 15px;
-	position: relative;
-    top: -31px;
+    display: inline-block;
+    margin: 20px 0 0 15px;
+    position: relative;
+    top: -12px;
 }
 
 .pagination-taille-page select {
@@ -173,4 +186,21 @@ body {
 
 *[slide-toggle] {
 	cursor: pointer;
+}
+
+.colonne-collapser {
+	float: left;
+	margin-right: 10px;
+}
+
+.colonnes-collapsed td, .colonnes-collapsed th {
+	display: table-cell;
+}
+
+.colonnes-collapsed td.colonne-collapsible, .colonnes-collapsed th.colonne-collapsible {
+	display: none;
+}
+
+.colonne-actions-fiche {
+	width: 160px;
 }

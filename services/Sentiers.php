@@ -184,6 +184,8 @@ class Sentiers extends SmartFloreService {
 		if(!empty($sentiers_a_fiches['noms_pages'])) {
 			list($pages, $nb_sentiers) = $this->getPagesWikiParRechercheExacte($sentiers_a_fiches);
 			$pages_enrichies = $this->completerPagesParInfosTaxon($pages);
+			// $pages_enrichies['resultats'] est indexé par referentiel.num_nom pour des raisons pratique de
+			// tri et d'accès, on désindexe avant de renvoyer les résultats
 			$sentiers = array_values($pages_enrichies['resultats']);
 			usort($sentiers, array($this, 'trierParNomSci'));
 			unset($sentiers['fiches_a_num_nom']);

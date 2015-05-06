@@ -13,6 +13,10 @@ smartFormApp.controller('PaginationControleur', function ($scope, $rootScope, pa
 	this.nomElementTrouvePluriel = paginationService.nomElementTrouvePluriel;
 	this.taillePage = paginationService.taillePage;
 	
+	this.paginationApproximative = paginationService.paginationApproximative;
+	this.messagePaginationApproximative = paginationService.messagePaginationApproximative;
+	this.environPaginationApproximative = paginationService.environPaginationApproximative;
+	
 	this.taillesPages = [Math.ceil(paginationService.taillePage/2), paginationService.taillePage, paginationService.taillePage*2, paginationService.taillePage*4];
 	
 	lthis = this;
@@ -21,6 +25,14 @@ smartFormApp.controller('PaginationControleur', function ($scope, $rootScope, pa
 	});
 	$scope.$on('pagination.reset-pagination', function(event, paginationResultats) {
 		lthis.resetPagination();
+	});
+	$scope.$on('pagination.pagination-approximative', function(event) {
+		lthis.paginationApproximative = true;
+		lthis.messagePaginationApproximative = paginationService.messagePaginationApproximative;
+	});
+	
+	$scope.$on('pagination.pagination-exacte', function(event) {
+		this.paginationApproximative = false;
 	});
 	
 	this.surChangementTaillePage = function() {
