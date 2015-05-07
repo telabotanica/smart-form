@@ -27,6 +27,17 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, smar
 		lthis.ajouterFicheASentier(lthis.sentierSelectionne, dragged);
 	});
 	
+	$scope.$on('edition.fiche-editee', function(event, fiche) {
+	    var i;
+	    for (i = 0; i < lthis.sentierSelectionne.fiches.length; i++) {
+	        if (lthis.sentierSelectionne.fiches[i].tag === fiche.tag) {
+	        	lthis.sentierSelectionne.fiches[i].existe = true;
+	        	lthis.sentierSelectionne.fiches[i].nb_revisions += 1;
+	        	return;
+	        }
+	    }
+	});
+	
 	this.editerFiche = function(fiche) {
 		$rootScope.$broadcast('edition.editer-fiche', fiche);
 	};

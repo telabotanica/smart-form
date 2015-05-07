@@ -31,6 +31,17 @@ smartFormApp.controller('ListeControleur', function ($scope, $rootScope, smartFo
 	$scope.$on('utilisateur.utilisateur-deconnecte', function(event, utilisateur) {
 		lthis.afficherFonctionsUtilisateurIdentifie = false;
 	});
+	
+	$scope.$on('edition.fiche-editee', function(event, fiche) {
+	    var i;
+	    for (i = 0; i < lthis.fiches.length; i++) {
+	        if (lthis.fiches[i].tag === fiche.tag) {
+	        	lthis.fiches[i].existe = true;
+	        	lthis.fiches[i].nb_revisions += 1;
+	        	return;
+	        }
+	    }
+	});
 
 	this.getFiches = function() {
 		

@@ -22,6 +22,17 @@ smartFormApp.controller('FavorisControleur', function ($scope, $rootScope, smart
 		lthis.afficherFavoris = false;
 	});
 	
+	$scope.$on('edition.fiche-editee', function(event, fiche) {
+	    var i;
+	    for (i = 0; i < lthis.fiches.length; i++) {
+	        if (lthis.fiches[i].tag === fiche.tag) {
+	        	lthis.fiches[i].existe = true;
+	        	lthis.fiches[i].nb_revisions += 1;
+	        	return;
+	        }
+	    }
+	});
+	
 	this.editerFiche = function(fiche) {
 		$rootScope.$broadcast('edition.editer-fiche', fiche);
 	};

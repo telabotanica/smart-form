@@ -18,6 +18,9 @@ smartFormApp.controller('EditionControleur', function ($scope, $rootScope, $sce,
 			lthis.fiche_edition.tag = fiche.tag;
 			lthis.fiche_edition.nom_sci = fiche.infos_taxon.nom_sci;
 			lthis.fiche_edition.referentiel = fiche.infos_taxon.referentiel;
+			lthis.fiche_edition.existe = true;
+			// Dès que le formulaire d'édition est appelé, il crée la fiche
+			$rootScope.$broadcast('edition.fiche-editee', lthis.fiche_edition);
 		}, function(data) {
 			// rien à faire en cas d'échec
 		});
@@ -54,7 +57,7 @@ smartFormApp.controller('EditionControleur', function ($scope, $rootScope, $sce,
 						// On ne peut pas faire de modèle bi directionnel avec du html échappé
 						var elm = angular.element(document.getElementById(titre));
 						elm.text(section);
-						lthis.fiche_edition.section_edition = {};	
+						lthis.fiche_edition.section_edition = {};
 					}, 
 					function(data) {
 						// rien à faire en cas d'échec
