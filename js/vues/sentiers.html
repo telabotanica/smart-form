@@ -46,15 +46,23 @@
 				</div>
 			
 				<div class="row table-fiches-sentier col-md-12">
-					<table class="table table-striped table-bordered table-condensed">
+					<table class="table table-striped table-bordered table-condensed" colonne-collapsible visible="false">
+						<tr>
+							<th>Noms vernaculaires</th>
+							<th>Nom scientifique</th>
+							<th class="colonne-collapsible">Référentiel</th>
+							<th class="colonne-collapsible">Révisions</th>
+							<th class="colonne-actions-fiche">Actions</th>
+						</tr>
 						<tr class="zone-drop-fiches-sentier" >
 							<td colspan="4" drop="true" dropStyle="element-droppable" > Glissez-déposez des fiches depuis les favoris ou la liste </td>
 						</tr>
 						<tr ng-show="sentiersCtrl.sentierSelectionne.fiches.length > 0" ng-repeat="fiche in sentiersCtrl.sentierSelectionne.fiches"
 							class="fiche-sentiers">
+							<td>{{fiche.infos_taxon.noms_vernaculaires.slice(0,3).join(', ')}}</td>
 							<td>{{fiche.infos_taxon.nom_sci}}</td>
-							<td>{{fiche.infos_taxon.referentiel}}</td>
-							<td>{{fiche.nb_revisions}}</td>
+							<td class="colonne-collapsible">{{fiche.infos_taxon.referentiel}}</td>
+							<td class="colonne-collapsible">{{fiche.nb_revisions}}</td>
 							<td class="colonne-actions-fiche">
 								<button type="button" class="btn btn-default btn-sm"
 									title="{{fiche.existe ? 'Éditer cette fiche' : 'Créer cette fiche'}}"
