@@ -32,7 +32,7 @@ smartFormApp.controller('PaginationControleur', function ($scope, $rootScope, pa
 	});
 	
 	$scope.$on('pagination.pagination-exacte', function(event) {
-		this.paginationApproximative = false;
+		lthis.paginationApproximative = false;
 	});
 	
 	this.surChangementTaillePage = function() {
