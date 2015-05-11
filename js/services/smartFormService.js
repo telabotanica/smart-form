@@ -9,16 +9,46 @@ smartFormApp.service('smartFormService', function($http) {
 		var referentielVerna = '&referentiel_verna='+(recherche.referentielVerna);
 		var rechercheLibre = "&recherche="+(!recherche.texte ? '%' : recherche.texte);
 		var pagesExistantes = '&pages_existantes='+(!!recherche.fichesExistantes);
-		var nomVernaculaires = '&nom_verna='+(!!recherche.nomVernaculaire);
+		var nomsVernaculaires = '&nom_verna='+(!!recherche.nomVernaculaire);
 		var pagination = '&debut='+(pageCourante*taillePage)+"&limite="+taillePage;
 		var utilisateurConnecte = (utilisateur.connecte && utilisateur.nomWiki != '') ? '&utilisateur='+utilisateur.nomWiki : '';
 		
-		$http.get(config.url_service_pages+'?'+referentiel+referentielVerna+rechercheLibre+pagesExistantes+nomVernaculaires+pagination+utilisateurConnecte).
+		$http.get(config.url_service_pages+'?'+referentiel+referentielVerna+rechercheLibre+pagesExistantes+nomsVernaculaires+pagination+utilisateurConnecte).
 		success(function(data, status, headers, config) {
 			surSucces(data);
 		}).
 		error(function(data, status, headers, config) {
 			surErreur(data);
+		});
+	};
+	
+	/** FICHES **/ 
+	smartFormService.getListeFichesSmartFloreAsync = function(recherche, pageCourante, taillePage, callback) {
+		
+		var referentiel = "referentiel="+(!recherche.referentiel ? '%' : recherche.referentiel);
+		var referentielVerna = '&referentiel_verna='+(recherche.referentielVerna);
+		var rechercheLibre = "&recherche="+(!recherche.texte ? '%' : recherche.texte);
+		var pagesExistantes = '&pages_existantes='+(!!recherche.fichesExistantes);
+		var nomsVernaculaires = '&nom_verna='+(!!recherche.nomVernaculaire);
+		var pagination = '&debut='+(pageCourante*taillePage)+"&limite="+taillePage;
+		
+		return $http.get(config.url_service_pages+'?'+referentiel+referentielVerna+rechercheLibre+pagesExistantes+nomsVernaculaires+pagination)
+		.then(function(retour) {
+			var resultatsFmt = [];
+			var possibilites = retour.data.resultats;
+			var nbRes = possibilites.length;
+			for ( var i = 0; i < nbRes; i++) {
+				if(recherche.nomVernaculaire) {
+					if(!!possibilites[i].infos_taxon.noms_vernaculaires && possibilites[i].infos_taxon.noms_vernaculaires.length != 0) {
+						resultatsFmt.push(possibilites[i].infos_taxon.noms_vernaculaires.pop());
+					}
+				} else {
+					if(!!possibilites[i].infos_taxon.nom_sci && possibilites[i].infos_taxon.nom_sci != '') {
+						resultatsFmt.push(possibilites[i].infos_taxon.nom_sci);
+					}
+				} 
+			}
+			return resultatsFmt;
 		});
 	};
 	

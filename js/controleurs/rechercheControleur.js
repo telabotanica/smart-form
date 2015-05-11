@@ -1,4 +1,4 @@
-smartFormApp.controller('RechercheControleur', function ($scope, $rootScope, etatApplicationService, paginationService) {
+smartFormApp.controller('RechercheControleur', function ($scope, $rootScope, etatApplicationService, paginationService, smartFormService) {
 	
 	this.referentiels = config.referentiels;
 	this.infosReferentiels = config.infos_referentiels;
@@ -40,5 +40,9 @@ smartFormApp.controller('RechercheControleur', function ($scope, $rootScope, eta
 		etatApplicationService.recherche.referentiel = this.recherche.referentiel;
 		etatApplicationService.recherche.nomVernaculaire = this.recherche.nomVernaculaire;
 		etatApplicationService.recherche.referentielVerna = this.recherche.referentielVerna;
+	};
+	
+	this.getNomsAsync = function() {
+	    return smartFormService.getListeFichesSmartFloreAsync(this.recherche, 0, 10);
 	};
 });

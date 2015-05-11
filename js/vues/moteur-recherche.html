@@ -20,7 +20,9 @@
 							placeholder="Rechercher une fiche par nom {{rechercheCtrl.recherche.nomVernaculaire ? 'vernaculaire' : 'scientifique'}}" 
 							ng-model="rechercheCtrl.recherche.texte"
 							ng-disabled="rechercheCtrl.recherche.fichesExistantes"
-							ng-change="rechercheCtrl.surChangementRecherche()">
+							ng-change="rechercheCtrl.surChangementRecherche()"
+							typeahead-wait-ms="350"
+							typeahead="nom for nom in rechercheCtrl.getNomsAsync()">
 					</div>
 				</div>
 			</div>
