@@ -234,7 +234,7 @@ class SmartFloreService {
 		$url_eflore_tpl = $this->config['eflore']['infos_noms_vernaculaires_url'];
 		$url = sprintf($url_eflore_tpl, strtolower($referentiel_verna), implode(',', array_keys($nts_a_nn)));
 
-		$infos = file_get_contents($url);
+		$infos = @file_get_contents($url);
 		$infos = json_decode($infos, true);
 			
 		foreach($infos['resultat'] as $num_nom_verna => $infos_a_num_nom) {
@@ -287,6 +287,19 @@ class SmartFloreService {
 		}
 		
 		return $infos;
+	}
+	
+	protected function consulterRechercheNomsVernaEflore($recherche) {		
+		$url_eflore_verna_tpl = $this->config['eflore']['recherche_noms_vernaculaires_url'];
+		$referentiel_verna = $this->config['eflore']['referentiel_verna_'.strtolower($recherche['referentiel'])];
+		$url_verna = sprintf($url_eflore_verna_tpl, $referentiel_verna, urlencode($recherche['recherche'].'%'), $recherche['debut'], $recherche['limite']);
+		
+		// Quand il n'y pas de résultats eflore renvoie une erreur 404 (l'imbécile !)
+		// or le cas où l'on n'a pas de résultats est parfaitement valide
+		$infos_verna = @file_get_contents($url_verna);
+		$infos_verna = json_decode($infos_verna, true);
+		
+		return $infos_verna;
 	}
 	
 	// ---------------------------------------------------------------------------------------------

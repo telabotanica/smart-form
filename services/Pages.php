@@ -33,6 +33,23 @@ class Pages extends SmartFloreService {
 		$recherche['pages_existantes'] = isset($_GET['pages_existantes']) ? $_GET['pages_existantes'] == 'true' : false;
 		$recherche['nom_verna'] = isset($_GET['nom_verna']) ? $_GET['nom_verna'] == 'true' : false;
 		
+		$recherche['retour'] = isset($_GET['retour']) ? $_GET['retour'] : 'max';
+		
+		if($recherche['retour'] != 'min') {
+			// Recherche normale, avec renvoi d'infos complètes
+			$retour = $this->getPagesPourRechercheNormale($recherche);
+		} else {
+			// Recherche et renvoie uniquement les noms
+			// pour assurer une autocomplétion réactive
+			$retour = $this->getPagesPourRechercheAsync($recherche);
+		}
+		
+		header('Content-type: application/json');
+		echo json_encode($retour);
+		exit;
+	}
+	
+	function getPagesPourRechercheNormale($recherche) {
 		if($recherche['pages_existantes']) {
 			$retour = $this->getPagesExistantes($recherche);
 		} else {
@@ -42,8 +59,8 @@ class Pages extends SmartFloreService {
 				$retour = $this->getPagesToutesParRechercheScientifique($recherche);
 			}
 		}
-		
-		// Si l'utilisateur est connecté, on recherche également quelles sont les pages 
+			
+		// Si l'utilisateur est connecté, on recherche également quelles sont les pages
 		// présentes dans les résultats qui sont dans ses favoris
 		if(!empty($_GET['utilisateur']) && !empty($retour['resultats'])) {
 			$retour = $this->joindreFavoris($_GET['utilisateur'], $retour);
@@ -55,9 +72,7 @@ class Pages extends SmartFloreService {
 		// tri et d'accès, on désindexe avant de renvoyer les résultats (l'ordre est conservé)
 		$retour['resultats'] = array_values($retour['resultats']);
 		
-		header('Content-type: application/json');
-		echo json_encode($retour);
-		exit;
+		return $retour;
 	}
 	
 	function getPagesExistantes($recherche) {
@@ -141,14 +156,7 @@ class Pages extends SmartFloreService {
 	
 		$retour = array('pagination' => array('total' => 0), 'resultats' => array(), 'fiches_a_num_nom' => array());
 		
-		$url_eflore_verna_tpl = $this->config['eflore']['recherche_noms_vernaculaires_url'];
-		$referentiel_verna = $this->config['eflore']['referentiel_verna_'.strtolower($recherche['referentiel'])];
-		$url_verna = sprintf($url_eflore_verna_tpl, $referentiel_verna, urlencode($recherche['recherche'].'%'), $recherche['debut'], $recherche['limite']);
-
-		// Quand il n'y pas de résultats eflore renvoie une erreur 404 (l'imbécile !)
-		// or le cas où l'on n'a pas de résultats est parfaitement valide
-		$infos_verna = @file_get_contents($url_verna);
-		$infos_verna = json_decode($infos_verna, true);
+		$infos_verna = $this->consulterRechercheNomsVernaEflore($recherche);
 		
 		if(!empty($infos_verna['entete']) && $infos_verna['entete']['total'] > 0) {
 				
@@ -220,6 +228,30 @@ class Pages extends SmartFloreService {
 					$infos_taxon_t['num_nom'] = $num_nom;
 					$retour['resultats'][$recherche['referentiel'].$infos_a_nt['num_taxonomique']]['infos_taxon'] = array_merge($infos_taxon_t, $infos_a_nt);
 				}
+			}
+		}
+		
+		return $retour;
+	}
+	
+	function getPagesPourRechercheAsync($recherche) {
+		$retour = array('pagination' => array('total' => 0), 'resultats' => array());
+		$infos = array();
+		$case_nom = '';
+		
+		if($recherche['nom_verna']) {
+			$case_nom = 'nom';
+			$infos = $this->consulterRechercheNomsVernaEflore($recherche);
+		} else {
+			$case_nom = 'nom_sci';
+			$infos = $this->consulterRechercheNomsSciEflore($recherche);
+
+		}
+		
+		if(!empty($infos['entete']) && $infos['entete']['total'] != 0) {
+			$retour['pagination'] = $infos['entete']['total'];
+			foreach ($infos['resultat'] as $nom) {
+				$retour['resultats'][] = $nom[$case_nom];
 			}
 		}
 		

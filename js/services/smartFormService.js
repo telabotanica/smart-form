@@ -31,21 +31,18 @@ smartFormApp.service('smartFormService', function($http) {
 		var pagesExistantes = '&pages_existantes='+(!!recherche.fichesExistantes);
 		var nomsVernaculaires = '&nom_verna='+(!!recherche.nomVernaculaire);
 		var pagination = '&debut='+(pageCourante*taillePage)+"&limite="+taillePage;
+		// Afin de ne renvoyer qu'une simple liste de noms
+		var retour = '&retour=min';
 		
-		return $http.get(config.url_service_pages+'?'+referentiel+referentielVerna+rechercheLibre+pagesExistantes+nomsVernaculaires+pagination)
+		return $http.get(config.url_service_pages+'?'+referentiel+referentielVerna+rechercheLibre+pagesExistantes+nomsVernaculaires+pagination+retour)
 		.then(function(retour) {
 			var resultatsFmt = [];
 			var possibilites = retour.data.resultats;
 			var nbRes = possibilites.length;
-			for ( var i = 0; i < nbRes; i++) {
-				if(recherche.nomVernaculaire) {
-					if(!!possibilites[i].infos_taxon.noms_vernaculaires && possibilites[i].infos_taxon.noms_vernaculaires.length != 0) {
-						resultatsFmt.push(possibilites[i].infos_taxon.noms_vernaculaires.pop());
-					}
-				} else {
-					if(!!possibilites[i].infos_taxon.nom_sci && possibilites[i].infos_taxon.nom_sci != '') {
-						resultatsFmt.push(possibilites[i].infos_taxon.nom_sci);
-					}
+			for ( var i = 0; i < nbRes; i++) {				
+				// Afin d'éviter les doublons (cas fréquent pour les noms vernaculaires)
+				if(possibilites[i] != "" && resultatsFmt.indexOf(possibilites[i]) == -1) {
+					resultatsFmt.push(possibilites[i]);
 				} 
 			}
 			return resultatsFmt;
