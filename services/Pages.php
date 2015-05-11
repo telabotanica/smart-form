@@ -75,13 +75,7 @@ class Pages extends SmartFloreService {
 		
 		$retour = array('pagination' => array('total' => 0), 'resultats' => array(), 'fiches_a_num_nom' => array());
 		
-		$url_eflore_tpl = $this->config['eflore']['recherche_noms_url'];
-		$url = sprintf($url_eflore_tpl, strtolower($recherche['referentiel']), urlencode($recherche['recherche'].'%'), $recherche['debut'], $recherche['limite']);
-		
-		// Quand il n'y pas de résultats eflore renvoie une erreur 404 (l'imbécile !)
-		// or le cas où l'on n'a pas de résultats est parfaitement valide
-		$infos = @file_get_contents($url);
-		$infos = json_decode($infos, true);
+		$infos = $this->consulterRechercheNomsSciEflore($recherche);
 		
 		if(!empty($infos['entete']) && $infos['entete']['total'] > 0) {
 			

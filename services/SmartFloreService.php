@@ -268,6 +268,27 @@ class SmartFloreService {
 		return $res;
 	}
 	
+	protected function consulterRechercheNomsSciEflore($recherche) {
+		$url_eflore_tpl = $this->config['eflore']['recherche_noms_url'];
+		$url = sprintf($url_eflore_tpl, strtolower($recherche['referentiel']), 'etendue', urlencode($recherche['recherche'].'%'), $recherche['debut'], $recherche['limite']);
+		
+		// Quand il n'y pas de résultats eflore renvoie une erreur 404 (l'imbécile !)
+		// or le cas où l'on n'a pas de résultats est parfaitement valide
+		$infos = @file_get_contents($url);
+		$infos = json_decode($infos, true);
+		
+		if(empty($infos['entete']) || $infos['entete']['total'] == 0) {
+			// rien trouvé ? peut être une faute de frappe, on retente avec la recherche floue
+			$url_eflore_tpl = $this->config['eflore']['recherche_noms_url'];
+			$url = sprintf($url_eflore_tpl, strtolower($recherche['referentiel']), 'floue', urlencode($recherche['recherche'].'%'), $recherche['debut'], $recherche['limite']);
+
+			$infos = @file_get_contents($url);
+			$infos = json_decode($infos, true);
+		}
+		
+		return $infos;
+	}
+	
 	// ---------------------------------------------------------------------------------------------
 	//
 	//	FONCTIONS SPECIFIQUES AUX EVENEMENTS
