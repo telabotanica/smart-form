@@ -236,18 +236,20 @@ class SmartFloreService {
 
 		$infos = @file_get_contents($url);
 		$infos = json_decode($infos, true);
-			
-		foreach($infos['resultat'] as $num_nom_verna => $infos_a_num_nom) {
-			if(!empty($nts_a_nn[$infos_a_num_nom['num_taxon']])) {
-				$nums_noms_a_nt = $nts_a_nn[$infos_a_num_nom['num_taxon']];
 
-				foreach($nums_noms_a_nt as $num_nom) {
-					if(!empty($retour['resultats'][$referentiel.$num_nom])) {
-						$retour['resultats'][$referentiel.$num_nom]['infos_taxon']['noms_vernaculaires'][] = $infos_a_num_nom['nom'];
+		if(!empty($infos['resultat'])) {
+			foreach($infos['resultat'] as $num_nom_verna => $infos_a_num_nom) {
+				if(!empty($nts_a_nn[$infos_a_num_nom['num_taxon']])) {
+					$nums_noms_a_nt = $nts_a_nn[$infos_a_num_nom['num_taxon']];
+	
+					foreach($nums_noms_a_nt as $num_nom) {
+						if(!empty($retour['resultats'][$referentiel.$num_nom])) {
+							$retour['resultats'][$referentiel.$num_nom]['infos_taxon']['noms_vernaculaires'][] = $infos_a_num_nom['nom'];
+						}
 					}
-				}
-
-			}	
+	
+				}	
+			}
 		}
 	}
 	
