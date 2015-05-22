@@ -1,4 +1,4 @@
-smartFormApp.controller('SmartFormControleur', function ($scope, $rootScope, paginationService) {
+smartFormApp.controller('SmartFormControleur', function ($scope, $rootScope, paginationService, etatApplicationService) {
 	
 	// globale provenant de config.js
 	$scope.config = config;
@@ -26,11 +26,28 @@ smartFormApp.controller('SmartFormControleur', function ($scope, $rootScope, pag
 			$scope.changerEtat(etat);
 		});
 		
-		$rootScope.$broadcast('liste.afficher-liste');
+		var lthis = this;
+		setTimeout(function(){ lthis.analyserEtatApplication(); }, 200);
 	};
 		
 	$scope.changerEtat = function(etat) {
 		$scope.etat = etat;
+	};
+	
+	this.analyserEtatApplication = function() {
+		if(!!etatApplicationService.queryString) {
+			var action = etatApplicationService.queryString.action;
+			if(!!action && action == 'editer-fiche') {
+				var infos = {};
+				infos.num_tax = etatApplicationService.queryString.num_tax;
+				infos.referentiel = etatApplicationService.queryString.referentiel;
+				$rootScope.$broadcast('edition.charger-editer-fiche', infos);
+			} else {
+				$rootScope.$broadcast('liste.afficher-liste');
+			}	
+		} else {	
+			$rootScope.$broadcast('liste.afficher-liste');
+		}
 	};
 		
 	this.configPagination = function() {

@@ -35,18 +35,69 @@ class Pages extends SmartFloreService {
 		
 		$recherche['retour'] = isset($_GET['retour']) ? $_GET['retour'] : 'max';
 		
-		if($recherche['retour'] != 'min') {
-			// Recherche normale, avec renvoi d'infos complètes
-			$retour = $this->getPagesPourRechercheNormale($recherche);
-		} else {
+		if($recherche['retour'] == 'un') {
+			// Recherche d'une page, pour édition directe à partir d'un lien
+			$retour = $this->getPage($recherche);
+		} elseif($recherche['retour'] == 'min') {
 			// Recherche et renvoie uniquement les noms
 			// pour assurer une autocomplétion réactive
 			$retour = $this->getPagesPourRechercheAsync($recherche);
+		} else {
+			// Recherche normale, avec renvoi d'infos complètes
+			$retour = $this->getPagesPourRechercheNormale($recherche);
 		}
 		
 		header('Content-type: application/json');
 		echo json_encode($retour);
 		exit;
+	}
+	
+	function getPage($recherche) {
+		
+		$retour = array('pagination' => array('total' => 0), 'resultats' => array());
+		
+		$referentiel = $recherche['referentiel'];
+		$num_tax = $recherche['num_tax'];
+		
+		$url_eflore_tpl = $this->config['eflore']['infos_taxons_url'];
+		$url = sprintf($url_eflore_tpl, strtolower($referentiel), $num_tax);
+		$infos = @file_get_contents($url);
+		$infos = json_decode($infos, true);
+		
+		if(!empty($infos['entete']) && $infos['entete']['total'] > 0) {
+			
+			$num_nom = array_pop(array_keys($infos['resultat']));
+			$nom = array_pop($infos['resultat']);
+			
+			$recherche['noms_pages'][] = '"'.$this->formaterPageNom($referentiel, $num_tax).'"';
+			$recherche['debut'] = 0;
+			$recherche['limite'] = 1;
+			list($pages_wiki, $nb_pages_wiki) = $this->getPagesWikiParRechercheExacte($recherche);
+			
+			$retour['resultats'][] = array(
+				'existe' => $nb_pages_wiki > 0,
+				'favoris' => false, // pas important ici
+				'tag' => $recherche['noms_pages'][0],
+				'time' => '',
+				'owner' => '',
+				'user' => '',
+				'nb_revisions' => 0,
+				'infos_taxon' => array(
+						"num_taxonomique" => $recherche['num_tax'],
+						"nom_sci"=> $nom['nom_sci'],
+						"nom_sci_complet" => $nom['nom_sci_complet'],
+						"retenu" => $nom['retenu'],
+						"num_nom" => $num_nom,
+						"referentiel" => $recherche['referentiel'],
+						"noms_vernaculaires" => array() // pas important ici
+				)
+			);
+			$retour['resultats'][0] = array_merge($retour['resultats'][0], $pages_wiki[0]);
+			$retour['pagination']['total'] = 1;
+		}
+		
+		return $retour;
+
 	}
 	
 	function getPagesPourRechercheNormale($recherche) {

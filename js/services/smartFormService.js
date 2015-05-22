@@ -21,8 +21,7 @@ smartFormApp.service('smartFormService', function($http) {
 			surErreur(data);
 		});
 	};
-	
-	/** FICHES **/ 
+	 
 	smartFormService.getListeFichesSmartFloreAsync = function(recherche, pageCourante, taillePage, callback) {
 		
 		var referentiel = "referentiel="+(!recherche.referentiel ? '%' : recherche.referentiel);
@@ -46,6 +45,22 @@ smartFormApp.service('smartFormService', function($http) {
 				} 
 			}
 			return resultatsFmt;
+		});
+	};
+	
+	/** FICHES **/ 
+	smartFormService.getFicheSmartFlore = function(referentiel, numTax, surSucces, surErreur) {
+		
+		var paramReferentiel = "referentiel="+referentiel;
+		var paramNumTax = "&num_tax="+numTax;
+		var paramUn = "&retour=un";
+		
+		$http.get(config.url_service_pages+'?'+paramReferentiel+paramNumTax+paramUn).
+		success(function(data, status, headers, config) {
+			surSucces(data);
+		}).
+		error(function(data, status, headers, config) {
+			surErreur(data);
 		});
 	};
 	

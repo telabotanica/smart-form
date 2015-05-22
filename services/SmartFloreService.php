@@ -167,8 +167,6 @@ class SmartFloreService {
 		return array($res, $res_comptage['nb_pages']);
 	}
 	
-	// TODO: ça serait bien si on pouvait passer à cette fonction un tableau par référence
-	// afin que ça soit plus cohérent
 	protected function completerPagesParInfosTaxon(&$pages_wiki) {
 		
 		$infos_indexees_par_referentiel_nt = array();
@@ -334,7 +332,7 @@ class SmartFloreService {
 	}
 }
 
-// echo '<pre>'.print_r($obj, true).'</pre>' -> epprt
+// echo pre print_r true -> epprt
 function epprt($obj) {
 	echo '<pre>'.print_r($obj, true).'</pre>';
 }

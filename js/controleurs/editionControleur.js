@@ -1,7 +1,9 @@
-smartFormApp.controller('EditionControleur', function ($scope, $rootScope, $sce, wikiniService) {
+smartFormApp.controller('EditionControleur', function ($scope, $rootScope, $sce, wikiniService, smartFormService) {
 	
 	this.fiche_edition = {};
 	this.fiche_edition.sections = [];
+	
+	this.cacherLienRetour = false;
 	
 	var lthis = this;
 	$scope.$on('edition.editer-fiche', function(event, fiche) {
@@ -9,6 +11,28 @@ smartFormApp.controller('EditionControleur', function ($scope, $rootScope, $sce,
 		$rootScope.$broadcast('etat.changement-etat', "edition");
 		lthis.editerFiche(fiche);
 	});
+	
+	$scope.$on('edition.charger-editer-fiche', function(event, infos) {
+		// TODO: vérifier que l'on est connecté et si ça n'est pas le cas afficher 
+		// un formulaire d'identification en pleine page ?
+		
+		// on cache les liens de retours (ceci sert pour une édition directe à partir d'un lien)
+		// donc retourner à l'application n'a pas de sens ici
+		lthis.cacherLienRetour = true;
+		// changement d'état pour afficher le formulaire
+		$rootScope.$broadcast('etat.changement-etat', "edition");
+		lthis.chargerEtEditerFiche(infos.referentiel, infos.num_tax);
+	});
+	
+	this.chargerEtEditerFiche = function(referentiel, num_tax) {
+		smartFormService.getFicheSmartFlore(referentiel, num_tax,
+		function(data) {
+			var fiche = data.resultats.pop();
+			lthis.editerFiche(fiche);
+		}, function(data) {
+			
+		});
+	};
 	
 	this.editerFiche = function(fiche) {
 		var lthis = this;
@@ -19,7 +43,7 @@ smartFormApp.controller('EditionControleur', function ($scope, $rootScope, $sce,
 			lthis.fiche_edition.nom_sci = fiche.infos_taxon.nom_sci;
 			lthis.fiche_edition.referentiel = fiche.infos_taxon.referentiel;
 			lthis.fiche_edition.existe = true;
-			// Dès que le formulaire d'édition est appelé, il crée la fiche
+			// Dès que le formulaire d'édition est appelé, il crée la fiche si elle n'existe pas
 			$rootScope.$broadcast('edition.fiche-editee', lthis.fiche_edition);
 		}, function(data) {
 			// rien à faire en cas d'échec
