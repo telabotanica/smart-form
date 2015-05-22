@@ -6,16 +6,16 @@
 		{{editionCtrl.fiche_edition.nom_sci}} ({{editionCtrl.fiche_edition.referentiel}})</h2>
 
 	<div class="section_wiki"
-		ng-repeat="(titre, section) in editionCtrl.fiche_edition.sections">
+		ng-repeat="titre in editionCtrl.sectionsOrdonnees">
 		<h3>{{titre}}</h3>
 		<div class="contenu_editable">
 			<div id="{{titre}}" class="wikini editable_sur_clic"
-				ng-bind-html="editionCtrl.trustAsHtml(section)"
+				ng-bind-html="editionCtrl.trustAsHtml(editionCtrl.fiche_edition.sections[titre])"
 				ng-hide="editionCtrl.fiche_edition.section_edition.titre == titre"
 				ng-dblclick="editionCtrl.afficherFormEditionSection(editionCtrl.fiche_edition, titre)"></div>
 			<div class="formulaire_edition"
 				ng-show="editionCtrl.fiche_edition.section_edition.titre == titre">
-				<textarea class="champ_edition_wiki"
+				<textarea id="formulaire_edition_{{titre}}" class="champ_edition_wiki"
 					ng-model="editionCtrl.fiche_edition.section_edition.html_brut"></textarea>
 				<button type="button"
 					ng-click="editionCtrl.validerEditionSection(editionCtrl.fiche_edition, titre)">OK</button>

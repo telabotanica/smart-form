@@ -3,6 +3,8 @@ smartFormApp.controller('EditionControleur', function ($scope, $rootScope, $sce,
 	this.fiche_edition = {};
 	this.fiche_edition.sections = [];
 	
+	this.sectionsOrdonnees = config.sections_pages;
+	
 	this.cacherLienRetour = false;
 	
 	var lthis = this;
@@ -54,6 +56,16 @@ smartFormApp.controller('EditionControleur', function ($scope, $rootScope, $sce,
 		
 		this.fiche_edition.section_edition = {};
 		var lthis = this;
+		
+		// Pour conserver la taille de l'élément
+		// TODO: c'est moche, ça ne devrait pas avoir sa place 
+		// dans le controleur (on pourrait faire une directive)
+		var elm = angular.element(document.getElementById(titre));
+		var hauteurForm = elm[0].offsetHeight;
+		
+		var form = angular.element(document.getElementById("formulaire_edition_"+titre));
+		form.css('height', hauteurForm+"px");
+		
 		wikiniService.getFicheSectionPourEdition(fiche, titre,
 		function(data) {
 			lthis.fiche_edition.section_edition.titre = titre;
