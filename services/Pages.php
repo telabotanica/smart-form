@@ -59,7 +59,7 @@ class Pages extends SmartFloreService {
 		$referentiel = $recherche['referentiel'];
 		$num_tax = $recherche['num_tax'];
 		
-		$url_eflore_tpl = $this->config['eflore']['infos_taxons_url'];
+		$url_eflore_tpl = $this->config['eflore']['url_base'] . $this->config['eflore']['infos_taxons_url'];
 		$url = sprintf($url_eflore_tpl, strtolower($referentiel), $num_tax);
 		$infos = @file_get_contents($url);
 		$infos = json_decode($infos, true);
@@ -266,7 +266,7 @@ class Pages extends SmartFloreService {
 			}
 			
 			// Ajout des informations des noms scientifiques
-			$url_eflore_sci_tpl = $this->config['eflore']['infos_taxons_url'];
+			$url_eflore_sci_tpl = $this->config['eflore']['url_base'] . $this->config['eflore']['infos_taxons_url'];
 			$url_sci = sprintf($url_eflore_sci_tpl, strtolower($recherche['referentiel']), implode(',', array_keys($nts_a_num_noms_verna)));
 
 			$infos_noms_sci = file_get_contents($url_sci);

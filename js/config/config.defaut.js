@@ -20,7 +20,7 @@ var config = {
 			}
 		},
 		nom_fiche : 'SmartFlore{referentiel}nt{num_tax}',
-		url_wikini : "http://www.tela-botanica.org/wikini/eFloreRedaction/wakka.php?wiki={tag}",
+		url_wikini : "http://www.tela-botanica.org/wikini/eFloreRedactionTest/wakka.php?wiki={tag}",
 		url_service_pages : "http://localhost/smart-form/services/Pages.php",
 		url_service_favoris : "http://localhost/smart-form/services/Favoris.php",
 		url_service_sentiers : "http://localhost/smart-form/services/Sentiers.php",

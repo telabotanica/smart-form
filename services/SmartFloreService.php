@@ -186,7 +186,7 @@ class SmartFloreService {
 			$infos_indexees_par_referentiel_nt[$referentiel.$nt] = $resultat;
 		}
 		
-		$url_eflore_tpl = $this->config['eflore']['infos_taxons_url'];
+		$url_eflore_tpl = $this->config['eflore']['url_base'] . $this->config['eflore']['infos_taxons_url'];
 		
 		// $nts est un tableau indexé par référentiel, puis par nt
 		// la fonction renvoie un tableau indexé par referentiel et nn pour pouvoir avoir tout 
@@ -229,7 +229,7 @@ class SmartFloreService {
 	
 	// Attention le tableau retour est passé par référence
 	function completerPagesParNomsVernaculaires($referentiel, $referentiel_verna, $nts_a_nn, &$retour) {	
-		$url_eflore_tpl = $this->config['eflore']['infos_noms_vernaculaires_url'];
+		$url_eflore_tpl = $this->config['eflore']['url_base'] . $this->config['eflore']['infos_noms_vernaculaires_url'];
 		$url = sprintf($url_eflore_tpl, strtolower($referentiel_verna), implode(',', array_keys($nts_a_nn)));
 
 		$infos = @file_get_contents($url);
@@ -269,7 +269,7 @@ class SmartFloreService {
 	}
 	
 	protected function consulterRechercheNomsSciEflore($recherche) {
-		$url_eflore_tpl = $this->config['eflore']['recherche_noms_url'];
+		$url_eflore_tpl = $this->config['eflore']['url_base'] . $this->config['eflore']['recherche_noms_url'];
 		$url = sprintf($url_eflore_tpl, strtolower($recherche['referentiel']), 'etendue', urlencode($recherche['recherche'].'%'), $recherche['debut'], $recherche['limite']);
 		
 		// Quand il n'y pas de résultats eflore renvoie une erreur 404 (l'imbécile !)
@@ -279,7 +279,6 @@ class SmartFloreService {
 		
 		if(empty($infos['entete']) || $infos['entete']['total'] == 0) {
 			// rien trouvé ? peut être une faute de frappe, on retente avec la recherche floue
-			$url_eflore_tpl = $this->config['eflore']['recherche_noms_url'];
 			$url = sprintf($url_eflore_tpl, strtolower($recherche['referentiel']), 'floue', urlencode($recherche['recherche'].'%'), $recherche['debut'], $recherche['limite']);
 
 			$infos = @file_get_contents($url);
@@ -288,9 +287,9 @@ class SmartFloreService {
 		
 		return $infos;
 	}
-	
-	protected function consulterRechercheNomsVernaEflore($recherche) {		
-		$url_eflore_verna_tpl = $this->config['eflore']['recherche_noms_vernaculaires_url'];
+
+	protected function consulterRechercheNomsVernaEflore($recherche) {
+		$url_eflore_verna_tpl = $this->config['eflore']['url_base'] . $this->config['eflore']['recherche_noms_vernaculaires_url'];
 		$referentiel_verna = $this->config['eflore']['referentiel_verna_'.strtolower($recherche['referentiel'])];
 		$url_verna = sprintf($url_eflore_verna_tpl, $referentiel_verna, urlencode($recherche['recherche'].'%'), $recherche['debut'], $recherche['limite']);
 		
@@ -301,7 +300,7 @@ class SmartFloreService {
 		
 		return $infos_verna;
 	}
-	
+
 	// ---------------------------------------------------------------------------------------------
 	//
 	//	FONCTIONS SPECIFIQUES AUX EVENEMENTS
