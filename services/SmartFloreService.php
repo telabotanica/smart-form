@@ -126,7 +126,7 @@ class SmartFloreService {
 	// ---------------------------------------------------------------------------------------------
 	function splitNt($page) {
 		$page = str_replace('SmartFlore', '', $page);
-		return split('nt', $page);
+		return preg_split("/nt/", $page);
 	}
 	
 	function getPagesWikiParRechercheFloue($recherche) {
