@@ -88,11 +88,11 @@ class SmartFloreService {
 	
 	// Fonctions à surcharger dans les classes filles si besoin
 	// fonctions pseudo abstraites
-	function put($requete) {
+	function put($requete, $data) {
 	
 	}
 	
-	function post($requete) {
+	function post($requete, $data) {
 	
 	}
 	
@@ -104,7 +104,7 @@ class SmartFloreService {
 	
 	}
 	
-	function delete($requete) {
+	function delete($requete, $data) {
 	
 	}
 	
