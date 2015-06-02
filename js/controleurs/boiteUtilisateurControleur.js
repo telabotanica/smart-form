@@ -14,10 +14,20 @@ smartFormApp.controller('BoiteUtilisateurControleur', function ($scope, $rootSco
 	});
 
 	var lthis = this;
+
+	/**
+	 * Appelle annuaire:auth (SSO) pour obtenir un jeton contenant les
+	 * données de l'utilisateur
+	 */
 	this.connecterUtilisateur = function() {
 		if(this.formulaireValide()) {		
 			etatApplicationService.connecterUtilisateur(this.utilisateur, 
 			function(data) {
+				// infos SSO
+				etatApplicationService.jeton = data.token;
+				etatApplicationService.idJeton = data.token_id;
+				etatApplicationService.dureeJeton = data.duration;
+				// infos utilisateur
 				lthis.connaitreEtatUtilisateur();
 				lthis.retirerEnErreur();
 			},
@@ -63,8 +73,12 @@ smartFormApp.controller('BoiteUtilisateurControleur', function ($scope, $rootSco
 	this.connaitreEtatUtilisateur = function() {
 		etatApplicationService.connaitreEtatUtilisateur( 
 		function(data) {
-			if(!!data && !!data.id) {
-				lthis.utilisateur = data;
+			if(!!data && !!data.session) {
+				// infos SSO
+				etatApplicationService.jeton = data.token; // jeton rafraîchi
+				etatApplicationService.dureeJeton = data.duration;
+				// infos utilisateur
+				lthis.utilisateur = lthis.construireUtilisateurDepuisJeton(data.token);
 				lthis.utilisateur.connecte = true;
 				etatApplicationService.utilisateur = lthis.utilisateur;				
 				$rootScope.$broadcast('utilisateur.utilisateur-connecte', etatApplicationService.utilisateur);
@@ -78,6 +92,10 @@ smartFormApp.controller('BoiteUtilisateurControleur', function ($scope, $rootSco
 	this.deconnecterUtilisateur = function() {
 		etatApplicationService.deconnecterUtilisateur( 
 		function(data) {
+			// infos SSO
+			etatApplicationService.jeton = data.token; // devrait être null
+			etatApplicationService.dureeJeton = 0;
+			// infos utilisateur
 			lthis.initialiserUtilisateurVide();
 			etatApplicationService.utilisateur = lthis.utilisateur;
 			$rootScope.$broadcast('utilisateur.utilisateur-deconnecte');
@@ -86,7 +104,7 @@ smartFormApp.controller('BoiteUtilisateurControleur', function ($scope, $rootSco
 			
 		});
 	};
-	
+
 	this.initialiserUtilisateurVide = function() {
 		this.utilisateur = {};
 		this.utilisateur.connecte = false;
@@ -95,9 +113,42 @@ smartFormApp.controller('BoiteUtilisateurControleur', function ($scope, $rootSco
 		this.utilisateur.nom = "";
 		this.utilisateur.courriel = "";
 		this.utilisateur.nomWiki = "";
-		this.utilisateur.mdp = "";
+		this.utilisateur.mdp = ""; // wtf ?
 	};
-	
+
+	/**
+	 * Recopie les infos d'un jeton JWT dans le "profil" utilisateur
+	 */
+	this.construireUtilisateurDepuisJeton = function(jeton) {
+		var infos = this.decoderJeton(jeton); 
+		//console.log(infos);
+		var utilisateur = {
+			connecte: true,
+			id: infos.id,
+			prenom: infos.prenom,
+			nom: infos.nom,
+			courriel: infos.sub,
+			nomWiki: infos.nomWiki
+		};
+
+		return utilisateur;
+	};
+
+	/**
+	 * Décodage à l'arrache d'un jeton JWT, ATTENTION CONSIDERE QUE LE
+	 * JETON EST VALIDE, ne pas décoder n'importe quoi - pas trouvé de lib simple
+	 * Si pb de cross-browser, tenter ceci : https://code.google.com/p/javascriptbase64/
+	 * ou ceci : https://code.google.com/p/crypto-js
+	 */
+	this.decoderJeton = function(jeton) {
+		parts = jeton.split('.');
+		payload = parts[1];
+		payload = atob(payload);
+		payload = JSON.parse(payload, true);
+
+		return payload;
+	}
+
 	this.initialiserUtilisateurVide();
 	this.connaitreEtatUtilisateur();
 });

@@ -1,4 +1,7 @@
-smartFormApp = angular.module('smartFormApp', ['ngSanitize', 'ui.bootstrap']);
+smartFormApp = angular.module('smartFormApp', ['ngSanitize', 'ui.bootstrap'])
+.config(['$httpProvider', function($httpProvider) {
+	$httpProvider.defaults.withCredentials = true;
+}]);
 
 smartFormApp.config(function($logProvider){
     $logProvider.debugEnabled(true);

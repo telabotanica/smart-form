@@ -25,35 +25,28 @@ smartFormApp.service('etatApplicationService', function($http) {
 	etatApplicationService.utilisateur.nom = "";
 	etatApplicationService.utilisateur.courriel = "";
 	etatApplicationService.utilisateur.nomWiki = "";
+
+	// SSO
+	etatApplicationService.jeton = null;
+	etatApplicationService.idJeton = "";
+	etatApplicationService.dureeJeton = 0;
 	
 	etatApplicationService.voirTousLesSentiers = false;
 	
 	etatApplicationService.connecterUtilisateur  = function(utilisateur, surSucces, surErreur) {	
 		var url_service = config.url_service_annuaire.replace("{service}", "connexion");
-		donnees_post = {courriel : utilisateur.courriel, mdp : utilisateur.mdp, persistance : true, methode : "connexion"};
 		// Besoin d'un objet particulier ici car sinon angular poste du json
-		$http({
-		    method: 'PUT',
-		    url: url_service,
-		    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-		    transformRequest: function(obj) {
-		        var str = [];
-		        for(var p in obj)
-		        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
-		        return str.join("&");
-		    },
-		    data: donnees_post
-		}).
-		success(function(data, status, headers, config) {
+		$http.get(url_service + "?login=" + utilisateur.courriel + "&password=" + encodeURIComponent(utilisateur.mdp))
+		.success(function(data, status, headers, config) {
 			surSucces(data);
-		}).
-		error(function(data, status, headers, config) {
+		})
+		.error(function(data, status, headers, config) {
 			surErreur();
 		});
 	};
 	
-	etatApplicationService.connaitreEtatUtilisateur = function(surSucces, surErreur) {	
-		var url_service = config.url_service_annuaire.replace("{service}", "identite-connectee");
+	etatApplicationService.connaitreEtatUtilisateur = function(surSucces, surErreur) {
+		var url_service = config.url_service_annuaire.replace("{service}", "identite");
 		$http.get(url_service).
 		success(function(data, status, headers, config) {
 			surSucces(data);
@@ -65,7 +58,7 @@ smartFormApp.service('etatApplicationService', function($http) {
 	
 	etatApplicationService.deconnecterUtilisateur = function(surSucces, surErreur) {	
 		var url_service = config.url_service_annuaire.replace("{service}", "deconnexion");
-		$http.delete(url_service).
+		$http.get(url_service).
 		success(function(data, status, headers, config) {
 			surSucces(data);
 		}).
