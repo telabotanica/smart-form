@@ -54,7 +54,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, smar
 	
 	this.getSentiers = function() {
 		var lthis = this;
-		smartFormService.getSentiers(etatApplicationService.utilisateur.nomWiki, etatApplicationService.voirTousLesSentiers, 
+		smartFormService.getSentiers(etatApplicationService.voirTousLesSentiers, 
 		function(data) {
 			lthis.sentiers = data.resultats;
 			if(lthis.sentiers.length > 0) {
@@ -71,7 +71,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, smar
 	this.ajouterSentier = function() {
 		var lthis = this;
 		if(this.verifierValiditeSentier()) {
-			smartFormService.ajouterSentier(etatApplicationService.utilisateur.nomWiki, etatApplicationService.utilisateur.courriel, this.nouveauSentierTitre,
+			smartFormService.ajouterSentier(this.nouveauSentierTitre,
 			function(data) {
 				if(data == 'OK') {
 					lthis.initialiserNouveauSentier(lthis.nouveauSentierTitre);
@@ -89,7 +89,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, smar
 	this.supprimerSentier = function(sentier) {
 		var lthis = this;
 		if(window.confirm("Êtes-vous sûr de vouloir supprimer ce sentier ?")) {
-			smartFormService.supprimerSentier(etatApplicationService.utilisateur.nomWiki, sentier.titre,
+			smartFormService.supprimerSentier(sentier.titre,
 			function(data) {
 				if(data == 'OK') {
 					lthis.supprimerSentierDeLaListe(sentier);
@@ -111,7 +111,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, smar
 	this.ajouterFicheASentier = function(sentier, fiche) {
 		var lthis = this;
 		if(!lthis.sentierSelectionneContientFiche(fiche.tag)) {
-			smartFormService.ajouterFicheASentier(etatApplicationService.utilisateur.nomWiki, sentier.titre, fiche.tag,
+			smartFormService.ajouterFicheASentier(sentier.titre, fiche.tag,
 			function(data) {
 				if(data == 'OK') {
 					lthis.sentierSelectionne.fiches.push(fiche);

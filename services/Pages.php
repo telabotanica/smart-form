@@ -113,8 +113,9 @@ class Pages extends SmartFloreService {
 			
 		// Si l'utilisateur est connecté, on recherche également quelles sont les pages
 		// présentes dans les résultats qui sont dans ses favoris
-		if(!empty($_GET['utilisateur']) && !empty($retour['resultats'])) {
-			$retour = $this->joindreFavoris($_GET['utilisateur'], $retour);
+		if(!empty($this->utilisateur['nomWiki']) && !empty($retour['resultats'])) {
+			$utilisateur = $this->utilisateur['nomWiki'];
+			$retour = $this->joindreFavoris($utilisateur, $retour);
 		}
 		// $retour['fiches_a_num_nom'] était là pour des raisons pratique de
 		// tri et d'accès, on le supprime avant de renvoyer les résultats

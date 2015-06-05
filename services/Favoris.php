@@ -26,12 +26,9 @@ class Favoris extends SmartFloreService {
 	}
 	
 	public function getFavoris() {
-		
-		if(empty($_GET['utilisateur'])) {
-			$this->error('400', 'Le paramètre utilisateur est obligatoire');
-		}
-		
-		$utilisateur = $_GET['utilisateur'];
+
+		$this->verifierAuthentification();
+		$utilisateur = $this->utilisateur['nomWiki'];
 
 		$favoris = $this->getFavorisPourUtilisateur($utilisateur);
 		
@@ -53,12 +50,12 @@ class Favoris extends SmartFloreService {
 		
 		$retour = false;
 		
-		if(empty($data['pageTag']) || empty($data['utilisateur'])) {
-			$this->error('400', 'Les paramètres pageTag et utilisateur sont obligatoires');
+		if(empty($data['pageTag'])) {
+			$this->error('400', 'Le paramètre pageTag est obligatoire');
 		}
 		
 		$page_tag = $data['pageTag'];
-		$utilisateur = $data['utilisateur'];
+		$utilisateur = $this->utilisateur['nomWiki'];
 		
 		$requete_existe = 'SELECT COUNT(resource) >= 1 as favoris_existe '.
 				'FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
@@ -89,12 +86,12 @@ class Favoris extends SmartFloreService {
 	public function supprimerFavoris($data) {
 		$retour = false;
 		
-		if(empty($data['pageTag']) || empty($data['utilisateur'])) {
-			$this->error('400', 'Les paramètres pageTag et utilisateur sont obligatoires');
+		if(empty($data['pageTag'])) {
+			$this->error('400', 'Le paramètres pageTag est obligatoire');
 		}
 		
 		$page_tag = $data['pageTag'];
-		$utilisateur = $data['utilisateur'];
+		$utilisateur = $this->utilisateur['nomWiki'];
 		
 		$requete_suppression = 'DELETE FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
 				'WHERE resource = '.$this->bdd->quote($page_tag).' AND '.

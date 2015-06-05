@@ -1,4 +1,4 @@
-smartFormApp.service('wikiniService', function($http) {
+smartFormApp.service('wikiniService', function($http, etatApplicationService) {
 	
 	var wikiniService = {};	
 	// variable globale contenue dans un script au début de l'application
@@ -46,7 +46,10 @@ smartFormApp.service('wikiniService', function($http) {
 		$http({
 		    method: 'POST',
 		    url: url,
-		    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+		    headers: {
+		    	'Content-Type': 'application/x-www-form-urlencoded',
+		    	'Authorization': etatApplicationService.jeton
+		    },
 		    transformRequest: function(obj) {
 		        var str = [];
 		        for(var p in obj)

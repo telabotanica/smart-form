@@ -57,11 +57,12 @@ class Sentiers extends SmartFloreService {
 	}
 	
 	private function getSentiers() {
-		
-		if(!empty($_GET['utilisateur'])) {
+
+		$this->verifierAuthentification();
+		$utilisateur = $this->utilisateur['nomWiki'];
+		if(!empty($utilisateur)) {
 			// permet de renvoyer les sentiers de l'utilisateur en premier
 			// si celui ci est précisé
-			$utilisateur = $_GET['utilisateur'];
 			$champs_requete = '*, IF(value = '.$this->bdd->quote($utilisateur).', 1, 0) as sentier_utilisateur';
 			$ordre = "ORDER BY sentier_utilisateur DESC, resource ASC";
 		} else {
@@ -72,7 +73,7 @@ class Sentiers extends SmartFloreService {
 		$requete = 'SELECT '.$champs_requete.' '.
 				'FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
 				'WHERE property = "'.$this->triple_sentier.'" '.
-				(!empty($_GET['utilisateur']) ? 'AND value = '.$this->bdd->quote($utilisateur) : '');
+				(!empty($utilisateur) ? 'AND value = '.$this->bdd->quote($utilisateur) : '');
 					
 		$res = $this->bdd->query($requete);
 		$res = $res->fetchAll(PDO::FETCH_ASSOC);
@@ -93,12 +94,13 @@ class Sentiers extends SmartFloreService {
 		
 		$retour = false;
 		
-		if(empty($data['sentierTitre']) || empty($data['utilisateur']) || empty($data['utilisateurCourriel'])) {
-			$this->error('400', 'Les paramètres sentierTitre, utilisateur et utilisateurCourriel sont obligatoires');
+		if (empty($data['sentierTitre'])) {
+			$this->error('400', 'Le paramètre sentierTitre est obligatoire');
 		}
 		
 		$sentier_titre = $data['sentierTitre'];
-		$utilisateur = $data['utilisateur'];
+		$utilisateur = $this->utilisateur['nomWiki'];
+		$utilisateurCourriel = $this->utilisateur['courriel'];
 		
 		$requete_existe = 'SELECT COUNT(resource) >= 1 as sentier_existe '.
 				'FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
@@ -118,7 +120,7 @@ class Sentiers extends SmartFloreService {
 			$retour = ($res_insertion !== false) ? 'OK' : false;
 			
 			if($retour == 'OK') {
-				$infos_evenement = array('utilisateur' => $utilisateur, 'utilisateur_courriel' => $data['utilisateurCourriel'], 'titre' => $sentier_titre);
+				$infos_evenement = array('utilisateur' => $utilisateur, 'utilisateur_courriel' => $utilisateurCourriel, 'titre' => $sentier_titre);
 				// Enregistrement de l'évènement pour des stats ultérieures
 				$this->enregistrerEvenement($this->triple_evenement_sentier_ajout, $infos_evenement);
 			}
@@ -134,12 +136,12 @@ class Sentiers extends SmartFloreService {
 		
 		$retour = false;
 		
-		if(empty($data['sentierTitre']) || empty($data['utilisateur'])) {
-			$this->error('400', 'Les paramètres sentierTitre et utilisateur sont obligatoires');
+		if (empty($data['sentierTitre'])) {
+			$this->error('400', 'Le paramètre sentierTitre est obligatoire');
 		}
 		
 		$sentier_titre = $data['sentierTitre'];
-		$utilisateur = $data['utilisateur'];
+		$utilisateur = $this->utilisateur['nomWiki'];
 		
 		$requete_suppression = 'DELETE FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
 				'WHERE value = '.$this->bdd->quote($utilisateur).' '.
@@ -218,12 +220,12 @@ class Sentiers extends SmartFloreService {
 	
 		$retour = false;
 	
-		if(empty($data['sentierTitre']) || empty($data['pageTag']) || empty($data['utilisateur'])) {
-			$this->error('400', 'Les paramètres sentierTitre, pageTag et utilisateur sont obligatoires');
+		if(empty($data['sentierTitre']) || empty($data['pageTag'])) {
+			$this->error('400', 'Les paramètres sentierTitre et pageTag sont obligatoires');
 		}
 	
 		$sentier_titre = $data['sentierTitre'];
-		$utilisateur = $data['utilisateur'];
+		$utilisateur = $this->utilisateur['nomWiki'];
 		$page_tag = $data['pageTag'];
 	
 		$requete_existe = 'SELECT COUNT(resource) > 1 as sentier_a_page_existe '.

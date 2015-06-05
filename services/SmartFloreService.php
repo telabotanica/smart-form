@@ -24,6 +24,9 @@ class SmartFloreService {
 	protected $triple_evenement_sentier_ajout = "smartFlore.evenements.sentiers.ajout";
 	protected $triple_evenement_sentier_fiche_ajout = "smartFlore.evenements.sentiers.fiche.ajout";
 	protected $triple_evenement_favoris_ajout = "smartFlore.evenements.favoris.ajout";
+
+	/** Utilisateur en cours, identifié par un jeton SSO */
+	protected $utilisateur;
 	
 	public function __construct() {
 		$this->config = parse_ini_file('config.ini', true);
@@ -53,12 +56,17 @@ class SmartFloreService {
 	function init() {
 		$methode = $_SERVER['REQUEST_METHOD'];
 		$requete = explode("/", substr(@$_SERVER['PATH_INFO'], 1));
-		
+
+		// Récupération d'un éventuel jeton SSO
+		$this->getUtilisateurIdentifie();
+
 		switch ($methode) {
 			case 'PUT':
+				$this->verifierAuthentification();
 				$this->put($requete, $this->retrouverInputData());
 				break;
 			case 'POST':
+				$this->verifierAuthentification();
 				$this->post($requete, $this->retrouverInputData());
 				break;
 			case 'GET':
@@ -68,22 +76,16 @@ class SmartFloreService {
 				$this->head($requete);
 				break;
 			case 'DELETE':
+				$this->verifierAuthentification();
 				$this->delete($requete, $this->retrouverInputData());
 				break;
 			case 'OPTIONS':
 				$this->options($requete);
 				break;
 			default:
-				$this->erreur($requete);
+				$this->error(400, "unsupported method $method");
 				break;
 		}
-	}
-	
-	function retrouverInputData() {
-		$input_fmt = "";
-		$input = file_get_contents('php://input', 'r');	
-
-		return json_decode($input, true);
 	}
 	
 	// Fonctions à surcharger dans les classes filles si besoin
@@ -116,6 +118,118 @@ class SmartFloreService {
 		http_response_code($code);
 		echo $texte;
 		exit;
+	}
+
+	// ---------------------------------------------------------------------------------------------
+	//
+	//	FONCTIONS SPECIFIQUES À L'AUTHENTIFICATION SSO
+	//
+	// ---------------------------------------------------------------------------------------------
+
+	/**
+	 * Termine le programme si l'utilisateur n'est pas identifié par un jeton SSO
+	 */
+	protected function verifierAuthentification() {
+		if ($this->utilisateur == null) {
+			$this->error(401, "vous devez être authentifié pour utiliser ce service");
+			exit;
+		}
+	}
+
+	/**
+	 * Recherche un jeton SSO dans l'entête HTTP "Authorization", vérifie ce
+	 * jeton auprès de l'annuaire et en cas de succès charge les informations
+	 * de l'utilisateur associé dans $this->utilisateur
+	 *
+	 * @return Array un profil utilisateur ou null
+	 */
+	protected function getUtilisateurIdentifie() {
+		$utilisateur = null;
+		// lecture du jeton
+		$jeton = $this->lireJetonEntete();
+		if ($jeton != null) {
+			// validation par l'annuaire
+			$valide = $this->verifierJeton($jeton);
+			if ($valide === true) {
+				// décodage du courriel utilisateur depuis le jeton
+				$donneesJeton = $this->decoderJeton($jeton);
+				if ($donneesJeton != null && $donneesJeton["sub"] != "" && $donneesJeton["nomWiki"] != "") {
+					// récupération de l'utilisateur
+					$utilisateur = array(
+						"courriel" => $donneesJeton["sub"],
+						"nomWiki" => $donneesJeton["nomWiki"],
+						"id" => $donneesJeton["id"]
+					);
+				}
+			}
+		}
+		$this->utilisateur = $utilisateur;
+	}
+	
+	/**
+	 * Essaye de trouver un jeton JWT non vide dans l'entête HTTP "Authorization"
+	 *
+	 * @return String un jeton JWT ou null
+	 */
+	protected function lireJetonEntete() {
+		$jwt = null;
+		$headers = apache_request_headers();
+		if (isset($headers["Authorization"]) && ($headers["Authorization"] != "")) {
+			$jwt = $headers["Authorization"];
+		}
+		return $jwt;
+	}
+	
+	/**
+	 * Vérifie un jeton auprès de l'annuaire
+	 *
+	 * @param String $jeton un jeton JWT
+	 * @return true si le jeton est vérifié, false sinon
+	 */
+	protected function verifierJeton($jeton) {
+		$urlServiceVerification = $this->config['auth']['auth_url']  . "/verifierjeton";
+		$urlServiceVerification .= "?token=" . $jeton;
+
+		// file_get_contents râle si le certificat HTTPS est auto-signé
+		//$retour = file_get_contents($urlServiceVerification);
+	
+		// curl avec les options suivantes ignore le pb de certificat (pour tester en local)
+		$ch = curl_init();
+		$timeout = 5;
+		curl_setopt($ch, CURLOPT_URL, $urlServiceVerification);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+		// équivalent de "-k"
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		$data = curl_exec($ch);
+		curl_close($ch);
+		$retour = $data;
+	
+		$retour = json_decode($retour, true);
+	
+		return ($retour === true);
+	}
+	
+	/**
+	 * Décode un jeton JWT (SSO) précédemment validé et retourne les infos
+	 * qu'il contient (payload / claims)
+	 * @param String $jeton un jeton JWT précédemment validé
+	 */
+	protected function decoderJeton($jeton) {
+		$parts = explode('.', $jeton);
+		$payload = $parts[1];
+		$payload = base64_decode($payload);
+		$payload = json_decode($payload, true);
+	
+		return $payload;
+	}
+
+	function retrouverInputData() {
+		$input_fmt = "";
+		$input = file_get_contents('php://input', 'r');	
+
+		return json_decode($input, true);
 	}
 	
 
