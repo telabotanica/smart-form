@@ -52,6 +52,8 @@ class SmartFloreService {
 	// ---------------------------------------------------------------------------------------------
 	function init() {
 		$methode = $_SERVER['REQUEST_METHOD'];
+		// Certaines version de php remplissent PATH_INFO et d'autres ORIG_PATH_INFO en cas de redirection
+		$path_info = !empty($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : (!empty($_SERVER['ORIG_PATH_INFO']) ? $_SERVER['ORIG_PATH_INFO'] : '');
 		$requete = explode("/", substr(@$_SERVER['PATH_INFO'], 1));
 		
 		switch ($methode) {
