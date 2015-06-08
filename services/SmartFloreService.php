@@ -508,17 +508,4 @@ if (!function_exists('http_response_code')) {
 		return $code;
 	}
 }
-
-if( !function_exists('apache_request_headers') ) {
-	function apache_request_headers() {
-	  	foreach ($_SERVER as $K=>$V) {
-	  		$a=explode('_' ,$K);
-      		if(array_shift($a)=='HTTP') {
-           		array_walk($a,function(&$v){$v=ucfirst(strtolower($v));});
-       			$retval[join('-',$a)]=$V;
-      		}
-    	} 
-    	return $retval; 
-	}
-}
 ?>
