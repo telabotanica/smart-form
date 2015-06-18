@@ -179,16 +179,36 @@ class Sentiers extends SmartFloreService {
 		$res = $res->fetchAll(PDO::FETCH_ASSOC);
 	
 		$sentiers_a_fiches = array('noms_pages' => array(), 'debut' => null, 'limite' => null);
+		
+		$pages_a_traiter = array();
 		foreach($res as $sentier) {
 			$sentiers_a_fiches['noms_pages'][] = $this->bdd->quote($sentier['resource']);
+			// Certaines fiches ajoutées à des sentiers n'existent pas forcément
+			// donc on crée manuellement leur entrée de tableau pour qu'elles soient 
+			// tout de même augmentées des infos taxonomiques et renvoyées
+			$pages_a_traiter[$sentier['resource']] = array(
+						'existe' => false,
+						'favoris' => false,
+						'tag' => $sentier['resource'],
+						'time' => '',
+						'owner' => '',
+						'user' => '',
+						'nb_revisions' => 0,
+						'infos_taxon' => array()
+				);
 		}
 		
 		$sentiers = array();
 		$nb_sentiers = 0;
 		if(!empty($sentiers_a_fiches['noms_pages'])) {
 			list($pages, $nb_sentiers) = $this->getPagesWikiParRechercheExacte($sentiers_a_fiches);
-			$pages_enrichies = $this->completerPagesParInfosTaxon($pages);
-			// $pages_enrichies['resultats'] est indexé par referentiel.num_nom pour des raisons pratique de
+			// affectation de leurs informations aux pages existantes
+			foreach($pages as $page) {
+				$pages_a_traiter[$page['tag']] = $page;
+			}
+			
+			$pages_enrichies = $this->completerPagesParInfosTaxon(array_values($pages_a_traiter));
+			// $pages_enrichies['resultats'] est indexé par referentiel.num_nom pour des raisons pratiques de
 			// tri et d'accès, on désindexe avant de renvoyer les résultats
 			$sentiers = array_values($pages_enrichies['resultats']);
 			usort($sentiers, array($this, 'trierParNomSci'));
