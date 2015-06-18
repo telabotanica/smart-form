@@ -183,7 +183,7 @@ class SmartFloreService {
 				$nts[$referentiel] = array();
 			}
 			$nts[$referentiel][] = $nt;
-			$resultat['existe'] = true;
+			$resultat['existe'] = !empty($resultat['nb_revisions']) && $resultat['nb_revisions'] > 0;
 			$resultat['favoris'] = false;
 			$infos_indexees_par_referentiel_nt[$referentiel.$nt] = $resultat;
 		}
