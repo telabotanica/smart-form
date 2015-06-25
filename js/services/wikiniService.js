@@ -11,7 +11,7 @@ smartFormApp.service('wikiniService', function($http) {
 	wikiniService.formaterUrlSectionWiki = function(tag, titre, format) {
 		url = config.url_section_wiki.replace('{pageTag}', tag);
 		url = url.replace('{sectionTitre}', window.encodeURIComponent(titre));
-		url = url.replace('{format}', 'text/plain');
+		url = url.replace('{format}', format);
 		
 		return url;
 	};
