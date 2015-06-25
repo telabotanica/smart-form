@@ -92,7 +92,7 @@ smartFormApp.controller('EditionControleur', function ($scope, $rootScope, $sce,
 						// C'est moche mais en attendant mieux on met à jour l'affichage manuellement
 						// On ne peut pas faire de modèle bi directionnel avec du html échappé
 						var elm = angular.element(document.getElementById(titre));
-						elm.text(section);
+						elm.html(section);
 						lthis.fiche_edition.section_edition = {};
 					}, 
 					function(data) {
