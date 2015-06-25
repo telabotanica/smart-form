@@ -11,14 +11,21 @@ smartFormApp.service('wikiniService', function($http, etatApplicationService) {
 	wikiniService.formaterUrlSectionWiki = function(tag, titre, format) {
 		url = config.url_section_wiki.replace('{pageTag}', tag);
 		url = url.replace('{sectionTitre}', window.encodeURIComponent(titre));
-		url = url.replace('{format}', 'text/plain');
+		url = url.replace('{format}', format);
 		
 		return url;
 	};
 	
 	wikiniService.getFichePourEdition = function(fiche, surSucces, surEchec) {
+		// On a besoin aussi du jeton ici pour associer la page au bon auteur 
 		url = wikiniService.formaterUrlSectionWiki(fiche.tag, config.sections_pages.join(), 'text/html'); 	
-		$http.get(url).
+		$http({
+		    method: 'GET',
+		    url: url,
+		    headers: {
+		    	'Authorization': etatApplicationService.jeton
+		    }
+		}).
 		success(function(data, status, headers, config) {
 			surSucces(data);
 		}).
