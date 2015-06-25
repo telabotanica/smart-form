@@ -205,6 +205,6 @@ body {
 	width: 160px;
 }
 
-.contenu_editable .editable_sur_clic, .contenu_editable .champ_edition_wiki {
+.contenu_editable .champ_edition_wiki {
 	white-space: pre-line;
 }
