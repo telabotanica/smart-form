@@ -29,7 +29,10 @@
 			
 			<hr class="nettoyage" />
 		
-			<div class="liste-fiches-sentier" ng-show="sentiersCtrl.sentiers.length > 0" >
+			<!-- MASQUE DE CHARGEMENT -->
+			<masquechargement ng-show="sentiersCtrl.chargementSentier"></masquechargement>
+		
+			<div class="liste-fiches-sentier" ng-show="!sentiersCtrl.chargementSentier && sentiersCtrl.sentiers.length > 0" >
 				<div class="bouton-suppression-sentier" ng-show="sentiersCtrl.sentierSelectionne.auteur = sentiersCtrl.utilisateurNomWiki" >
 					<button ng-click="sentiersCtrl.supprimerSentier(sentiersCtrl.sentierSelectionne)" type="button" class="btn btn-default btn-md" title="supprimer ce sentier">
 						<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
