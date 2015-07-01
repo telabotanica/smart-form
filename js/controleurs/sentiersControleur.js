@@ -11,6 +11,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, smar
 	this.utilisateurNomWiki = etatApplicationService.utilisateur.nomWiki;
 	
 	this.liensService = liensService;
+	this.chargementSentier = false;
 	
 	var lthis = this;
 	$scope.$on('utilisateur.utilisateur-connecte', function(event, utilisateur) {
@@ -43,9 +44,11 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, smar
 	};
 	
 	this.surChangementSentier = function() {
+		this.chargementSentier = true;
 		smartFormService.getFichesASentier(this.sentierSelectionne.titre,
 		function(data) {
 			lthis.sentierSelectionne.fiches = data.resultats;
+			lthis.chargementSentier = false;
 		}, 
 		function(data) {
 			

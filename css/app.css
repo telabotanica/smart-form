@@ -154,7 +154,7 @@ body {
 	color: red;
 }
 
-#masque-chargement {
+.masque-chargement {
     font-size: 30px;
     margin: auto;
     width: 250px;
