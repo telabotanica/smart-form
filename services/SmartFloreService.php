@@ -312,6 +312,8 @@ class SmartFloreService {
 	function enregistrerEvenement($evenement, $cible) {
 		$cible = $this->bdd->quote(json_encode($cible));
 		
+		date_default_timezone_set('Europe/Paris');
+		
 		$requete_insertion = 'INSERT INTO '.$this->config['bdd']['table_prefixe'].'_triples '.
 				'(resource, property, value) VALUES '.
 				' ("'.date('Y-m-d H:i:s').'","'.$evenement.'", '.$cible.') ';
