@@ -22,9 +22,7 @@ smartFormApp.service('wikiniService', function($http, etatApplicationService) {
 		$http({
 		    method: 'GET',
 		    url: url,
-		    headers: {
-		    	'Authorization': etatApplicationService.jeton
-		    }
+		    headers: etatApplicationService.getHeadersAuth()
 		}).
 		success(function(data, status, headers, config) {
 			surSucces(data);
@@ -49,14 +47,14 @@ smartFormApp.service('wikiniService', function($http, etatApplicationService) {
 		url = wikiniService.formaterUrlSectionWiki(fiche_edition.tag, titre, 'text/plain');
 		donnees_post = {pageContenu : texte_saisi, pageSectionTitre : titre};
 		
+	    headers_requete = etatApplicationService.getHeadersAuth();
+	    headers_requete['Content-Type'] = 'application/x-www-form-urlencoded';
+		
 		// Besoin d'un objet particulier ici car sinon angular poste du json
 		$http({
 		    method: 'POST',
 		    url: url,
-		    headers: {
-		    	'Content-Type': 'application/x-www-form-urlencoded',
-		    	'Authorization': etatApplicationService.jeton
-		    },
+		    headers: headers_requete,
 		    transformRequest: function(obj) {
 		        var str = [];
 		        for(var p in obj)

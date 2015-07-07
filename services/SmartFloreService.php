@@ -24,12 +24,19 @@ class SmartFloreService {
 	protected $triple_evenement_sentier_ajout = "smartFlore.evenements.sentiers.ajout";
 	protected $triple_evenement_sentier_fiche_ajout = "smartFlore.evenements.sentiers.fiche.ajout";
 	protected $triple_evenement_favoris_ajout = "smartFlore.evenements.favoris.ajout";
+	
+	protected $auth_header = 'Authorization';
 
 	/** Utilisateur en cours, identifié par un jeton SSO */
 	protected $utilisateur;
 	
 	public function __construct() {
 		$this->config = parse_ini_file('config.ini', true);
+		
+		// sous php-cgi le module retire le header Authorization
+		// donc en attendant de migrer php de sequoia vers une version récente
+		// on passe la variable dans un autre header
+		$this->auth_header = !empty($this->config['auth']['header']) ? $this->config['auth']['header'] : $this->auth_header;
 		try {
 			$this->bdd = new PDO('mysql:host='. $this->config['bdd']['host'].';dbname='. $this->config['bdd']['db'], $this->config['bdd']['user'],  $this->config['bdd']['pass']);
 			$this->bdd->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
@@ -167,6 +174,8 @@ class SmartFloreService {
 		}
 		$this->utilisateur = $utilisateur;
 	}
+
+	
 	
 	/**
 	 * Essaye de trouver un jeton JWT non vide dans l'entête HTTP "Authorization"
@@ -176,8 +185,8 @@ class SmartFloreService {
 	protected function lireJetonEntete() {
 		$jwt = null;
 		$headers = apache_request_headers();
-		if (isset($headers["Authorization"]) && ($headers["Authorization"] != "")) {
-			$jwt = $headers["Authorization"];
+		if (isset($headers[$this->auth_header]) && ($headers[$this->auth_header] != "")) {
+			$jwt = $headers[$this->auth_header];
 		}
 		return $jwt;
 	}
@@ -260,6 +269,12 @@ class SmartFloreService {
 	}
 	
 	private function getPagesWiki($condition, $debut = null, $limite = null) {
+		
+		if(!empty($condition)) {
+			$condition .= 'AND ';
+		}
+		// Seulement les dernières révisions des pages
+		$condition .= ' latest = "Y" ';
 		
 		$champs = "id, tag, time, owner, user, latest";
 	

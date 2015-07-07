@@ -29,5 +29,6 @@ var config = {
 		url_section_wiki : "http://localhost/yeswiki/api/rest/0.5/pages/{pageTag}?txt.format={format}&txt.section.titre={sectionTitre}&txt.template=PageTaxonSmartFlore",
 		sections_pages : ["Description", "Usages", "Écologie & habitat", "Sources"],
 		url_service_annuaire : "http://localhost/annuaire/jrest/utilisateur/{service}",
+		auth_header : "Auth",
 		url_inscription : "http://www.tela-botanica.org/page:inscription"
 };

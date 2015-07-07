@@ -71,9 +71,7 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 		$http({
 		    method: 'GET',
 		    url: config.url_service_favoris,
-		    headers: {
-		    	'Authorization': etatApplicationService.jeton
-		    }
+		    headers: etatApplicationService.getHeadersAuth()
 		}).
 		success(function(data, status, headers, config) {
 			surSucces(data);
@@ -90,9 +88,7 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 		$http({
 		    method: 'PUT',
 		    url: config.url_service_favoris,
-		    headers: {
-		    	'Authorization': etatApplicationService.jeton
-		    },
+		    headers: etatApplicationService.getHeadersAuth(),
 		    data: donnees_post
 		}).
 		success(function(data, status, headers, config) {
@@ -112,9 +108,7 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 		$http({
 		    method: 'DELETE',
 		    url: config.url_service_favoris,
-		    headers: {
-		    	'Authorization': etatApplicationService.jeton
-		    },
+		    headers: etatApplicationService.getHeadersAuth(),
 		    data : donnees_post
 		}).
 		success(function(data, status, headers, config) {
@@ -130,7 +124,7 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 		$http({
 		    method: 'GET',
 		    url: config.url_service_sentiers + '/sentier/',
-		    headers: (! voirTousLesSentiers) ? {'Authorization': etatApplicationService.jeton} : {}
+		    headers: (! voirTousLesSentiers) ? 	etatApplicationService.getHeadersAuth() : {}
 		}).
 		success(function(data, status, headers, config) {
 			surSucces(data);
@@ -147,9 +141,7 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 		$http({
 		    method: 'PUT',
 		    url: config.url_service_sentiers + '/sentier/',
-		    headers: {
-		    	'Authorization': etatApplicationService.jeton
-		    },
+		    headers: etatApplicationService.getHeadersAuth(),
 		    data: donnees_post
 		}).
 		success(function(data, status, headers, config) {
@@ -169,9 +161,7 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 		$http({
 		    method: 'DELETE',
 		    url: config.url_service_sentiers + '/sentier/',
-		    headers: {
-		    	'Authorization': etatApplicationService.jeton
-		    },
+		    headers: etatApplicationService.getHeadersAuth(),
 		    data: donnees_post
 		}).
 		success(function(data, status, headers, config) {
@@ -200,9 +190,7 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 		$http({
 		    method: 'PUT',
 		    url: config.url_service_sentiers + '/sentier-fiche/',
-		    headers: {
-		    	'Authorization': etatApplicationService.jeton
-		    },
+		    headers: etatApplicationService.getHeadersAuth(),
 		    data: donnees_post
 		}).
 		success(function(data, status, headers, config) {
@@ -222,9 +210,7 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 		$http({
 		    method: 'DELETE',
 		    url: config.url_service_sentiers + '/sentier/',
-		    headers: {
-		    	'Authorization': etatApplicationService.jeton
-		    },
+		    headers: etatApplicationService.getHeadersAuth(),
 		    data: donnees_post
 		}).
 		success(function(data, status, headers, config) {

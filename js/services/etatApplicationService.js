@@ -91,5 +91,11 @@ smartFormApp.service('etatApplicationService', function($http) {
 	    return query_string;
 	} ();
 	
+	etatApplicationService.getHeadersAuth = function() {
+		headers_requete = {};
+		headers_requete[config.auth_header] = etatApplicationService.jeton;
+		return headers_requete;
+	};
+	
 	return etatApplicationService;	
 });

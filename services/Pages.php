@@ -190,6 +190,7 @@ class Pages extends SmartFloreService {
 			
 			// Ajout des informations des pages du wiki si elles existent
 			$recherche['noms_pages'] = $noms_pages;
+			$recherche['debut'] = 0;
 			list($pages_wiki, $nb_pages_wiki) = $this->getPagesWikiParRechercheExacte($recherche);
 			
 			foreach($pages_wiki as $page_wiki) {
