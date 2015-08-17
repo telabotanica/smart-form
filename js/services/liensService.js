@@ -20,5 +20,12 @@ smartFormApp.service('liensService', function() {
 		window.open(config.url_inscription);
 	};
 	
+	liensService.exporterFicheEnPdf = function(fiche, sentierTitre) {
+		url = config.url_service_export.replace('{referentiel}', fiche.infos_taxon.referentiel.toLowerCase());
+		url = url.replace('{num_tax}', fiche.infos_taxon.num_taxonomique);
+		url = url.replace('{sentierTitre}', sentierTitre);
+		window.open(url);
+	};
+	
 	return liensService;	
 });

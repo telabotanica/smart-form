@@ -1,0 +1,151 @@
+@CHARSET "UTF-8";
+
+body {
+	margin: 0;
+	width: 2480px;
+	height: 1748px;
+}
+
+.panneau-entete, .panneau-nom-illustration {
+    width: 100%;
+}
+
+.panneau-logo-tela {
+    height: 150px;
+    display: inline-block;
+    margin-left: 60px;
+}
+
+.panneau {
+    color: #a6a08a;
+    display: inline-block;
+    font-family: sans-serif;
+    font-size: 80px;
+    left: 300px;
+    position: absolute;
+    top: 35px;
+    width: 100%;
+}
+
+.panneau-lettre-emphase {
+	color: #E06D38;
+	font-size: 120px;
+}
+
+.panneau-nom-sentier {
+    display: inline-block;
+    float: left;
+    height: 250px;
+    margin-top: 37px;
+    width: 1200px;
+    margin-left: 15px;
+}
+
+.panneau-fiche-sentier {
+	position: relative;
+	top: 0px;
+	display: inline-block;
+	float: left;
+}
+
+.panneau-fiche-sans-sentier {
+	padding-left: 650px;
+}
+
+.panneau-qr-code {
+   	display: inline-block;
+    float: right;
+    width: 350px;
+    margin-top: 40px;
+    margin-right: 75px;
+}
+
+.panneau-espece-nom {
+	background-color: #91896E;
+	color: #FFFFFF;
+	height: 200px;
+	padding-left: 490px;
+}
+
+.panneau-espece-nom > div {
+    bottom: -40px;
+    position: relative;
+}
+
+.panneau-bande-1, .panneau-bande-2 {
+	margin-top: 3px;
+}
+
+.panneau-bande-1 {
+	background-color: #E06D38;
+	height: 7px;
+	margin-bottom: 4px;
+}
+
+.panneau-bande-2 {
+	background-color: #C3D35D;
+	height: 18px;
+}
+
+.panneau-conteneur-illustration {
+	margin-left: 65px;
+    position: relative;
+    top: -350px;
+    max-width: 660px;
+    height: 500px;
+    overflow: hidden;
+}
+
+.panneau-espece-illustration {
+    display: block;
+    margin: 0 auto; 
+	height: 100%;
+}
+
+.panneau-espece-nom .panneau-nom-vernaculaire, .panneau-espece-nom .panneau-infos-scientifique {
+	margin-left: 290px;
+}
+
+.panneau-infos-scientifique {
+	font-size: 35px;
+}
+
+.panneau-nom-scientifique {
+	font-style: italic;
+}
+
+.panneau-nom-vernaculaire {
+	font-size: 85px;
+	font-weight: bold;
+}
+
+.panneau-description {
+    font-size: 35px;
+   	margin-left: 65px;
+    margin-right: 65px;
+    position: relative;
+    text-align: justify;
+    top: -335px;
+    color: #54575C;
+}
+
+.panneau-pied {
+	float: right;
+	position: fixed;
+	bottom: 5px;
+	right: 35px;
+}
+
+.panneau-logo {
+	height: 170px;
+	margin-right: 55px;
+}
+
+hr.separation-entete {
+	margin-bottom: 50px;
+}
+
+hr.nettoyage {
+	clear:both;
+	visibility: hidden;
+}

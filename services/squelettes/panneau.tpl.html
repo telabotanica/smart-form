@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link type="text/css" rel="stylesheet" href="<?= $base_style_url; ?>styles/panneau.css">
+<title><?= $titre ?></title>
+</head>
+<body>
+	<div class="panneau-entete">
+		<img class="panneau-logo-tela" src="http://resources.tela-botanica.org/tb/img/128x128/logo_carre_officiel.png" />
+		<div class="panneau">
+			<?php if(!empty($nom_sentier)) { ?>
+				<div class="panneau-fiche-sentier">
+					<span class="panneau-lettre-emphase">S</span>mart'<span class="panneau-lettre-emphase">F</span>lore :
+				</div>
+				<div class="panneau-nom-sentier"><?= $nom_sentier ?></div>
+			<? } else { ?>
+				<div class="panneau-fiche-sans-sentier"><span class="panneau-lettre-emphase">S</span>mart'<span class="panneau-lettre-emphase">F</span>lore</div>
+			<? } ?>
+		</div>
+		<img class="panneau-qr-code" src="<?= $url_qr_code; ?>" />
+	</div>
+	<hr class="nettoyage separation-entete" />
+	<div class="panneau-nom-illustration">
+		<div class="panneau-espece-nom">
+			<div>
+				<?php if(!empty($nom_vernaculaire)) { ?>
+					<div class="panneau-nom-vernaculaire"><?= $nom_vernaculaire ?></div>
+					<div class="panneau-infos-scientifique">
+						<span class="panneau-nom-scientifique"><?= $nom_sci; ?></span>
+						<span class="panneau-famille">Famille des <?= $famille; ?></span>
+					</div>
+				<? } else { ?>
+					<div class="panneau-nom-vernaculaire"><?= $nom_sci ?></div>
+					<div class="panneau-infos-scientifique">
+						<span class="panneau-famille">Famille des <?= $famille; ?></span>
+					</div>
+				<? } ?>
+			</div>
+		</div>
+		<div class="panneau-bande-1">&nbsp;</div>
+		<div class="panneau-bande-2">&nbsp;</div>
+		<div class="panneau-conteneur-illustration">
+			<?php if(!empty($url_illustration)) { ?>
+				<img class="panneau-espece-illustration" src="<?= $url_illustration; ?>" />
+			<?php } ?>
+		</div>
+	</div>
+	<hr class="nettoyage" />
+	<div class="panneau-description">
+		<?= $description; ?>
+	</div>
+	
+	<div class="panneau-pied">
+		<img src="<?= $base_style_url; ?>images/logo_msjs.jpg" class="panneau-logo" />
+		<img src="<?= $base_style_url; ?>images/logo_pia.jpg" class="panneau-logo" />
+	</div>
+</body>
+</html>

@@ -17,7 +17,7 @@
 								<th class="colonne-actions-fiche">Actions</th>
 							</tr>
 							<tr ng-repeat="fiche in favorisCtrl.fiches"
-								class="fiche-favoris"
+								class="fiche-favoris {{fiche.existe ? 'fiche-existante' : 'fiche-inexistante'}}"
 								drag="fiche" dragStyle="element-draggable">
 								<td>{{fiche.infos_taxon.noms_vernaculaires.slice(0,3).join(', ')}}</td>
 								<td>{{fiche.infos_taxon.nom_sci}}</td>
@@ -40,6 +40,12 @@
 										title="Voir le qr code de cette fiche" 
 										ng-click="favorisCtrl.liensService.ouvrirQrCode(fiche)">
 										<span class="glyphicon glyphicon-qrcode" aria-hidden="true"></span>
+									</button>
+									<button type="button" class="btn btn-default btn-sm"
+										title="Exporter la fiche en pdf" 
+										ng-show="fiche.existe"
+										ng-click="listeCtrl.liensService.exporterFicheEnPdf(fiche, '')">
+										<span class="glyphicon glyphicon-export" aria-hidden="true"></span>
 									</button>
 									<button type="button" class="btn btn-default btn-sm"
 										title="Supprimer cette fiche des favoris"
