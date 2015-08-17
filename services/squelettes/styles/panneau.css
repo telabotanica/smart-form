@@ -4,6 +4,7 @@ body {
 	margin: 0;
 	width: 2480px;
 	height: 1748px;
+	position: absolute;
 }
 
 .panneau-entete, .panneau-nom-illustration {
@@ -127,12 +128,13 @@ body {
     text-align: justify;
     top: -335px;
     color: #54575C;
+    max-height: 685px;
 }
 
 .panneau-pied {
 	float: right;
-	position: fixed;
-	bottom: 5px;
+	position: absolute;
+	bottom: 10px;
 	right: 35px;
 }
 
