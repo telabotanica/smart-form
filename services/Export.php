@@ -46,9 +46,9 @@ class Export extends SmartFloreService {
 		file_put_contents($chemin_html, $panneau_html);
 		
 		// à décommenter pour afficher la fiche en html
-		// echo file_get_contents($this->cheminExportTmp.$nom_fichier.'.html');exit;
+		// echo file_get_contents($chemin_html);exit;
 		
-		header("Content-type:application/pdf");
+		header("Content-type:application/pdf; charset=utf-8");
 		// TODO: envoyer la taille dans le header parce que c'est mieux !
 		// Supprimer les espaces et les points permet d'avoir un nom de fichier pas trop dégeulasse lors du téléchargement par le navigateur
 		header("Content-Disposition:attachment;filename=".$this->sluggifierSimple($infos_fiche['nom_sci']).".pdf");

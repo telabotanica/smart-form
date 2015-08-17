@@ -31,6 +31,8 @@ class SmartFloreService {
 	protected $utilisateur;
 	
 	public function __construct() {
+		// sequoia est relou !
+		ini_set('default_charset', 'utf-8');
 		$this->config = parse_ini_file('config.ini', true);
 		
 		// sous php-cgi le module retire le header Authorization
