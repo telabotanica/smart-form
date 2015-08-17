@@ -147,10 +147,28 @@ class Export extends SmartFloreService {
 				'nom_sci' => $this->convertirEnEntitesHtmlSaufTags($nom_sci),
 				'num_nom' => $num_nom,
 				'famille' => $this->convertirEnEntitesHtmlSaufTags($infos_sci['famille']),
-				'description' => $this->convertirEnEntitesHtmlSaufTags($description['texte'])
+				'description' => $this->convertirEnEntitesHtmlSaufTags($description['texte']),
+				'description_classe' => $this->getClasseDescription(strlen($description['texte']))
 		);
 		
 		return $infos_fiche;
+	}
+	
+	private function getClasseDescription($longueur) {
+		$classe = "";
+		if($longueur < 1500) {
+			$classe = "panneau-description-normale";
+		}
+		
+		if($longueur >= 1500 && $longueur < 2000) {
+			$classe = "panneau-description-grande";
+		}
+		
+		if($longueur >= 2000) {
+			$classe = "panneau-description-tres-grande";
+		}
+		
+		return $classe;
 	}
 	
 	private function remplirSquelette($squelette, $variables) {

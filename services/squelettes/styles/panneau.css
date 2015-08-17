@@ -8,7 +8,6 @@ body {
 	margin: 0;
 	width: 2481px;
 	height: 1748px;
-	position: absolute;
 }
 
 .panneau-entete, .panneau-nom-illustration {
@@ -133,6 +132,18 @@ body {
     top: -335px;
     color: #54575C;
     max-height: 685px;
+}
+
+.panneau-description-normale {
+	font-size: 35px;
+}
+
+.panneau-description-grande {
+	font-size: 25px;
+}
+
+.panneau-description-tres-grande {
+	font-size: 20px;
 }
 
 .panneau-pied {
