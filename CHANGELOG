@@ -1,0 +1,14 @@
+Changements 2015-04-15 [création de la branche "v1.1-regina"]:
+* SSO
+* Remplacement de split() qui est déprécié et cause des erreurs, par preg_split()
+* Config des services : factorisation d'URL; Réorganisation config par défaut (services & js)
+* Conformité standards stricts de l'héritage - déclarations de put(), post() et delete()
+* meilleure gestion des actions en cas de redirection
+* Correction d'un bug qui ne renvoyait pas toutes les fiches des sentiers
+* Correction d'un bug qui n'affichait pas le formatage html des fiches
+* Meilleure gestion de l'affichage du formulaire
+* correction d'une erreur liée au fuseau horaire
+* ajout d'un masque de chargement pour les sentiers
+
+Changements 2015-05-28 [création de la branche "v1.0-margherita"]:
+* première version
