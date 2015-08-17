@@ -33,8 +33,8 @@ class Export extends SmartFloreService {
 	function getExportFiche($referentiel, $num_tax, $sentier = '') {
 					
 		$infos_fiche = $this->chargerInformationsFiche($referentiel, $num_tax);
-		$infos_fiche['nom_sentier'] = ucfirst($sentier);
-		$infos_fiche['titre'] = $sentier;
+		$infos_fiche['nom_sentier'] = $this->convertirEnEntitesHtmlSaufTags(ucfirst($sentier));
+		$infos_fiche['titre'] = $this->convertirEnEntitesHtmlSaufTags($sentier);
 		
 		$infos_fiche['base_style_url'] = $this->remplacerCheminParUrl(dirname(__FILE__).DIRECTORY_SEPARATOR.'squelettes').DIRECTORY_SEPARATOR;
 
@@ -54,7 +54,7 @@ class Export extends SmartFloreService {
 		header("Content-Disposition:attachment;filename=".$this->sluggifierSimple($infos_fiche['nom_sci']).".pdf");
 		
 		$url_export_tmp = $this->remplacerCheminParUrl($chemin_html);
-		// Impossible d'installer phantomJs sur sequoia alors on appelle un web service de conversion sur agathis
+		// Impossible d'installer phantomJs sur sequoia alors on appelle un web service de conversion sur agathis (les chiffres correspond à une taille de format A5)
 		echo file_get_contents(sprintf($this->config['export']['pdf_export_url'], $url_export_tmp, 1748, 2481));
 		exit;
 	}
@@ -78,7 +78,6 @@ class Export extends SmartFloreService {
 		
 		$search = array_keys($list);
 		$values = array_values($list);
-		$search = array_map('utf8_encode', $search);
 
 		return str_replace($search, $values, $chaine);	
 	}
@@ -144,10 +143,10 @@ class Export extends SmartFloreService {
 		$infos_fiche = array(
 				'url_qr_code' => $qr_code_url,
 				'url_illustration' => $meilleure_image_src,
-				'nom_vernaculaire' => $nom_verna,
-				'nom_sci' => $nom_sci,
+				'nom_vernaculaire' => $this->convertirEnEntitesHtmlSaufTags($nom_verna),
+				'nom_sci' => $this->convertirEnEntitesHtmlSaufTags($nom_sci),
 				'num_nom' => $num_nom,
-				'famille' => $infos_sci['famille'],
+				'famille' => $this->convertirEnEntitesHtmlSaufTags($infos_sci['famille']),
 				'description' => $this->convertirEnEntitesHtmlSaufTags($description['texte'])
 		);
 		
