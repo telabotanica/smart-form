@@ -1,5 +1,9 @@
 @CHARSET "UTF-8";
 
+html {
+    zoom: 0.68; /*workaround for phantomJS2 rendering pages too large*/
+}
+
 body {
 	margin: 0;
 	width: 2481px;
