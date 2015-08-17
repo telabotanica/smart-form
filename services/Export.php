@@ -55,7 +55,7 @@ class Export extends SmartFloreService {
 		
 		$url_export_tmp = $this->remplacerCheminParUrl($chemin_html);
 		// Impossible d'installer phantomJs sur sequoia alors on appelle un web service de conversion sur agathis
-		echo file_get_contents($this->config['export']['pdf_export_url'].$url_export_tmp);
+		echo file_get_contents(sprintf($this->config['export']['pdf_export_url'], $url_export_tmp, 1748, 2481));
 		exit;
 	}
 	
@@ -66,6 +66,21 @@ class Export extends SmartFloreService {
 	
 	private function sluggifierSimple($chaine) {
 		return str_replace(array(' ','.'), array('_', ''), $chaine);
+	}
+	
+	// http://stackoverflow.com/questions/1364933/htmlentities-in-php-but-preserving-html-tags
+	private function convertirEnEntitesHtmlSaufTags($chaine) {
+		$list = get_html_translation_table(HTML_ENTITIES);
+		unset($list['"']);
+		unset($list['<']);
+		unset($list['>']);
+		unset($list['&']);
+		
+		$search = array_keys($list);
+		$values = array_values($list);
+		$search = array_map('utf8_encode', $search);
+
+		return str_replace($search, $values, $chaine);	
 	}
 	
 	private function getExportSentier($sentier) {
@@ -133,7 +148,7 @@ class Export extends SmartFloreService {
 				'nom_sci' => $nom_sci,
 				'num_nom' => $num_nom,
 				'famille' => $infos_sci['famille'],
-				'description' => $description['texte']
+				'description' => $this->convertirEnEntitesHtmlSaufTags($description['texte'])
 		);
 		
 		return $infos_fiche;
