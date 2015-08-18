@@ -39,7 +39,7 @@
 					</button>
 				</div>
 				
-				<div class="bouton-export-sentier" ng-show="sentiersCtrl.sentierSelectionne.auteur = sentiersCtrl.utilisateurNomWiki" >
+				<div class="bouton-export-sentier" ng-show="sentiersCtrl.sentierSelectionne.auteur = sentiersCtrl.utilisateurNomWiki && sentiersCtrl.sentierSelectionne.fiches.length > 0" >
 					<button type="button" class="btn btn-default btn-sm"
 						title="Exporter le sentier en pdf" 
 						ng-click="listeCtrl.liensService.exporterSentierEnPdf(sentiersCtrl.sentierSelectionne.titre)">
