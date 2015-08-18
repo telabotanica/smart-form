@@ -81,7 +81,7 @@ class Export extends SmartFloreService {
 	}
 	
 	private function sluggifierPlus($chaine) {
-		return preg_replace("/[^A-Za-z0-9 ]/", '', $chaine);
+		return $this->sluggifierSimple(preg_replace("/[^A-Za-z0-9 ]/", '', $chaine));
 	}
 	
 	// http://stackoverflow.com/questions/1364933/htmlentities-in-php-but-preserving-html-tags
