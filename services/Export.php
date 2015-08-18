@@ -51,7 +51,7 @@ class Export extends SmartFloreService {
 		$infos_fiche['base_style_url'] = $this->remplacerCheminParUrl(dirname(__FILE__).DIRECTORY_SEPARATOR.'squelettes').DIRECTORY_SEPARATOR;
 
 		$panneau_html = $this->remplirSquelette('panneau', $infos_fiche);
-		$nom_fichier = 'panneau-smartflore-'.$this->sluggifierSimple($sentier_titre).'-'.$referentiel.'-'.$infos_fiche['num_nom'];
+		$nom_fichier = 'panneau-smartflore-'.$this->sluggifierPlus($sentier_titre).'-'.$referentiel.'-'.$infos_fiche['num_nom'];
 		// Attention le chemin d'export temporaire doit se trouver au dessus de la racine des documents du serveur afin d'être convertible en url
 		$chemin_html = $this->config['export']['chemin_export_tmp'].$nom_fichier.'.html';
 		// sauvegarde dans un fichier qui sera accessible directement pour le script de conversion par son url
@@ -80,6 +80,10 @@ class Export extends SmartFloreService {
 		return str_replace(array(' ','.'), array('_', ''), $chaine);
 	}
 	
+	private function sluggifierPlus($chaine) {
+		return preg_replace("/[^A-Za-z0-9 ]/", '', $chaine);
+	}
+	
 	// http://stackoverflow.com/questions/1364933/htmlentities-in-php-but-preserving-html-tags
 	private function convertirEnEntitesHtmlSaufTags($chaine) {
 		$list = get_html_translation_table(HTML_ENTITIES);
@@ -100,7 +104,7 @@ class Export extends SmartFloreService {
 	
 	private function deciderActionExportSentier($sentier_titre) {	
 		
-		$sentier_titre_slug = $this->sluggifierSimple($sentier_titre);
+		$sentier_titre_slug = $this->sluggifierPlus($sentier_titre);
 		$chemin_dossier_sentier = $this->config['export']['chemin_export_tmp'].$sentier_titre_slug.DIRECTORY_SEPARATOR;
 
 		if(!file_exists($chemin_dossier_sentier)) {
@@ -137,7 +141,7 @@ class Export extends SmartFloreService {
 	}
 	
 	private function preparerExportSentier($sentier_titre) {
-		$chemin_dossier_sentier = $this->config['export']['chemin_export_tmp'].$this->sluggifierSimple($sentier_titre).DIRECTORY_SEPARATOR;
+		$chemin_dossier_sentier = $this->config['export']['chemin_export_tmp'].$this->sluggifierPlus($sentier_titre).DIRECTORY_SEPARATOR;
 		// TODO: vérifier les erreurs
 		@mkdir($chemin_dossier_sentier);
 		chmod($chemin_dossier_sentier, 0777);
@@ -167,7 +171,7 @@ class Export extends SmartFloreService {
 		$nom_fichier = 'panneau-smartflore-'.$referentiel.'-'.$infos_fiche['num_nom'];
 		
 		// les fichiers du sentier sont contenu dans un répertoire spécifique au sentier
-		$base_chemin_export = $this->config['export']['chemin_export_tmp'].$this->sluggifierSimple($sentier_titre).DIRECTORY_SEPARATOR;
+		$base_chemin_export = $this->config['export']['chemin_export_tmp'].$this->sluggifierPlus($sentier_titre).DIRECTORY_SEPARATOR;
 		$chemin_html = $base_chemin_export.$nom_fichier.'.html';
 		$chemin_pdf = $base_chemin_export.$nom_fichier.'.pdf';
 		
