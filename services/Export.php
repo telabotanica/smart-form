@@ -18,28 +18,40 @@ class Export extends SmartFloreService {
 	private $apiExportPdf = null;
 
 	function get($requete) {
-		if(!empty($_GET['referentiel']) && !empty($_GET['num_tax'])) {
-			// Export d'une seule fiche (éventuellement accompagnée d'un nom de sentier à intégrer dans le titre)
-			$sentier = !empty($_GET['sentierTitre']) ? $_GET['sentierTitre'] : '';
-			$this->getExportFiche($_GET['referentiel'], $_GET['num_tax'], $sentier);
-		} else if(!empty($_GET['sentierTitre'])) {
-			// export de toutes les fiches d'un sentier
-			$this->getExportSentier($_GET['sentierTitre']);
-		} else {
-			$this->error(400, "Vous devez spécifier un nom de sentier ou bien un référentiel avec un numéro taxonomique");
+		
+		switch($requete[0]) {
+			case 'fiche':
+				if(!empty($_GET['referentiel']) && !empty($_GET['num_tax'])) {
+					// Export d'une seule fiche (éventuellement accompagnée d'un nom de sentier à intégrer dans le titre)
+					$sentier = !empty($_GET['sentierTitre']) ? $_GET['sentierTitre'] : '';
+					$this->getExportFiche($_GET['referentiel'], $_GET['num_tax'], $sentier);
+				} else {
+					$this->error(400, "Vous devez spécifier un référentiel avec un numéro taxonomique");
+				}
+				break;
+			case 'sentier':
+				if(!empty($_GET['sentierTitre'])) {
+					// export de toutes les fiches d'un sentier
+					$this->getExportSentier($_GET['sentierTitre']);
+					break;
+				} else {
+					$this->error(400, "Vous devez spécifier un nom de sentier et une action");
+				}
+			default:
+				$this->error(400, "Aucune commande n'a été spécifiée");
 		}
 	}
 	
-	function getExportFiche($referentiel, $num_tax, $sentier = '') {
+	function getExportFiche($referentiel, $num_tax, $sentier_titre = '') {
 					
 		$infos_fiche = $this->chargerInformationsFiche($referentiel, $num_tax);
-		$infos_fiche['nom_sentier'] = $this->convertirEnEntitesHtmlSaufTags(ucfirst($sentier));
-		$infos_fiche['titre'] = $this->convertirEnEntitesHtmlSaufTags($sentier);
+		$infos_fiche['nom_sentier'] = $this->convertirEnEntitesHtmlSaufTags(ucfirst($sentier_titre));
+		$infos_fiche['titre'] = $this->convertirEnEntitesHtmlSaufTags($sentier_titre);
 		
 		$infos_fiche['base_style_url'] = $this->remplacerCheminParUrl(dirname(__FILE__).DIRECTORY_SEPARATOR.'squelettes').DIRECTORY_SEPARATOR;
 
 		$panneau_html = $this->remplirSquelette('panneau', $infos_fiche);
-		$nom_fichier = 'panneau-smartflore-'.$this->sluggifierSimple($sentier).'-'.$referentiel.'-'.$infos_fiche['num_nom'];
+		$nom_fichier = 'panneau-smartflore-'.$this->sluggifierSimple($sentier_titre).'-'.$referentiel.'-'.$infos_fiche['num_nom'];
 		// Attention le chemin d'export temporaire doit se trouver au dessus de la racine des documents du serveur afin d'être convertible en url
 		$chemin_html = $this->config['export']['chemin_export_tmp'].$nom_fichier.'.html';
 		// sauvegarde dans un fichier qui sera accessible directement pour le script de conversion par son url
@@ -53,7 +65,7 @@ class Export extends SmartFloreService {
 		// Supprimer les espaces et les points permet d'avoir un nom de fichier pas trop dégeulasse lors du téléchargement par le navigateur
 		header("Content-Disposition:attachment;filename=".$this->sluggifierSimple($infos_fiche['nom_sci']).".pdf");
 		
-		$url_export_tmp = $this->remplacerCheminParUrl($chemin_html);
+		$url_export_tmp = urlencode($this->remplacerCheminParUrl($chemin_html));
 		// Impossible d'installer phantomJs sur sequoia alors on appelle un web service de conversion sur agathis (les chiffres correspond à une taille de format A5)
 		echo file_get_contents(sprintf($this->config['export']['pdf_export_url'], $url_export_tmp, 1748, 2481));
 		exit;
@@ -81,9 +93,97 @@ class Export extends SmartFloreService {
 
 		return str_replace($search, $values, $chaine);	
 	}
+		
+	private function getExportSentier($sentier_titre) {	
+		$this->deciderActionExportSentier($sentier_titre);
+	}
 	
-	private function getExportSentier($sentier) {
-		$this->error(501, "Pas encore implémenté");
+	private function deciderActionExportSentier($sentier_titre) {	
+		
+		$sentier_titre_slug = $this->sluggifierSimple($sentier_titre);
+		$chemin_dossier_sentier = $this->config['export']['chemin_export_tmp'].$sentier_titre_slug.DIRECTORY_SEPARATOR;
+
+		if(!file_exists($chemin_dossier_sentier)) {
+			$this->preparerExportSentier($sentier_titre);
+		}
+	
+		$fiches_a_exporter = glob($chemin_dossier_sentier."*.tmp");
+		
+		while(!empty($fiches_a_exporter)) {
+			
+			$fiche_a_exporter = array_shift($fiches_a_exporter);
+			$fiche = rtrim($fiche_a_exporter, '.tmp');
+			
+			$parties_nom_fichier = explode(DIRECTORY_SEPARATOR, $fiche);
+			$nom_fichier = end($parties_nom_fichier);
+			
+			list($referentiel, $num_tax) = $this->splitNt($nom_fichier);
+			$this->enregistrerFichePourExportSentier($sentier_titre, $referentiel, $num_tax);
+			unlink($fiche_a_exporter);
+		}	
+			
+		$pdfs = implode(' ', glob($chemin_dossier_sentier."panneau-smartflore*.pdf"));
+		$commande = '/usr/bin/pdftk '.$pdfs.' cat output '.$chemin_dossier_sentier.$sentier_titre_slug.'.pdf';
+		exec($commande);
+		
+		header("Content-type:application/pdf; charset=utf-8");
+		// TODO: envoyer la taille dans le header parce que c'est mieux !
+		// Supprimer les espaces et les points permet d'avoir un nom de fichier pas trop dégeulasse lors du téléchargement par le navigateur
+		header("Content-Disposition:attachment;filename=".$sentier_titre_slug.".pdf");
+		header('Content-Length: '.filesize($chemin_dossier_sentier.$sentier_titre_slug.'.pdf'));
+		
+		echo file_get_contents($chemin_dossier_sentier.$sentier_titre_slug.'.pdf');
+		exit;
+	}
+	
+	private function preparerExportSentier($sentier_titre) {
+		$chemin_dossier_sentier = $this->config['export']['chemin_export_tmp'].$this->sluggifierSimple($sentier_titre).DIRECTORY_SEPARATOR;
+		// TODO: vérifier les erreurs
+		@mkdir($chemin_dossier_sentier);
+		chmod($chemin_dossier_sentier, 0777);
+		
+		$requete_fiches_a_sentier = 'SELECT * FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
+				'WHERE property = "'.$this->triple_sentier_fiche.'" '.
+				'AND value = '.$this->bdd->quote($sentier_titre);
+	
+		$res = $this->bdd->query($requete_fiches_a_sentier);
+		$res = $res->fetchAll(PDO::FETCH_ASSOC);
+		
+		foreach($res as $fiche) {
+			$nom_fichier = $fiche['resource'].'.tmp';
+			touch($chemin_dossier_sentier.$nom_fichier);
+		}
+	}
+	
+	private function enregistrerFichePourExportSentier($sentier_titre, $referentiel, $num_tax) {
+		
+		$infos_fiche = $this->chargerInformationsFiche($referentiel, $num_tax);
+		$infos_fiche['nom_sentier'] = $this->convertirEnEntitesHtmlSaufTags(ucfirst($sentier_titre));
+		$infos_fiche['titre'] = $this->convertirEnEntitesHtmlSaufTags($sentier_titre);
+		
+		$infos_fiche['base_style_url'] = $this->remplacerCheminParUrl(dirname(__FILE__).DIRECTORY_SEPARATOR.'squelettes').DIRECTORY_SEPARATOR;
+		
+		$panneau_html = $this->remplirSquelette('panneau', $infos_fiche);
+		$nom_fichier = 'panneau-smartflore-'.$referentiel.'-'.$infos_fiche['num_nom'];
+		
+		// les fichiers du sentier sont contenu dans un répertoire spécifique au sentier
+		$base_chemin_export = $this->config['export']['chemin_export_tmp'].$this->sluggifierSimple($sentier_titre).DIRECTORY_SEPARATOR;
+		$chemin_html = $base_chemin_export.$nom_fichier.'.html';
+		$chemin_pdf = $base_chemin_export.$nom_fichier.'.pdf';
+		
+		$base_url_export = $this->remplacerCheminParUrl($base_chemin_export);
+		$url_export_tmp = $base_url_export.DIRECTORY_SEPARATOR.$nom_fichier.'.html';
+		
+		// sauvegarde dans un fichier qui sera accessible directement pour le script de conversion par son url
+		file_put_contents($chemin_html, $panneau_html);	
+		
+		// Appel au web service de conversion et sauvegarde
+		$pdf_converti = file_get_contents(sprintf($this->config['export']['pdf_export_url'], urlencode($url_export_tmp), 1748, 2481));
+		file_put_contents($chemin_pdf, $pdf_converti);
+		chmod($chemin_pdf, 0777);
+		
+		// suppression du fichier html temporaire
+		unlink($chemin_html);
 	}
 	
 	private function chargerInformationsFiche($referentiel, $num_tax) {
