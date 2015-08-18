@@ -27,6 +27,14 @@ smartFormApp.service('liensService', function() {
 		url = url.replace('{sentierTitre}', sentierTitre);
 		window.open(url);
 	};
+		
+	liensService.exporterSentierEnPdf = function(sentierTitre) {
+		url = config.url_service_export.replace('{referentiel}', '');
+		url = url.replace('{type}', 'sentier');
+		url = url.replace('{num_tax}', '');
+		url = url.replace('{sentierTitre}', sentierTitre);
+		window.open(url);
+	};
 	
 	return liensService;	
 });

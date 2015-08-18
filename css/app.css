@@ -96,10 +96,15 @@ body {
     top: 2px;
 }
 
-.bouton-suppression-sentier {
+.bouton-suppression-sentier, .bouton-export-sentier {
 	position: relative;	
 	float: right;
 	z-index: 999;
+}
+
+.bouton-export-sentier button {
+	margin-right: 5px;
+    padding: 7px 12px;
 }
 
 .bouton-suppression-sentier .btn-default {

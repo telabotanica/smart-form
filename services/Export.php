@@ -107,9 +107,7 @@ class Export extends SmartFloreService {
 		$sentier_titre_slug = $this->sluggifierPlus($sentier_titre);
 		$chemin_dossier_sentier = $this->config['export']['chemin_export_tmp'].$sentier_titre_slug.DIRECTORY_SEPARATOR;
 
-		if(!file_exists($chemin_dossier_sentier)) {
-			$this->preparerExportSentier($sentier_titre);
-		}
+		$this->preparerExportSentier($sentier_titre);
 	
 		$fiches_a_exporter = glob($chemin_dossier_sentier."*.tmp");
 		
