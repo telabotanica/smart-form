@@ -58,7 +58,7 @@ class Export extends SmartFloreService {
 		file_put_contents($chemin_html, $panneau_html);
 		
 		// à décommenter pour afficher la fiche en html
-		// echo file_get_contents($chemin_html);exit;
+		echo file_get_contents($chemin_html);exit;
 		
 		header("Content-type:application/pdf; charset=utf-8");
 		// TODO: envoyer la taille dans le header parce que c'est mieux !
@@ -99,6 +99,8 @@ class Export extends SmartFloreService {
 	}
 		
 	private function getExportSentier($sentier_titre) {	
+		// TODO: suivant le nombre de fiches, faire un export en plusieurs fois à travers
+		// plusieurs appels ajax ou bien en une fois dans la fonction ci dessous
 		$this->deciderActionExportSentier($sentier_titre);
 	}
 	
@@ -136,6 +138,8 @@ class Export extends SmartFloreService {
 		
 		echo file_get_contents($chemin_dossier_sentier.$sentier_titre_slug.'.pdf');
 		exit;
+		
+		//TODO supprimer le bordel laisse par l'export
 	}
 	
 	private function preparerExportSentier($sentier_titre) {

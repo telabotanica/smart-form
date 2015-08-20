@@ -1,5 +1,8 @@
 @CHARSET "UTF-8";
 
+@import url(http://fonts.googleapis.com/css?family=Muli:400,400italic);
+@import url(http://fonts.googleapis.com/css?family=Crimson+Text);
+
 html {
     zoom: 0.68; /*workaround for phantomJS2 rendering pages too large*/
 }
@@ -29,6 +32,7 @@ body {
     position: absolute;
     top: 35px;
     width: 100%;
+    font-family: 'Muli', sans-serif;
 }
 
 .panneau-lettre-emphase {
@@ -116,11 +120,13 @@ body {
 
 .panneau-nom-scientifique {
 	font-style: italic;
+	font-family: 'Crimson Text', serif;
 }
 
 .panneau-nom-vernaculaire {
 	font-size: 85px;
 	font-weight: bold;
+	font-family: 'Muli', sans-serif;
 }
 
 .panneau-description {
@@ -132,6 +138,7 @@ body {
     top: -335px;
     color: #54575C;
     max-height: 685px;
+    font-family: 'Muli', sans-serif;
 }
 
 .panneau-description-normale {
