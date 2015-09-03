@@ -17,7 +17,7 @@
 								<th class="colonne-actions-fiche">Actions</th>
 							</tr>
 							<tr ng-repeat="fiche in favorisCtrl.fiches"
-								class="fiche-favoris"
+								class="fiche-favoris {{fiche.existe ? 'fiche-existante' : 'fiche-inexistante'}}"
 								drag="fiche" dragStyle="element-draggable">
 								<td>{{fiche.infos_taxon.noms_vernaculaires.slice(0,3).join(', ')}}</td>
 								<td>{{fiche.infos_taxon.nom_sci}}</td>
