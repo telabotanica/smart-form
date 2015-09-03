@@ -18,11 +18,13 @@ smartFormApp.service('etatApplicationService', function($http) {
 	etatApplicationService.premierChargement = true; 
 	
 	// etat de l'utilisateur
+	// @WTF pourquoi ne pas utiliser boiteUtilisateurControleur.initialiserUtilisateurVide() ?
 	etatApplicationService.utilisateur = {};
 	etatApplicationService.utilisateur.connecte = false;
 	etatApplicationService.utilisateur.id = "";
 	etatApplicationService.utilisateur.prenom = "";
 	etatApplicationService.utilisateur.nom = "";
+	etatApplicationService.utilisateur.intitule = "";
 	etatApplicationService.utilisateur.courriel = "";
 	etatApplicationService.utilisateur.nomWiki = "";
 
