@@ -111,6 +111,7 @@ smartFormApp.controller('BoiteUtilisateurControleur', function ($scope, $rootSco
 		this.utilisateur.id = "";
 		this.utilisateur.prenom = "";
 		this.utilisateur.nom = "";
+		this.utilisateur.intitule = "";
 		this.utilisateur.courriel = "";
 		this.utilisateur.nomWiki = "";
 		this.utilisateur.mdp = ""; // wtf ?
@@ -127,6 +128,7 @@ smartFormApp.controller('BoiteUtilisateurControleur', function ($scope, $rootSco
 			id: infos.id,
 			prenom: infos.prenom,
 			nom: infos.nom,
+			intitule: infos.intitule,
 			courriel: infos.sub,
 			nomWiki: infos.nomWiki
 		};
