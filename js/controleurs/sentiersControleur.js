@@ -16,6 +16,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, smar
 	var lthis = this;
 	$scope.$on('utilisateur.utilisateur-connecte', function(event, utilisateur) {
 		lthis.utilisateurNomWiki = utilisateur.nomWiki;
+		lthis.afficherSentiers = utilisateur.connecte;
 		lthis.getSentiers();
 	});
 	
