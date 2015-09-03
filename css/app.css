@@ -9,6 +9,7 @@ body {
 
 .conteneur-boutons-vs {	
     z-index: 999;
+	margin-left: 15px;
 }
 
 .formulaire-recherche-champ {
@@ -35,6 +36,10 @@ body {
 	display: inline-block;
 	width: 50px;
 	padding: 0;
+}
+
+.liste-fiches-generale {
+	margin-left: 15px;
 }
 
 .titre-section {
@@ -136,7 +141,7 @@ body {
 	float: right;
 	display: block;
 	top: 15px;
-	height: 132px;
+	/*height: 132px;*/
 }
 
 #boite-infos-utilisateur {
