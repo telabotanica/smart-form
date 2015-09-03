@@ -61,7 +61,7 @@
 							<td colspan="4" drop="true" dropStyle="element-droppable" > Glissez-déposez des fiches depuis les favoris ou la liste </td>
 						</tr>
 						<tr ng-show="sentiersCtrl.sentierSelectionne.fiches.length > 0" ng-repeat="fiche in sentiersCtrl.sentierSelectionne.fiches"
-							class="fiche-sentiers">
+							class="fiche-sentiers {{fiche.existe ? 'fiche-existante' : 'fiche-inexistante'}}">
 							<td>{{fiche.infos_taxon.noms_vernaculaires.slice(0,3).join(', ')}}</td>
 							<td>{{fiche.infos_taxon.nom_sci}}</td>
 							<td class="colonne-collapsible">{{fiche.infos_taxon.referentiel}}</td>
