@@ -50,22 +50,22 @@
 									class="glyphicon {{fiche.existe ? 'glyphicon-edit' : 'glyphicon-plus'}}"
 									aria-hidden="true"></span>
 							</button>
-							<button type="button" class="btn btn-default btn-sm"
-								title="Voir cette fiche" 
-								ng-click="listeCtrl.liensService.ouvrirFicheMobile(fiche)">
+							<a class="btn btn-default btn-sm"
+								title="Voir cette fiche" target="_blank" 
+								href="{{listeCtrl.liensService.lienFicheMobile(fiche)}}">
 								<span class="glyphicon glyphicon-phone" aria-hidden="true"></span>
-							</button>
-							<button type="button" class="btn btn-default btn-sm"
-								title="Voir le code QR de cette fiche"
-								ng-click="listeCtrl.liensService.ouvrirQrCode(fiche)">
+							</a>
+							<a class="btn btn-default btn-sm"
+								title="Voir le code QR de cette fiche" target="_blank"
+								href="{{listeCtrl.liensService.lienQrCode(fiche)}}">
 								<span class="glyphicon glyphicon-qrcode" aria-hidden="true"></span>
-							</button>
-							<button type="button" class="btn btn-default btn-sm"
-								title="Exporter cette fiche en pdf" 
+							</a>
+							<a class="btn btn-default btn-sm"
+								title="Exporter cette fiche en pdf"
 								ng-show="fiche.existe"
-								ng-click="listeCtrl.liensService.exporterFicheEnPdf(fiche, '')">
+								href="{{listeCtrl.liensService.exporterFicheEnPdf(fiche, '')}}">
 								<span class="glyphicon glyphicon-export" aria-hidden="true"></span>
-							</button>
+							</a>
 							<button type="button" class="btn btn-default btn-sm"
 								title="{{fiche.favoris ? 'Supprimer cette fiche des favoris' : 'Mettre cette fiche en favoris'}}"
 								ng-show="listeCtrl.afficherFonctionsUtilisateurIdentifie && fiche.existe"

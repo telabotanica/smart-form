@@ -111,7 +111,7 @@ body {
 	z-index: 999;
 }
 
-.bouton-export-sentier button {
+.bouton-export-sentier a {
 	margin-right: 5px;
     padding: 7px 12px;
 }

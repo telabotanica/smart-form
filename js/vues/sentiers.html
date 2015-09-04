@@ -40,11 +40,11 @@
 				</div>
 				
 				<div class="bouton-export-sentier" ng-show="sentiersCtrl.sentierSelectionne.auteur = sentiersCtrl.utilisateurNomWiki && sentiersCtrl.sentierSelectionne.fiches.length > 0" >
-					<button type="button" class="btn btn-default btn-sm"
-						title="Exporter le sentier en pdf" 
-						ng-click="listeCtrl.liensService.exporterSentierEnPdf(sentiersCtrl.sentierSelectionne.titre)">
+					<a class="btn btn-default btn-sm"
+						title="Exporter le sentier en pdf"
+						href="{{listeCtrl.liensService.exporterSentierEnPdf(sentiersCtrl.sentierSelectionne.titre)}}">
 						<span class="glyphicon glyphicon-export" aria-hidden="true"></span>
-					</button>
+					</a>
 				</div>
 				
 				<div class="sentier-aucune-fiche col-md-8">
@@ -86,22 +86,22 @@
 										class="glyphicon {{fiche.existe ? 'glyphicon-edit' : 'glyphicon-plus'}}"
 										aria-hidden="true"></span>
 								</button>
-								<button type="button" class="btn btn-default btn-sm"
-									title="Voir cette fiche" 
-									ng-click="sentiersCtrl.liensService.ouvrirFicheMobile(fiche)">
+								<a class="btn btn-default btn-sm"
+									title="Voir cette fiche" target="_blank" 
+									href="{{sentiersCtrl.liensService.lienFicheMobile(fiche)}}">
 									<span class="glyphicon glyphicon-phone" aria-hidden="true"></span>
-								</button>
-								<button type="button" class="btn btn-default btn-sm"
-									title="Voir le code QR de cette fiche" 
-									ng-click="sentiersCtrl.liensService.ouvrirQrCode(fiche)">
+								</a>
+								<a class="btn btn-default btn-sm"
+									title="Voir le code QR de cette fiche" target="_blank"
+									href="{{sentiersCtrl.liensService.lienQrCode(fiche)}}">
 									<span class="glyphicon glyphicon-qrcode" aria-hidden="true"></span>
-								</button>
-								<button type="button" class="btn btn-default btn-sm"
-									title="Exporter cette fiche en pdf" 
+								</a>
+								<a class="btn btn-default btn-sm"
+									title="Exporter cette fiche en pdf"
 									ng-show="fiche.existe"
-									ng-click="sentiersCtrl.liensService.exporterFicheEnPdf(fiche, sentiersCtrl.sentierSelectionne.titre)">
+									href="{{sentiersCtrl.liensService.exporterFicheEnPdf(fiche, '')}}">
 									<span class="glyphicon glyphicon-export" aria-hidden="true"></span>
-								</button>
+								</a>
 								<button type="button" class="btn btn-default btn-sm"
 									title="Supprimer cette fiche du sentier"
 									ng-click="sentiersCtrl.supprimerFicheASentier(sentiersCtrl.sentierSelectionne, fiche)">
