@@ -209,7 +209,7 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 		// data de l'objet à envoyer (pourquoi ? je ne sais pas)
 		$http({
 		    method: 'DELETE',
-		    url: config.url_service_sentiers + '/sentier/',
+		    url: config.url_service_sentiers + '/sentier-fiche/',
 		    headers: etatApplicationService.getHeadersAuth(),
 		    data: donnees_post
 		}).
