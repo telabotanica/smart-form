@@ -20,7 +20,11 @@
 								class="fiche-favoris {{fiche.existe ? 'fiche-existante' : 'fiche-inexistante'}}"
 								drag="fiche" dragStyle="element-draggable">
 								<td>{{fiche.infos_taxon.noms_vernaculaires.slice(0,3).join(', ')}}</td>
-								<td>{{fiche.infos_taxon.nom_sci}}</td>
+								<td>
+									<a class="lien-fiche-eflore" target="_blank" title="Voir la fiche eFlore"
+									   href="http://www.tela-botanica.org/{{fiche.infos_taxon.referentiel | lowercase}}-nn-{{fiche.infos_taxon.num_nom}}">{{fiche.infos_taxon.nom_sci}}
+									</a>
+								</td>
 								<td class="colonne-collapsible">{{fiche.infos_taxon.referentiel}}</td>
 								<td class="colonne-collapsible">{{fiche.nb_revisions}}</td>
 								<td class="colonne-actions-fiche">
@@ -37,12 +41,12 @@
 										<span class="glyphicon glyphicon-phone" aria-hidden="true"></span>
 									</button>
 									<button type="button" class="btn btn-default btn-sm"
-										title="Voir le qr code de cette fiche" 
+										title="Voir le code QR de cette fiche" 
 										ng-click="favorisCtrl.liensService.ouvrirQrCode(fiche)">
 										<span class="glyphicon glyphicon-qrcode" aria-hidden="true"></span>
 									</button>
 									<button type="button" class="btn btn-default btn-sm"
-										title="Exporter la fiche en pdf" 
+										title="Exporter cette fiche en pdf" 
 										ng-show="fiche.existe"
 										ng-click="listeCtrl.liensService.exporterFicheEnPdf(fiche, '')">
 										<span class="glyphicon glyphicon-export" aria-hidden="true"></span>

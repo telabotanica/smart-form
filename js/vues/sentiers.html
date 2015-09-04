@@ -71,7 +71,11 @@
 						<tr ng-show="sentiersCtrl.sentierSelectionne.fiches.length > 0" ng-repeat="fiche in sentiersCtrl.sentierSelectionne.fiches"
 							class="fiche-sentiers {{fiche.existe ? 'fiche-existante' : 'fiche-inexistante'}}">
 							<td>{{fiche.infos_taxon.noms_vernaculaires.slice(0,3).join(', ')}}</td>
-							<td>{{fiche.infos_taxon.nom_sci}}</td>
+							<td>
+								<a class="lien-fiche-eflore" target="_blank" title="Voir la fiche eFlore"
+								   href="http://www.tela-botanica.org/{{fiche.infos_taxon.referentiel | lowercase}}-nn-{{fiche.infos_taxon.num_nom}}">{{fiche.infos_taxon.nom_sci}}
+								</a>
+							</td>
 							<td class="colonne-collapsible">{{fiche.infos_taxon.referentiel}}</td>
 							<td class="colonne-collapsible">{{fiche.nb_revisions}}</td>
 							<td class="colonne-actions-fiche">
@@ -88,12 +92,12 @@
 									<span class="glyphicon glyphicon-phone" aria-hidden="true"></span>
 								</button>
 								<button type="button" class="btn btn-default btn-sm"
-									title="Voir le qr code de cette fiche" 
+									title="Voir le code QR de cette fiche" 
 									ng-click="sentiersCtrl.liensService.ouvrirQrCode(fiche)">
 									<span class="glyphicon glyphicon-qrcode" aria-hidden="true"></span>
 								</button>
 								<button type="button" class="btn btn-default btn-sm"
-									title="Exporter la fiche en pdf" 
+									title="Exporter cette fiche en pdf" 
 									ng-show="fiche.existe"
 									ng-click="sentiersCtrl.liensService.exporterFicheEnPdf(fiche, sentiersCtrl.sentierSelectionne.titre)">
 									<span class="glyphicon glyphicon-export" aria-hidden="true"></span>
