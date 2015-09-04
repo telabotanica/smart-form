@@ -1,4 +1,7 @@
-Changements 2015-04-15 [création de la branche "v1.1-regina"]:
+Changements 2015-09-01 [création de la branche "1.2-napoletana"]:
+* Export des fiches et des sentiers en PDF
+
+Changements 2015-07-27 [création de la branche "v1.1-regina"]:
 * SSO
 * Remplacement de split() qui est déprécié et cause des erreurs, par preg_split()
 * Config des services : factorisation d'URL; Réorganisation config par défaut (services & js)
