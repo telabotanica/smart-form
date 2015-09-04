@@ -137,9 +137,16 @@ class Export extends SmartFloreService {
 		header('Content-Length: '.filesize($chemin_dossier_sentier.$sentier_titre_slug.'.pdf'));
 		
 		echo file_get_contents($chemin_dossier_sentier.$sentier_titre_slug.'.pdf');
+
+		// supprime le bordel laissé par l'export
+		$contenuDossier = glob($chemin_dossier_sentier . "*");
+		foreach($contenuDossier as $fichier){ // iterate files
+			if (is_file($fichier)) {
+				unlink($fichier);
+			}
+		}
+
 		exit;
-		
-		//TODO supprimer le bordel laisse par l'export
 	}
 	
 	private function preparerExportSentier($sentier_titre) {
@@ -154,7 +161,8 @@ class Export extends SmartFloreService {
 	
 		$res = $this->bdd->query($requete_fiches_a_sentier);
 		$res = $res->fetchAll(PDO::FETCH_ASSOC);
-		
+
+		// WTF de stratégie de papou ???
 		foreach($res as $fiche) {
 			$nom_fichier = $fiche['resource'].'.tmp';
 			touch($chemin_dossier_sentier.$nom_fichier);
