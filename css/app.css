@@ -16,6 +16,10 @@ body {
 	float: none;
 }
 
+.lien-fiche-eflore, .lien-fiche-eflore:hover, .lien-fiche-eflore:active, .lien-fiche-eflore:visited {
+	color: #48992D;
+}
+
 .pagination {
 	margin-top: 0;
 	margin-bottom: 0;
