@@ -52,8 +52,11 @@
 	</div>
 	
 	<div class="panneau-pied">
-		<img src="<?= $base_style_url; ?>images/logo_msjs.jpg" class="panneau-logo" />
+		<img src="<?= $base_style_url; ?>images/logo_js.jpg" class="panneau-logo" />
 		<img src="<?= $base_style_url; ?>images/logo_pia.jpg" class="panneau-logo" />
+		<?php if ($referentiel == "apd"): ?>
+			<img src="<?= $base_style_url; ?>images/logo_oif.png" class="panneau-logo" />
+		<?php endif; ?>
 	</div>
 </body>
 </html>
