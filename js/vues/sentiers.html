@@ -5,7 +5,7 @@
 		<div id="conteneur" class="container-fluid">
 		
 			<div>
-				<div ng-show="sentiersCtrl.sentiers.length > 0" class="col-md-6">
+				<div class="col-md-6 selecteur-sentier" ng-show="sentiersCtrl.sentiers.length > 0">
 					<select name="sentier" id="sentier" class="form-control"
 						ng-model="sentiersCtrl.sentierSelectionne"
 						ng-change="sentiersCtrl.surChangementSentier()"
@@ -56,7 +56,7 @@
 					<h5 class="createur-sentier">Créé par {{sentiersCtrl.sentierSelectionne.auteur}}</h5>
 				</div>
 			
-				<div class="row table-fiches-sentier col-md-12">
+				<div class="row table-fiches-sentier">
 					<table class="table table-striped table-bordered table-condensed" colonne-collapsible visible="false">
 						<tr>
 							<th>Noms vernaculaires</th>

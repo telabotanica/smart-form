@@ -24,6 +24,10 @@ body {
 	color: #48992D;
 }
 
+.bloc-liste {
+	margin-top: 20px;
+}
+
 .pagination {
 	margin-top: 0;
 	margin-bottom: 0;
@@ -46,13 +50,17 @@ body {
 	padding: 0;
 }
 
+.marge-gauche-15 {
+	margin-left: 15px;
+}
+
 .liste-fiches-generale {
 	margin-left: 15px;
 }
 
 .titre-section {
     font-size: 26px;
-    margin-left: 15px;
+    /*margin-left: 15px;*/
     margin-top: 5px;
     display: inline-block;
 }
@@ -94,23 +102,27 @@ body {
 	background-color : #FD8C13 !important;
 }
 
-.liste-favoris {
-	/*padding: 1px 10px 0;*/
-}
-
 .fiche-favorite {	
 	color: #FFD700;
 }
 
+.selecteur-sentier {
+	padding-left: 0;
+	margin-left: -15px; /* bricolage dégueu */
+}
+
+.sentier-aucune-fiche {
+	padding-left: 0;
+	margin-left: -15px; /* bricolage dégueu */
+}
+
 .bouton-ajout-sentier {
 	margin-left : 0px;
-    position: relative;
     right: 26px;
     top: 2px;
 }
 
 .bouton-suppression-sentier, .bouton-export-sentier {
-	position: relative;	
 	float: right;
 	z-index: 999;
 }
@@ -124,17 +136,6 @@ body {
 	color: red;
 }
 
-.liste-fiches-sentier {
-    margin: 45px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-}
-
-.sentier-aucune-fiche {
-    position: relative;
-    top: 6px;
-}
-
 .zone-drop-fiches-sentier {
 	border: 2px dashed #999;	
 	text-align: center;
@@ -144,10 +145,8 @@ body {
 	display: inline;
 }
 
-.table-fiches-sentier {
-    position: relative;
-    right: 10px;
-    top: 15px;
+.table-fiches-sentier table {
+	margin-top: 10px;
 }
 
 .boite-utilisateur {

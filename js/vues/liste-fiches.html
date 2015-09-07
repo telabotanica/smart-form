@@ -1,6 +1,6 @@
 <!-- LISTE DES FICHES -->
 <div id="liste-fiches" ng-show='(etat == "liste" || etat == "")' ng-controller="ListeControleur as listeCtrl">
-	<div>
+	<div class="marge-gauche-15">
 		<span slide-toggle="#liste-fiches-interieur" duration="500" title="Afficher/Cacher ce panneau">
 			<h2 class="titre-section">Rechercher des fiches Smart'Flore </h2> 	
 			<button type="button" class="btn btn-default btn-sm bouton-afficher-cacher">
@@ -81,5 +81,5 @@
 		</div>
 	</div>
 	
-	<listefavoris class="col-md-6" ng-show="!chargement"></listefavoris><sentiers class="col-md-6" ng-show="!chargement"></sentiers>
+	<listefavoris class="col-md-6 bloc-liste" ng-show="!chargement"></listefavoris><sentiers class="col-md-6 bloc-liste" ng-show="!chargement"></sentiers>
 </div>
