@@ -3,6 +3,10 @@ body {
 	margin-top: 0px;
 }
 
+#logo-tb {
+	height: 105px;
+}
+
 .recherche {
 	padding-bottom: 3px;
 }
@@ -91,7 +95,7 @@ body {
 }
 
 .liste-favoris {
-   padding: 1px 10px 0;
+	/*padding: 1px 10px 0;*/
 }
 
 .fiche-favorite {	
@@ -221,6 +225,21 @@ body {
 
 .contenu_editable .champ_edition_wiki {
 	white-space: pre-line;
+}
+
+.logos-partenaires {
+	/*border: solid red 2px;*/
+	margin-top: 20px;
+	margin-left: 15px;
+}
+.logos-partenaires img {
+	height: 100px;
+}
+#logo-ia {
+	margin-left: 15px;
+}
+#logo-oif {
+	margin-left: 10px;
 }
 
 /* TBisation du thème Bootstrap par défaut - à génériciser quelque part et

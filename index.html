@@ -42,7 +42,8 @@
 <body ng-controller="SmartFormControleur">
 
 	<div class="col-md-8" >
-		<h1 class="titre-application"><img height="70px" src="http://resources.tela-botanica.org/tb/img/256x256/logo.png" title="logo de Tela Botanica" /> 
+		<h1 class="titre-application">
+			<img id="logo-tb" src="http://resources.tela-botanica.org/tb/img/256x256/logo.png" title="logo de Tela Botanica" /> 
 			Tableau de bord Smart'Flore 
 		</h1>
 	</div>
@@ -58,6 +59,13 @@
 		
 	<!-- FORMULAIRE D'ÉDITION D'UNE FICHE -->
 	<formulaireedition></formulaireedition>
+		
+	<!-- LOGOS -->
+	<div class="logos-partenaires">
+		<a target="_blank" href="http://www.sports.gouv.fr/"><img id="logo-js" src="img/js_150.png" alt="Ministère de la ville, de la jeunesse et des sports" title="Ministère de la ville, de la jeunesse et des sports" /></a>
+		<a target="_blank" href="http://www.gouvernement.fr/investissements-d-avenir-cgi"><img id="logo-ia" src="img/invest_avenir_150.png" alt="Investissements d'avenir" title="Investissements d'avenir" /></a>
+		<a target="_blank" href="http://www.francophonie.org"><img id="logo-oif" src="img/oif_150.png" alt="Organisation Internationale de la Francophonie" title="Organisation Internationale de la Francophonie" /></a>
+	</div>
 	
 	<!-- MASQUE DE CHARGEMENT -->
 	<masquechargement ng-show="chargement"></masquechargement>
