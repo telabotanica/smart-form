@@ -99,7 +99,7 @@
 								<a class="btn btn-default btn-sm"
 									title="Exporter cette fiche en pdf"
 									ng-show="fiche.existe"
-									href="{{sentiersCtrl.liensService.exporterFicheEnPdf(fiche, '')}}">
+									href="{{sentiersCtrl.liensService.exporterFicheEnPdf(fiche, sentiersCtrl.sentierSelectionne.titre)}}">
 									<span class="glyphicon glyphicon-export" aria-hidden="true"></span>
 								</a>
 								<button type="button" class="btn btn-default btn-sm"
