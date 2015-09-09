@@ -128,6 +128,7 @@ body {
 	font-size: 85px;
 	font-weight: bold;
 	font-family: 'Muli', sans-serif;
+	padding-right: 80px;
 }
 
 .panneau-description {
@@ -158,12 +159,12 @@ body {
 	float: right;
 	position: absolute;
 	bottom: 10px;
-	right: 35px;
+	right: 75px;
 }
 
 .panneau-logo {
 	height: 170px;
-	margin-right: 35px;
+	margin-left: 35px;
 }
 
 hr.separation-entete {
