@@ -73,6 +73,7 @@ class Export extends SmartFloreService {
 	 */
 	protected function informationsTaxonFiche($referentiel, $num_tax, $sentier_titre) {
 		// infos sur la fiche et le taxon
+		$referentiel = strtolower($referentiel);
 		$infos_fiche = $this->chargerInformationsFiche($referentiel, $num_tax);
 		$infos_fiche['nom_sentier'] = $this->convertirEnEntitesHtmlSaufTags(ucfirst($sentier_titre));
 		$infos_fiche['titre'] = $this->convertirEnEntitesHtmlSaufTags($sentier_titre);
@@ -100,7 +101,7 @@ class Export extends SmartFloreService {
 		file_put_contents($chemin_html, $panneau_html);
 
 		// à décommenter pour afficher la fiche en html
-		echo file_get_contents($chemin_html);exit;
+		//echo file_get_contents($chemin_html);exit;
 
 		header("Content-type:application/pdf; charset=utf-8");
 		// TODO: envoyer la taille dans le header parce que c'est mieux !
@@ -141,6 +142,9 @@ class Export extends SmartFloreService {
 
 		// sauvegarde dans un fichier qui sera accessible directement pour le script de conversion par son url
 		file_put_contents($chemin_html, $panneau_html);	
+
+		//debug
+		//echo file_get_contents($chemin_html);exit;
 
 		// Appel au web service de conversion et sauvegarde
 		$pdf_converti = file_get_contents(sprintf($this->config['export']['pdf_export_url'], urlencode($url_export_tmp), 1748, 2481));
