@@ -18,34 +18,35 @@ body {
 }
 
 .panneau-logo-tela {
-    height: 150px;
+    width: 256px;
     display: inline-block;
-    margin-left: 60px;
+    margin-left: 65px;
+	margin-top: 50px;
 }
 
-.panneau {
+.panneau-titre {
     color: #a6a08a;
     display: inline-block;
     font-family: sans-serif;
-    font-size: 80px;
-    left: 300px;
+    font-size: 90px;
+    left: 350px;
     position: absolute;
-    top: 35px;
+    top: 106px;
     width: 100%;
     font-family: 'Muli', sans-serif;
 }
 
 .panneau-lettre-emphase {
 	color: #E06D38;
-	font-size: 120px;
+	font-size: 130px;
 }
 
 .panneau-nom-sentier {
     display: inline-block;
     float: left;
     height: 250px;
-    margin-top: 37px;
-    width: 1200px;
+    margin-top: 39px;
+    width: 1120px;
     margin-left: 15px;
 }
 
@@ -72,11 +73,11 @@ body {
 	background-color: #91896E;
 	color: #FFFFFF;
 	height: 200px;
-	padding-left: 490px;
+	padding-left: 390px;
 }
 
-.panneau-espece-nom > div {
-    bottom: -40px;
+.panneau-espece-nom-texte {
+    bottom: -32px;
     position: relative;
 }
 
@@ -99,7 +100,7 @@ body {
 	margin-left: 65px;
     position: relative;
     top: -350px;
-    max-width: 660px;
+    max-width: 500px;
     height: 500px;
     overflow: hidden;
 }

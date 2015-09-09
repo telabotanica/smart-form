@@ -7,8 +7,8 @@
 </head>
 <body>
 	<div class="panneau-entete">
-		<img class="panneau-logo-tela" src="http://resources.tela-botanica.org/tb/img/128x128/logo_carre_officiel.png" />
-		<div class="panneau">
+		<img class="panneau-logo-tela" src="http://resources.tela-botanica.org/tb/img/256x256/logo.png" />
+		<div class="panneau-titre">
 			<?php if(!empty($nom_sentier)) { ?>
 				<div class="panneau-fiche-sentier">
 					<span class="panneau-lettre-emphase">S</span>mart'<span class="panneau-lettre-emphase">F</span>lore :
@@ -23,7 +23,7 @@
 	<hr class="nettoyage separation-entete" />
 	<div class="panneau-nom-illustration">
 		<div class="panneau-espece-nom">
-			<div>
+			<div class="panneau-espece-nom-texte">
 				<?php if(!empty($nom_vernaculaire)) { ?>
 					<div class="panneau-nom-vernaculaire"><?= $nom_vernaculaire ?></div>
 					<div class="panneau-infos-scientifique">
