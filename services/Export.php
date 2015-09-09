@@ -93,7 +93,8 @@ class Export extends SmartFloreService {
 		$panneau_html = $this->remplirSquelette('panneau', $infos_fiche);
 
 		$nom_fichier = 'panneau-smartflore-'.$this->sluggifierPlus($sentier_titre).'-'.$referentiel.'-'.$infos_fiche['num_nom'];
-		// Attention le chemin d'export temporaire doit se trouver au dessus de la racine des documents du serveur afin d'être convertible en url
+		// Attention le chemin d'export temporaire doit se trouver au dessous du
+		// dossier Web du serveur afin d'être accessible par une URL
 		$chemin_html = $this->config['export']['chemin_export_tmp'].$nom_fichier.'.html';
 		// sauvegarde dans un fichier qui sera accessible directement pour le script de conversion par son url
 		file_put_contents($chemin_html, $panneau_html);

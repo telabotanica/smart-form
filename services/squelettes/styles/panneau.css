@@ -97,12 +97,20 @@ body {
 }
 
 .panneau-conteneur-illustration {
-	margin-left: 65px;
     position: relative;
-    top: -350px;
-    max-width: 500px;
+    width: 500px;
     height: 500px;
+    top: -350px;
+	margin-left: 65px;
     overflow: hidden;
+}
+
+.panneau-conteneur-illustration img {
+	/* images carrées à l'arrache */
+	min-width: 500px;
+	min-height: 500px;
+	height: auto;
+	width: auto;
 }
 
 .panneau-espece-illustration {
