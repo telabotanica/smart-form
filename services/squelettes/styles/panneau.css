@@ -106,11 +106,8 @@ body {
 }
 
 .panneau-conteneur-illustration img {
-	/* images carrées à l'arrache */
-	min-width: 500px;
-	min-height: 500px;
-	height: auto;
-	width: auto;
+	height: 500px;
+	width: 500px;
 }
 
 .panneau-espece-illustration {

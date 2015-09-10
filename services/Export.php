@@ -262,6 +262,7 @@ class Export extends SmartFloreService {
 		// Appel d'identiplante pour obtenir l'image la mieux votée selon le protocole d'identification
 		$meilleure_image_url_tpl = $this->config['export']['meilleure_image_url_tpl'];
 		$meilleure_image_url = sprintf($meilleure_image_url_tpl, strtolower($referentiel), $num_nom);
+		//echo "MIU: $meilleure_image_url"; exit;
 
 		$meilleure_im = @file_get_contents($meilleure_image_url);
 		$meilleure_image = json_decode($meilleure_im, true);
