@@ -34,7 +34,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, smar
 	    for (i = 0; i < lthis.sentierSelectionne.fiches.length; i++) {
 	        if (lthis.sentierSelectionne.fiches[i].tag === fiche.tag) {
 	        	lthis.sentierSelectionne.fiches[i].existe = true;
-	        	lthis.sentierSelectionne.fiches[i].nb_revisions += 1;
+	        	lthis.sentierSelectionne.fiches[i].nb_revisions = parseInt(lthis.sentierSelectionne.fiches[i].nb_revisions) + 1;
 	        	return;
 	        }
 	    }
