@@ -5,6 +5,13 @@ body {
 
 #logo-tb {
 	height: 105px;
+	float: left;
+}
+
+.nom-application {
+	margin-left: 180px;
+	padding-top: 35px;
+	font-size: 45px;
 }
 
 .recherche {

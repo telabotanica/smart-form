@@ -5,6 +5,9 @@ smartFormApp.controller('SmartFormControleur', function ($scope, $rootScope, pag
 	
 	// état dictant la vue active dans la page
 	$scope.etat = "liste";
+
+	// nom de l'application d'après la config
+	$scope.nom_application = config.nom_application;
 	
 	// affiche ou cache le masque de chargement
 	$scope.chargement = true;
