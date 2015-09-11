@@ -117,7 +117,7 @@ body {
 }
 
 .panneau-espece-nom .panneau-nom-vernaculaire, .panneau-espece-nom .panneau-infos-scientifique {
-	margin-left: 290px;
+	margin-left: 270px;
 }
 
 .panneau-infos-scientifique {
@@ -130,10 +130,21 @@ body {
 }
 
 .panneau-nom-vernaculaire {
-	font-size: 85px;
 	font-weight: bold;
 	font-family: 'Muli', sans-serif;
 	padding-right: 80px;
+}
+
+.panneau-nom-vernaculaire-normal {
+	font-size: 85px;
+}
+
+.panneau-nom-vernaculaire-grand {
+	font-size: 70px;
+}
+
+.panneau-nom-vernaculaire-tres-grand {
+	font-size: 50px;
 }
 
 .panneau-description {

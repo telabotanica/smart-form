@@ -273,6 +273,17 @@ class Export extends SmartFloreService {
 			$meilleure_image_src = $meilleure_image_infos['binaire.href'];
 		}
 
+		// en cas d'indisponibilité du nom vernaculaire, le nom scientifique
+		// peut être affiché à la place
+		//$nom_sci = "Capparis sepiaria var. fischeri (Pax) DeWolf"; // 44
+		//$nom_sci = "Capparis sepiaria var. fischeri (Pax) DeWolf Couscous 3000"; // 58
+		//$nom_sci = "Capparis sepiaria var. fischer"; // 30
+		//$nom_sci = "Capparis sepiaria var. fischer cousc"; // 36
+		$nom_a_afficher = $nom_verna;
+		if ($nom_a_afficher == "") {
+			$nom_a_afficher = $nom_sci;
+		}
+
 		$infos_fiche = array(
 				'url_qr_code' => $qr_code_url,
 				'url_illustration' => $meilleure_image_src,
@@ -281,24 +292,42 @@ class Export extends SmartFloreService {
 				'num_nom' => $num_nom,
 				'famille' => $this->convertirEnEntitesHtmlSaufTags($infos_sci['famille']),
 				'description' => $this->convertirEnEntitesHtmlSaufTags($description['texte']),
-				'description_classe' => $this->getClasseDescription(strlen($description['texte']))
+				'description_classe' => $this->getClasseDescription(strlen($description['texte'])),
+				'nom_classe' => $this->getClasseNomVernaOuSci(strlen($nom_a_afficher))
 		);
 
 		return $infos_fiche;
 	}
 
+	/**
+	 * Retourne une classe CSS pour la description (texte du panneau) en
+	 * fonction de la longueur de celle-ci
+	 */
 	protected function getClasseDescription($longueur) {
-		$classe = "";
-		if($longueur < 1500) {
-			$classe = "panneau-description-normale";
-		}
+		$classe = "panneau-description-normale";
 
-		if($longueur >= 1500 && $longueur < 2000) {
+		if ($longueur >= 1300 && $longueur < 2000) {
 			$classe = "panneau-description-grande";
 		}
-
-		if($longueur >= 2000) {
+		if ($longueur >= 2000) {
 			$classe = "panneau-description-tres-grande";
+		}
+
+		return $classe;
+	}
+
+	/**
+	 * Retourne une classe CSS pour le nom de la plante (vernaculaire ou à
+	 * défaut scientifique, en fonction de sa longueur
+	 */
+	protected function getClasseNomVernaOuSci($longueur) {
+		$classe = "panneau-nom-vernaculaire-normal";
+
+		if ($longueur >= 36 && $longueur < 46) {
+			$classe = "panneau-nom-vernaculaire-grand";
+		}
+		if ($longueur >= 46) {
+			$classe = "panneau-nom-vernaculaire-tres-grand";
 		}
 
 		return $classe;
