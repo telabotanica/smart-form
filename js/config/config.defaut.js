@@ -1,5 +1,6 @@
 var config = {
 	nom_application: "Tableau de bord Smart'Flore",
+	prod: false,
 	referentiels : ["BDTFX", "BDTXA", "ISFAN", "APD"],
 	infos_referentiels : 
 	{
