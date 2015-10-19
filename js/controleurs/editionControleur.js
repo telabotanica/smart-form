@@ -1,4 +1,4 @@
-smartFormApp.controller('EditionControleur', function ($scope, $rootScope, $sce, wikiniService, smartFormService) {
+smartFormApp.controller('EditionControleur', function ($scope, $rootScope, $sce, wikiniService, smartFormService, googleAnalyticsService) {
 	
 	this.fiche_edition = {};
 	this.fiche_edition.sections = [];
@@ -47,6 +47,8 @@ smartFormApp.controller('EditionControleur', function ($scope, $rootScope, $sce,
 			lthis.fiche_edition.existe = true;
 			// Dès que le formulaire d'édition est appelé, il crée la fiche si elle n'existe pas
 			$rootScope.$broadcast('edition.fiche-editee', lthis.fiche_edition);
+			// stats
+			googleAnalyticsService.envoyerEvenement("fiche", "edition", '{"tag": "' + fiche.tag + '", "nom_sci": "' + fiche.infos_taxon.nom_sci + '", "referentiel": "' + fiche.infos_taxon.referentiel + '"}');
 		}, function(data) {
 			// rien à faire en cas d'échec
 		});
