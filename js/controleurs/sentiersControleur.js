@@ -1,4 +1,4 @@
-smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, smartFormService, etatApplicationService, liensService) {
+smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, smartFormService, etatApplicationService, liensService, googleAnalyticsService) {
 	
 	this.sentiers = [];
 	this.sentierSelectionne = {};
@@ -78,6 +78,9 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, smar
 			smartFormService.ajouterSentier(this.nouveauSentierTitre,
 			function(data) {
 				if(data == 'OK') {
+					// stats
+					googleAnalyticsService.envoyerEvenement("sentier", "creation", lthis.nouveauSentierTitre);
+
 					lthis.initialiserNouveauSentier(lthis.nouveauSentierTitre);
 					lthis.nouveauSentierTitre = "";
 				}
@@ -104,6 +107,8 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, smar
 						lthis.sentierSelectionne.titre = "";
 						lthis.sentierSelectionne.fiches = [];
 					}
+					// stats
+					googleAnalyticsService.envoyerEvenement("sentier", "suppression", sentier.titre);
 				}
 			}, 
 			function(data) {
@@ -119,6 +124,8 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, smar
 			function(data) {
 				if(data == 'OK') {
 					lthis.sentierSelectionne.fiches.push(fiche);
+					// stats
+					googleAnalyticsService.envoyerEvenement("sentier", "ajout-fiche", '{"sentier": "' + sentier.titre + '", "fiche": {"tag": "' + fiche.tag + '", "nom_sci": "' + fiche.infos_taxon.nom_sci + '", "referentiel": "' + fiche.infos_taxon.referentiel + '"}}');
 				}
 			}, 
 			function(data) {
@@ -134,6 +141,8 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, smar
 			function(data) {
 				if(data == 'OK') {
 					lthis.supprimerFicheDuSentier(sentier, fiche);
+					// stats
+					googleAnalyticsService.envoyerEvenement("sentier", "suppression-fiche", '{"sentier": "' + sentier.titre + '", "fiche": {"tag": "' + fiche.tag + '", "nom_sci": "' + fiche.infos_taxon.nom_sci + '", "referentiel": "' + fiche.infos_taxon.referentiel + '"}}');
 				}
 			}, 
 			function() {

@@ -1,4 +1,4 @@
-smartFormApp.controller('SmartFormControleur', function ($scope, $rootScope, paginationService, etatApplicationService) {
+smartFormApp.controller('SmartFormControleur', function ($scope, $rootScope, paginationService, etatApplicationService, googleAnalyticsService) {
 	
 	// globale provenant de config.js
 	$scope.config = config;
@@ -8,9 +8,6 @@ smartFormApp.controller('SmartFormControleur', function ($scope, $rootScope, pag
 
 	// nom de l'application d'après la config
 	$scope.nom_application = config.nom_application;
-
-	// est-on en prod ou en test ?
-	$scope.prod = config.prod;
 	
 	// affiche ou cache le masque de chargement
 	$scope.chargement = true;
@@ -32,17 +29,10 @@ smartFormApp.controller('SmartFormControleur', function ($scope, $rootScope, pag
 			$scope.changerEtat(etat);
 		});
 
-		// chargement de Google Analytics uniquement si on est en prod
-		if ($scope.prod) {
-			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-			(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-			})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+		// Stats GA
+		googleAnalyticsService.init();
+		googleAnalyticsService.envoyerPageVue();
 
-			ga('create', 'UA-57885-5', 'auto');
-			ga('send', 'pageview');
-		}
-		
 		var lthis = this;
 		setTimeout(function(){ lthis.analyserEtatApplication(); }, 200);
 	};
