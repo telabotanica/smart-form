@@ -8,17 +8,17 @@
 	<script src="vendor/angular/1.3.15/angular.min.js"></script>
 	<script src="vendor/angular/1.3.15/angular-sanitize.min.js"></script>
 	<script src="vendor/angular/angular-ui/custom/ui-bootstrap-custom-tpls-0.13.0.min.js"></script>
-	
+
 	<script src="js/config/config.js"></script>
-	<script src="js/app.js"></script>	
-	
+	<script src="js/app.js"></script>
+
 	<script src="js/services/wikiniService.js"></script>
 	<script src="js/services/smartFormService.js"></script>
 	<script src="js/services/paginationService.js"></script>
 	<script src="js/services/etatApplicationService.js"></script>
 	<script src="js/services/liensService.js"></script>
 	<script src="js/services/googleAnalyticsService.js"></script>
-	
+
 	<script src="js/controleurs/smartFormControleur.js"></script>
 	<script src="js/controleurs/boiteUtilisateurControleur.js"></script>
 	<script src="js/controleurs/listeControleur.js"></script>
@@ -27,7 +27,7 @@
 	<script src="js/controleurs/editionControleur.js"></script>
 	<script src="js/controleurs/favorisControleur.js"></script>
 	<script src="js/controleurs/sentiersControleur.js"></script>
-	
+
 	<script src="js/directives/paginationDirective.js"></script>
 	<script src="js/directives/boiteUtilisateurDirective.js"></script>
 	<script src="js/directives/listeDirective.js"></script>
@@ -44,32 +44,32 @@
 
 	<div class="col-md-8" >
 		<h1 class="titre-application">
-			<img id="logo-tb" src="http://resources.tela-botanica.org/tb/img/256x256/logo.png" title="logo de Tela Botanica" /> 
+			<img id="logo-tb" src="http://resources.tela-botanica.org/tb/img/256x256/logo.png" title="logo de Tela Botanica" />
 			<div class="nom-application" ng-bind="nom_application"></div>
 		</h1>
 	</div>
-	
+
 	<!-- BOITE UTILISATEUR -->
 	<boiteutilisateur class="col-md-3 boite-utilisateur"></boiteutilisateur>
 	<hr class="nettoyage" />
 
 	<!-- LISTE DES FICHES -->
 	<listefiches></listefiches>
-	
+
 	<hr class="nettoyage" />
-		
+
 	<!-- FORMULAIRE D'ÉDITION D'UNE FICHE -->
 	<formulaireedition></formulaireedition>
-		
+
 	<!-- LOGOS -->
 	<div class="logos-partenaires">
 		<a target="_blank" href="http://www.sports.gouv.fr/"><img id="logo-js" src="img/js_150.png" alt="Ministère de la ville, de la jeunesse et des sports" title="Ministère de la ville, de la jeunesse et des sports" /></a>
 		<a target="_blank" href="http://www.gouvernement.fr/investissements-d-avenir-cgi"><img id="logo-ia" src="img/invest_avenir_150.png" alt="Investissements d'avenir" title="Investissements d'avenir" /></a>
 		<a target="_blank" href="http://www.francophonie.org"><img id="logo-oif" src="img/oif_150.png" alt="Organisation Internationale de la Francophonie" title="Organisation Internationale de la Francophonie" /></a>
 	</div>
-	
+
 	<!-- MASQUE DE CHARGEMENT -->
 	<masquechargement ng-show="chargement"></masquechargement>
-	
+
 </body>
 </html>

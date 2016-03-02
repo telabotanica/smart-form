@@ -1,8 +1,8 @@
 smartFormApp.controller('BoiteUtilisateurControleur', function ($scope, $rootScope, $interval, etatApplicationService) {
-	
+
 	this.utilisateur = {};
 	this.urlInscription = config.url_inscription;
-	
+
 	this.message = '';
 	this.erreur = false;
 	this.courrielOK = false;
@@ -10,7 +10,7 @@ smartFormApp.controller('BoiteUtilisateurControleur', function ($scope, $rootSco
 
 	// rafraîchissement périodique du jeton
 	this.timer = null;
-	
+
 	// au cas où autre chose nous aurait connecté dans l'application
 	$scope.$on('utilisateur.utilisateur-connecte', function(event, utilisateur) {
 		this.utilisateur = utilisateur;
@@ -23,8 +23,8 @@ smartFormApp.controller('BoiteUtilisateurControleur', function ($scope, $rootSco
 	 * données de l'utilisateur
 	 */
 	this.connecterUtilisateur = function() {
-		if(this.formulaireValide()) {		
-			etatApplicationService.connecterUtilisateur(this.utilisateur, 
+		if(this.formulaireValide()) {
+			etatApplicationService.connecterUtilisateur(this.utilisateur,
 			function(data) {
 				// infos SSO
 				etatApplicationService.jeton = data.token;
@@ -41,33 +41,33 @@ smartFormApp.controller('BoiteUtilisateurControleur', function ($scope, $rootSco
 			lthis.mettreEnErreur();
 		}
 	};
-	
+
 	this.verifierValiditeFormulaire = function() {
 		this.courrielOK = this.courrielValide();
 		this.mdpOK = this.mdpValide();
-		
+
 		if(this.formulaireValide()) {
 			this.retirerEnErreur();
 		}
 	};
-	
+
 	this.formulaireValide = function() {
 		return this.courrielValide() && this.mdpValide();
 	}
-	
+
 	this.courrielValide = function() {
 		return !!this.utilisateur.courriel && this.utilisateur.courriel != '';
 	};
-	
+
 	this.mdpValide = function() {
 		return !!this.utilisateur.mdp && this.utilisateur.mdp != '';
 	};
-	
+
 	this.mettreEnErreur = function() {
 		lthis.message = "Courriel / Mot de passe incorrect";
 		this.erreur = true;
 	};
-	
+
 	this.retirerEnErreur = function() {
 		lthis.message = "";
 		this.erreur = false;
@@ -83,7 +83,7 @@ smartFormApp.controller('BoiteUtilisateurControleur', function ($scope, $rootSco
 		if (toutRecharger === undefined) {
 			toutRecharger = true;
 		}
-		etatApplicationService.connaitreEtatUtilisateur( 
+		etatApplicationService.connaitreEtatUtilisateur(
 		function(data) {
 			if(!!data && !!data.session) {
 				// infos SSO
@@ -93,7 +93,7 @@ smartFormApp.controller('BoiteUtilisateurControleur', function ($scope, $rootSco
 				if (toutRecharger || ! lthis.utilisateur.connecte) {
 					lthis.utilisateur = lthis.construireUtilisateurDepuisJeton(data.token);
 					lthis.utilisateur.connecte = true;
-					etatApplicationService.utilisateur = lthis.utilisateur;				
+					etatApplicationService.utilisateur = lthis.utilisateur;
 					$rootScope.$broadcast('utilisateur.utilisateur-connecte', etatApplicationService.utilisateur);
 				}
 				// rafraîchissement automatique du jeton
@@ -108,7 +108,7 @@ smartFormApp.controller('BoiteUtilisateurControleur', function ($scope, $rootSco
 			}
 		},
 		function(data) {
-			
+
 		});
 	};
 
@@ -116,7 +116,7 @@ smartFormApp.controller('BoiteUtilisateurControleur', function ($scope, $rootSco
 	// @TODO - devrait-on plutôt l'accélérer pour détecter une connexion depuis
 	// un autre endroit ?
 	this.deconnecterUtilisateur = function() {
-		etatApplicationService.deconnecterUtilisateur( 
+		etatApplicationService.deconnecterUtilisateur(
 		function(data) {
 			// infos SSO
 			etatApplicationService.jeton = data.token; // devrait être null
@@ -150,7 +150,7 @@ smartFormApp.controller('BoiteUtilisateurControleur', function ($scope, $rootSco
 	 * Recopie les infos d'un jeton JWT dans le "profil" utilisateur
 	 */
 	this.construireUtilisateurDepuisJeton = function(jeton) {
-		var infos = this.decoderJeton(jeton); 
+		var infos = this.decoderJeton(jeton);
 		//console.log(infos);
 		var utilisateur = {
 			connecte: true,

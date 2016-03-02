@@ -1,22 +1,22 @@
 smartFormApp.service('etatApplicationService', function($http) {
-	
+
 	// Etat de la recherche, du chargement etc...
 	var etatApplicationService = {};
-	
+
 	etatApplicationService.referentiels = config.referentiels;
 	etatApplicationService.infosReferentiels = config.infos_referentiels;
-	
+
 	etatApplicationService.recherche = {};
 	etatApplicationService.recherche.texte = "";
 	etatApplicationService.recherche.fichesExistantes = false;
 	etatApplicationService.recherche.referentiel = etatApplicationService.referentiels[0];
 	etatApplicationService.recherche.nomVernaculaire = false;
 	etatApplicationService.recherche.referentielVerna = etatApplicationService.infosReferentiels[etatApplicationService.recherche.referentiel].noms_vernaculaires;
-	
-	
+
+
 	etatApplicationService.rechercheModifiee = false;
-	etatApplicationService.premierChargement = true; 
-	
+	etatApplicationService.premierChargement = true;
+
 	// etat de l'utilisateur
 	// @WTF pourquoi ne pas utiliser boiteUtilisateurControleur.initialiserUtilisateurVide() ?
 	etatApplicationService.utilisateur = {};
@@ -32,10 +32,10 @@ smartFormApp.service('etatApplicationService', function($http) {
 	etatApplicationService.jeton = null;
 	etatApplicationService.idJeton = "";
 	etatApplicationService.dureeJeton = 0;
-	
+
 	etatApplicationService.voirTousLesSentiers = false;
-	
-	etatApplicationService.connecterUtilisateur  = function(utilisateur, surSucces, surErreur) {	
+
+	etatApplicationService.connecterUtilisateur  = function(utilisateur, surSucces, surErreur) {
 		var url_service = config.url_service_annuaire.replace("{service}", "connexion");
 		// Besoin d'un objet particulier ici car sinon angular poste du json
 		$http.get(url_service + "?login=" + utilisateur.courriel + "&password=" + encodeURIComponent(utilisateur.mdp))
@@ -46,7 +46,7 @@ smartFormApp.service('etatApplicationService', function($http) {
 			surErreur();
 		});
 	};
-	
+
 	etatApplicationService.connaitreEtatUtilisateur = function(surSucces, surErreur) {
 		var url_service = config.url_service_annuaire.replace("{service}", "identite");
 		$http.get(url_service).
@@ -57,8 +57,8 @@ smartFormApp.service('etatApplicationService', function($http) {
 			surErreur(data);
 		});
 	};
-	
-	etatApplicationService.deconnecterUtilisateur = function(surSucces, surErreur) {	
+
+	etatApplicationService.deconnecterUtilisateur = function(surSucces, surErreur) {
 		var url_service = config.url_service_annuaire.replace("{service}", "deconnexion");
 		$http.get(url_service).
 		success(function(data, status, headers, config) {
@@ -68,10 +68,10 @@ smartFormApp.service('etatApplicationService', function($http) {
 			surErreur(data);
 		});
 	};
-	
+
 	// http://stackoverflow.com/questions/979975/how-to-get-the-value-from-the-url-parameter
 	etatApplicationService.queryString = function () {
-		// This function is anonymous, is executed immediately and 
+		// This function is anonymous, is executed immediately and
 		// the return value is assigned to QueryString!
 		var query_string = {};
 		var query = decodeURIComponent(window.location.search.substring(1));
@@ -89,15 +89,15 @@ smartFormApp.service('etatApplicationService', function($http) {
 			} else {
 	      query_string[pair[0]].push(pair[1]);
 			}
-		} 
+		}
 	    return query_string;
 	} ();
-	
+
 	etatApplicationService.getHeadersAuth = function() {
 		headers_requete = {};
 		headers_requete[config.auth_header] = etatApplicationService.jeton;
 		return headers_requete;
 	};
-	
-	return etatApplicationService;	
+
+	return etatApplicationService;
 });

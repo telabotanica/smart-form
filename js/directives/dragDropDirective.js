@@ -1,7 +1,7 @@
-// Merci frAngular 
+// Merci frAngular
 // http://www.frangular.com/2013/02/drag-drop-avec-angularjs.html
 smartFormApp.directive("drag", function($rootScope) {
-  
+
   function dragStart(evt, element, dragStyle) {
     element.addClass(dragStyle);
     evt.dataTransfer.setData("id", evt.target.id);
@@ -10,7 +10,7 @@ smartFormApp.directive("drag", function($rootScope) {
   function dragEnd(evt, element, dragStyle) {
     element.removeClass(dragStyle);
   };
-  
+
   return {
     restrict: 'A',
     link: function(scope, element, attrs)  {
@@ -29,7 +29,7 @@ smartFormApp.directive("drag", function($rootScope) {
 });
 
 smartFormApp.directive("drop", function($rootScope) {
-	  
+
   function dragEnter(evt, element, dropStyle) {
     evt.preventDefault();
     element.addClass(dropStyle);
@@ -45,7 +45,7 @@ smartFormApp.directive("drop", function($rootScope) {
     evt.preventDefault();
     element.removeClass(dropStyle);
   };
-  
+
   return {
     restrict: 'A',
     link: function(scope, element, attrs)  {

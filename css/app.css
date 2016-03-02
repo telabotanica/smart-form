@@ -18,7 +18,7 @@ body {
 	padding-bottom: 3px;
 }
 
-.conteneur-boutons-vs {	
+.conteneur-boutons-vs {
     z-index: 999;
 	margin-left: 15px;
 }
@@ -41,7 +41,7 @@ body {
 }
 
 .pagination-total {
-	padding-bottom: 3px;	
+	padding-bottom: 3px;
 }
 
 .pagination-taille-page {
@@ -109,7 +109,7 @@ body {
 	background-color : #FD8C13 !important;
 }
 
-.fiche-favorite {	
+.fiche-favorite {
 	color: #FFD700;
 }
 
@@ -144,7 +144,7 @@ body {
 }
 
 .zone-drop-fiches-sentier {
-	border: 2px dashed #999;	
+	border: 2px dashed #999;
 	text-align: center;
 }
 
@@ -193,13 +193,13 @@ body {
 	visibility: hidden;
 }
 
-.element-draggable { 
+.element-draggable {
     opacity: 0.9;
     background-color: #C2C0AD;
 }
 
 .element-droppable {
-    background-color: #9AC343; 
+    background-color: #9AC343;
 }
 
 .bouton-afficher-cacher {

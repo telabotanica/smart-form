@@ -1,7 +1,7 @@
 smartFormApp.service('googleAnalyticsService', function() {
-	
+
 	var googleAnalyticsService = {};
-	
+
 	googleAnalyticsService.init = function() {
 		// chargement de Google Analytics uniquement si on est en prod
 		if (config.prod) {
@@ -15,7 +15,7 @@ smartFormApp.service('googleAnalyticsService', function() {
 			ga('create', 'UA-57885-5', 'auto');
 		}
 	};
-	
+
 	googleAnalyticsService.envoyerPageVue = function() {
 		if (config.prod) {
 			//console.log("envoi GA pageview");

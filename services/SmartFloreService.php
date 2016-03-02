@@ -11,30 +11,30 @@
  * @license		http://www.gnu.org/licenses/gpl.html Licence GNU-GPL
  */
 class SmartFloreService {
-	
+
 	protected $config = null;
 	protected $bdd = null;
-	
+
 	protected $triple_sentier = "smartFlore.sentiers";
 	protected $triple_sentier_fiche = "smartFlore.sentiers.fiche";
-	
+
 	protected $triple_favoris_fiche = "smartFlore.favoris.fiche";
-	
+
 	protected $triple_evenement = "smartFlore.evenements";
 	protected $triple_evenement_sentier_ajout = "smartFlore.evenements.sentiers.ajout";
 	protected $triple_evenement_sentier_fiche_ajout = "smartFlore.evenements.sentiers.fiche.ajout";
 	protected $triple_evenement_favoris_ajout = "smartFlore.evenements.favoris.ajout";
-	
+
 	protected $auth_header = 'Authorization';
 
 	/** Utilisateur en cours, identifié par un jeton SSO */
 	protected $utilisateur;
-	
+
 	public function __construct() {
 		// sequoia est relou !
 		ini_set('default_charset', 'utf-8');
 		$this->config = parse_ini_file('config.ini', true);
-		
+
 		// sous php-cgi le module retire le header Authorization
 		// donc en attendant de migrer php de sequoia vers une version récente
 		// on passe la variable dans un autre header
@@ -49,14 +49,14 @@ class SmartFloreService {
 			echo "Erreur de connexion à la base de données";
 			exit();
 		}
-		
+
 		$this->init();
 	}
-	
+
 	function __destruct() {
 		$this->bdd = null;
 	}
-	
+
 	// ---------------------------------------------------------------------------------------------
 	//
 	//	FONCTIONS REST
@@ -98,33 +98,33 @@ class SmartFloreService {
 				break;
 		}
 	}
-	
+
 	// Fonctions à surcharger dans les classes filles si besoin
 	// fonctions pseudo abstraites
 	function put($requete, $data) {
-	
+
 	}
-	
+
 	function post($requete, $data) {
-	
+
 	}
-	
+
 	function get($requete) {
-	
+
 	}
-	
+
 	function head($requete) {
-	
+
 	}
-	
+
 	function delete($requete, $data) {
-	
+
 	}
-	
+
 	function options($requete) {
-	
+
 	}
-	
+
 	function error($code, $texte) {
 		http_response_code($code);
 		echo $texte;
@@ -177,8 +177,8 @@ class SmartFloreService {
 		$this->utilisateur = $utilisateur;
 	}
 
-	
-	
+
+
 	/**
 	 * Essaye de trouver un jeton JWT non vide dans l'entête HTTP "Authorization"
 	 *
@@ -192,7 +192,7 @@ class SmartFloreService {
 		}
 		return $jwt;
 	}
-	
+
 	/**
 	 * Vérifie un jeton auprès de l'annuaire
 	 *
@@ -205,7 +205,7 @@ class SmartFloreService {
 
 		// file_get_contents râle si le certificat HTTPS est auto-signé
 		//$retour = file_get_contents($urlServiceVerification);
-	
+
 		// curl avec les options suivantes ignore le pb de certificat (pour tester en local)
 		$ch = curl_init();
 		$timeout = 5;
@@ -218,12 +218,12 @@ class SmartFloreService {
 		$data = curl_exec($ch);
 		curl_close($ch);
 		$retour = $data;
-	
+
 		$retour = json_decode($retour, true);
-	
+
 		return ($retour === true);
 	}
-	
+
 	/**
 	 * Décode un jeton JWT (SSO) précédemment validé et retourne les infos
 	 * qu'il contient (payload / claims)
@@ -234,17 +234,17 @@ class SmartFloreService {
 		$payload = $parts[1];
 		$payload = base64_decode($payload);
 		$payload = json_decode($payload, true);
-	
+
 		return $payload;
 	}
 
 	function retrouverInputData() {
 		$input_fmt = "";
-		$input = file_get_contents('php://input', 'r');	
+		$input = file_get_contents('php://input', 'r');
 
 		return json_decode($input, true);
 	}
-	
+
 
 	// ---------------------------------------------------------------------------------------------
 	//
@@ -255,12 +255,12 @@ class SmartFloreService {
 		$page = str_replace('SmartFlore', '', $page);
 		return preg_split("/nt/", $page);
 	}
-	
+
 	function getPagesWikiParRechercheFloue($recherche) {
 		$tpl_quote = $this->bdd->quote($recherche['noms_pages']);
 		return $this->getPagesWiki('tag LIKE '.$tpl_quote.' ', $recherche['debut'], $recherche['limite']);
 	}
-	
+
 	function getPagesWikiParRechercheExacte($recherche) {
 		if(empty($recherche['noms_pages'])) {
 			$retour = array(array(), 0);
@@ -269,17 +269,17 @@ class SmartFloreService {
 		}
 		return $retour;
 	}
-	
+
 	private function getPagesWiki($condition, $debut = null, $limite = null) {
-		
+
 		if(!empty($condition)) {
 			$condition .= 'AND ';
 		}
 		// Seulement les dernières révisions des pages
 		$condition .= ' latest = "Y" ';
-		
+
 		$champs = "id, tag, time, owner, user, latest";
-	
+
 		$requete = 'SELECT '.$champs.', COUNT(tag) as nb_revisions '.
 				'FROM '.$this->config['bdd']['table_prefixe'].'_pages '.
 				'WHERE '.$condition.' '.
@@ -289,25 +289,25 @@ class SmartFloreService {
 
 		$res = $this->bdd->query($requete);
 		$res = $res->fetchAll(PDO::FETCH_ASSOC);
-	
+
 		$comptage = 'SELECT COUNT(DISTINCT tag) as nb_pages '.
 				'FROM '.$this->config['bdd']['table_prefixe'].'_pages '.
 				'WHERE '.$condition.' ';
-	
+
 		$res_comptage = $this->bdd->query($comptage);
 		$res_comptage = $res_comptage->fetch(PDO::FETCH_ASSOC);
-	
+
 		return array($res, $res_comptage['nb_pages']);
 	}
-	
+
 	protected function completerPagesParInfosTaxon(&$pages_wiki) {
-		
+
 		$infos_indexees_par_referentiel_nt = array();
 		$infos_indexees_par_referentiel_nn = array();
-		
+
 		$retour = array('resultats' => array(), 'fiches_a_num_nom' => array());
-		
-		$nts = array();		
+
+		$nts = array();
 		foreach($pages_wiki as $resultat) {
 			list($referentiel, $nt) = $this->splitNt($resultat['tag']);
 			if(empty($nts)) {
@@ -318,36 +318,36 @@ class SmartFloreService {
 			$resultat['favoris'] = false;
 			$infos_indexees_par_referentiel_nt[$referentiel.$nt] = $resultat;
 		}
-		
+
 		$url_eflore_tpl = $this->config['eflore']['url_base'] . $this->config['eflore']['infos_taxons_url'];
-		
+
 		// $nts est un tableau indexé par référentiel, puis par nt
-		// la fonction renvoie un tableau indexé par referentiel et nn pour pouvoir avoir tout 
+		// la fonction renvoie un tableau indexé par referentiel et nn pour pouvoir avoir tout
 		// de même autant de résultats que de noms (et pas de taxons)
 		foreach($nts as $referentiel => $nts_a_ref) {
 			if(!empty($referentiel)) {
 				$num_tax_a_nums_noms = array();
 				$nts_ref_tranches = array_chunk($nts_a_ref, 99, true);
 				foreach($nts_ref_tranches as $tranche) {
-		
+
 					$url = sprintf($url_eflore_tpl, strtolower($referentiel), implode(',', $tranche));
 					$infos = file_get_contents($url);
 					$infos = json_decode($infos, true);
-							
+
 					foreach($infos['resultat'] as $num_nom => $infos_a_nt) {
-						
+
 						$nom_fiche = $this->formaterPageNom($referentiel, $infos_a_nt['num_taxonomique']);
 						$retour['fiches_a_num_nom'][$nom_fiche] = $num_nom;
-						
+
 						$infos_a_nt['num_nom'] = $num_nom;
 						$infos_a_nt['referentiel'] = $referentiel;
 						$retour['resultats'][$referentiel.$infos_a_nt['num_nom']] = $infos_indexees_par_referentiel_nt[$referentiel.$infos_a_nt['num_taxonomique']];
 						$retour['resultats'][$referentiel.$infos_a_nt['num_nom']]['infos_taxon'] = $infos_a_nt;
-					
+
 						$num_tax_a_nums_noms[$infos_a_nt['num_taxonomique']][] = $infos_a_nt['num_nom'];
 					}
 				}
-				
+
 				$cle_ref = 'referentiel_verna_'.strtolower($referentiel);
 				if(!empty($this->config['eflore'][$cle_ref])) {
 					// retour est modifié par référence dans la fonction compléter par noms vernaculaires
@@ -356,12 +356,12 @@ class SmartFloreService {
 				}
 			}
 		}
-		
+
 		return $retour;
 	}
-	
+
 	// Attention le tableau retour est passé par référence
-	function completerPagesParNomsVernaculaires($referentiel, $referentiel_verna, $nts_a_nn, &$retour) {	
+	function completerPagesParNomsVernaculaires($referentiel, $referentiel_verna, $nts_a_nn, &$retour) {
 		$url_eflore_tpl = $this->config['eflore']['url_base'] . $this->config['eflore']['infos_noms_vernaculaires_url'];
 		$url = sprintf($url_eflore_tpl, strtolower($referentiel_verna), implode(',', array_keys($nts_a_nn)));
 
@@ -372,22 +372,22 @@ class SmartFloreService {
 			foreach($infos['resultat'] as $num_nom_verna => $infos_a_num_nom) {
 				if(!empty($nts_a_nn[$infos_a_num_nom['num_taxon']])) {
 					$nums_noms_a_nt = $nts_a_nn[$infos_a_num_nom['num_taxon']];
-	
+
 					foreach($nums_noms_a_nt as $num_nom) {
 						if(!empty($retour['resultats'][$referentiel.$num_nom])) {
 							$retour['resultats'][$referentiel.$num_nom]['infos_taxon']['noms_vernaculaires'][] = $infos_a_num_nom['nom'];
 						}
 					}
-	
-				}	
+
+				}
 			}
 		}
 	}
-	
+
 	function formaterPageNom($referentiel, $nt) {
 		return 'SmartFlore'.strtoupper($referentiel).'nt'.$nt;
 	}
-	
+
 	function getFavorisPourUtilisateur($utilisateur, $tag_fiches = array()) {
 		$requete = 'SELECT * '.
 				'FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
@@ -400,16 +400,16 @@ class SmartFloreService {
 
 		return $res;
 	}
-	
+
 	protected function consulterRechercheNomsSciEflore($recherche) {
 		$url_eflore_tpl = $this->config['eflore']['url_base'] . $this->config['eflore']['recherche_noms_url'];
 		$url = sprintf($url_eflore_tpl, strtolower($recherche['referentiel']), 'etendue', urlencode($recherche['recherche'].'%'), $recherche['debut'], $recherche['limite']);
-		
+
 		// Quand il n'y pas de résultats eflore renvoie une erreur 404 (l'imbécile !)
 		// or le cas où l'on n'a pas de résultats est parfaitement valide
 		$infos = @file_get_contents($url);
 		$infos = json_decode($infos, true);
-		
+
 		if(empty($infos['entete']) || $infos['entete']['total'] == 0) {
 			// rien trouvé ? peut être une faute de frappe, on retente avec la recherche floue
 			$url = sprintf($url_eflore_tpl, strtolower($recherche['referentiel']), 'floue', urlencode($recherche['recherche'].'%'), $recherche['debut'], $recherche['limite']);
@@ -417,7 +417,7 @@ class SmartFloreService {
 			$infos = @file_get_contents($url);
 			$infos = json_decode($infos, true);
 		}
-		
+
 		return $infos;
 	}
 
@@ -425,12 +425,12 @@ class SmartFloreService {
 		$url_eflore_verna_tpl = $this->config['eflore']['url_base'] . $this->config['eflore']['recherche_noms_vernaculaires_url'];
 		$referentiel_verna = $this->config['eflore']['referentiel_verna_'.strtolower($recherche['referentiel'])];
 		$url_verna = sprintf($url_eflore_verna_tpl, $referentiel_verna, urlencode($recherche['recherche'].'%'), $recherche['debut'], $recherche['limite']);
-		
+
 		// Quand il n'y pas de résultats eflore renvoie une erreur 404 (l'imbécile !)
 		// or le cas où l'on n'a pas de résultats est parfaitement valide
 		$infos_verna = @file_get_contents($url_verna);
 		$infos_verna = json_decode($infos_verna, true);
-		
+
 		return $infos_verna;
 	}
 
@@ -441,27 +441,27 @@ class SmartFloreService {
 	// ---------------------------------------------------------------------------------------------
 	function enregistrerEvenement($evenement, $cible) {
 		$cible = $this->bdd->quote(json_encode($cible));
-		
+
 		date_default_timezone_set('Europe/Paris');
-		
+
 		$requete_insertion = 'INSERT INTO '.$this->config['bdd']['table_prefixe'].'_triples '.
 				'(resource, property, value) VALUES '.
 				' ("'.date('Y-m-d H:i:s').'","'.$evenement.'", '.$cible.') ';
-				
+
 		$res_insertion = $this->bdd->exec($requete_insertion);
 		$retour = ($res_insertion !== false) ? 'OK' : false;
 	}
-	
+
 	function getEvenements($debut = 0, $limite = 100) {
 		$requete = 'SELECT * '.
 				'FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
 				'WHERE property LIKE "'.$this->triple_evenement.'%" '.
 				'ORDER BY resource DESC '.
 				'LIMIT '.$debut.','.$limite.' ';
-	
+
 		$res = $this->bdd->query($requete);
 		$res = $res->fetchAll(PDO::FETCH_ASSOC);
-	
+
 		return $res;
 	}
 }

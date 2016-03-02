@@ -1,10 +1,10 @@
 smartFormApp.controller('FavorisControleur', function ($scope, $rootScope, smartFormService, etatApplicationService, liensService) {
-	
+
 	this.fiches = [];
 	this.afficherFavoris = etatApplicationService.utilisateur.connecte;
-	
+
 	this.liensService = liensService;
-	
+
 	var lthis = this;
 	$scope.$on('favoris.ajouter-fiche', function(event, fiche) {
 		lthis.ajouterFavoris(fiche);
@@ -12,16 +12,16 @@ smartFormApp.controller('FavorisControleur', function ($scope, $rootScope, smart
 	$scope.$on('favoris.supprimer-fiche', function(event, fiche) {
 		lthis.supprimerFavoris(fiche);
 	});
-	
+
 	$scope.$on('utilisateur.utilisateur-connecte', function(event, utilisateur) {
 		lthis.afficherFavoris = utilisateur.connecte;
 		lthis.getFavoris();
 	});
-	
+
 	$scope.$on('utilisateur.utilisateur-deconnecte', function(event) {
 		lthis.afficherFavoris = false;
 	});
-	
+
 	$scope.$on('edition.fiche-editee', function(event, fiche) {
 	    var i;
 	    for (i = 0; i < lthis.fiches.length; i++) {
@@ -32,22 +32,22 @@ smartFormApp.controller('FavorisControleur', function ($scope, $rootScope, smart
 	        }
 	    }
 	});
-	
+
 	this.editerFiche = function(fiche) {
 		$rootScope.$broadcast('edition.editer-fiche', fiche);
 	};
-	
+
 	this.getFavoris = function() {
 		var lthis = this;
 		smartFormService.getListeFichesFavorites(
 		function(data) {
 			lthis.fiches = data.resultats;
-		}, 
+		},
 		function(data) {
-			
+
 		});
 	};
-	
+
 	this.ajouterFavoris = function(fiche) {
 		var lthis = this;
 		smartFormService.ajouterFicheFavorite(fiche.tag,
@@ -55,12 +55,12 @@ smartFormApp.controller('FavorisControleur', function ($scope, $rootScope, smart
 			if(data == 'OK') {
 				lthis.ajouterOuMettreAJourFavoris(fiche);
 			}
-		}, 
+		},
 		function(data) {
 			console.log('C\'est pas bon !');
 		});
 	};
-	
+
 	this.supprimerFavoris = function(fiche) {
 		var lthis = this;
 		smartFormService.supprimerFicheFavorite(fiche.tag,
@@ -69,14 +69,14 @@ smartFormApp.controller('FavorisControleur', function ($scope, $rootScope, smart
 				$rootScope.$broadcast('favoris.fiche-supprimee', fiche);
 				lthis.supprimerFicheDeLaListe(fiche);
 			}
-		}, 
+		},
 		function(data) {
 			console.log('C\'est pas bon !');
 		});
 	};
-	
+
 	this.ajouterOuMettreAJourFavoris = function(fiche) {
-		// Vérification si la fiche n'est pas déjà présente 
+		// Vérification si la fiche n'est pas déjà présente
 		// TODO: voir si c'est utile
 	    var i;
 	    for (i = 0; i < this.fiches.length; i++) {
@@ -86,7 +86,7 @@ smartFormApp.controller('FavorisControleur', function ($scope, $rootScope, smart
 	    }
 	    this.fiches[i] = fiche;
 	};
-	
+
 	this.supprimerFicheDeLaListe = function(fiche) {
 	    var i;
 	    for (i = 0; i < this.fiches.length; i++) {
@@ -95,7 +95,7 @@ smartFormApp.controller('FavorisControleur', function ($scope, $rootScope, smart
 	        }
 	    }
 	};
-	
+
 	if(this.afficherFavoris) {
 		this.getFavoris();
 	}

@@ -15,10 +15,10 @@ class Suivi extends SmartFloreService {
 
 	public function get($requete) {
 		$evenements = $this->getEvenements(0, 100);
-		
+
 		$url = "http".(!empty($_SERVER['HTTPS'])?"s":"").
 		"://".$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'];
-		
+
 		$infos = array(
 					'titre' => "Flux des sentiers Smart'Flore",
 					'lien_smartflore' => $this->config['smartflore']['application_saisie_url'],
@@ -30,22 +30,22 @@ class Suivi extends SmartFloreService {
 		foreach ($evenements as $evt) {
 			$infos['items'][] = $this->construireItem($evt);
 		}
-		
+
 		ob_start();
 		extract($infos);
 		include(dirname(__FILE__).'/squelettes/rss2.tpl.xml');
-		$rss = ob_get_clean(); 
-		
+		$rss = ob_get_clean();
+
 		header('Content-type: text/xml');
 		echo $rss;
 		exit;
 	}
-	
+
 	protected function construireItem($evt) {
-		
+
 		$infos_sentier = json_decode($evt['value'], true);
 		$description = "Sentier Smart'Flore ".$infos_sentier['titre']." ajouté par ".$infos_sentier['utilisateur']." (".$infos_sentier['utilisateur_courriel'].")";
-		
+
 		$item = array(
 					'guid' => 'http://www.tela-botanica.org/smartFlore/'.$evt['property'].'/'.$evt['id'],
 			  		'titre' => 'Ajout du sentier '.$infos_sentier['titre'].' par '.$infos_sentier['utilisateur'],
@@ -54,7 +54,7 @@ class Suivi extends SmartFloreService {
 			 		'categorie' => "Sentier Smart'Flore",
 			  		'date_maj_RSS' => date("r", strtotime($evt["resource"]))
 				);
-		
+
 		return $item;
 	}
 }
