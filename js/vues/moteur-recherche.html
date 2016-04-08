@@ -8,16 +8,16 @@
 						<button type='button'
 								ng-click="rechercheCtrl.surChangementTypeRecherche('vernaculaire')"
 								title="Rechercher par nom vernaculaire"
-								ng-disabled="rechercheCtrl.recherche.referentielVerna == null" 
+								ng-disabled="rechercheCtrl.recherche.referentielVerna == null"
 								class="btn btn-default {{rechercheCtrl.recherche.nomVernaculaire ? 'active' : ''}}">V</button>
 						<button type='button'
-								ng-click="rechercheCtrl.surChangementTypeRecherche('scientifique')" 
+								ng-click="rechercheCtrl.surChangementTypeRecherche('scientifique')"
 								title="Rechercher par nom scientifique"
 								class="btn btn-default {{!rechercheCtrl.recherche.nomVernaculaire ? 'active' : ''}}">S</button>
 					</div>
 					<div class="col-md-10 formulaire-recherche-champ">
 						<input type="text" class="form-control"
-							placeholder="Rechercher une fiche par nom {{rechercheCtrl.recherche.nomVernaculaire ? 'vernaculaire' : 'scientifique'}}" 
+							placeholder="Rechercher une fiche par nom {{rechercheCtrl.recherche.nomVernaculaire ? 'vernaculaire' : 'scientifique'}}"
 							ng-model="rechercheCtrl.recherche.texte"
 							ng-disabled="rechercheCtrl.recherche.fichesExistantes"
 							ng-change="rechercheCtrl.surChangementRecherche()"

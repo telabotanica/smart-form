@@ -1,0 +1,19 @@
+{
+  "name": "smart-form",
+  "description": "Gestionnaire de sentiers botaniques",
+  "version": "0.0.0",
+  "homepage": "https://github.com/telabotanica/smart-form",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "angular": "~1.5.0",
+    "angular-sanitize": "~1.5.0",
+    "html5-boilerplate": "~5.2.0",
+    "bootstrap": "~3.3.0",
+    "angularjs-geolocation": "~0.1.1",
+    "angular-leaflet-directive": "~0.10.0",
+    "Leaflet.extra-markers": "~1.0.6",
+    "ionicons": "~2.0.1",
+    "jquery": "~2.2.1"
+  }
+}

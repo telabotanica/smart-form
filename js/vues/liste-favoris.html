@@ -3,9 +3,9 @@
 	<div ng-show="favorisCtrl.afficherFavoris" class="liste-favoris">
 		<h2 class="titre-section">Mes fiches Smart'Flore favorites</h2>
 		<div id="conteneur" class="container-fluid">
-		
+
 			<div>
-	
+
 				<div class="row" ng-show="favorisCtrl.fiches.length > 0">
 					<table class="table table-striped table-bordered table-condensed" colonne-collapsible visible="false">
 						<tbody>
@@ -36,7 +36,7 @@
 											aria-hidden="true"></span>
 									</button>
 									<a class="btn btn-default btn-sm"
-										title="Voir cette fiche" target="_blank" 
+										title="Voir cette fiche" target="_blank"
 										href="{{favorisCtrl.liensService.lienFicheMobile(fiche)}}">
 										<span class="glyphicon glyphicon-phone" aria-hidden="true"></span>
 									</a>

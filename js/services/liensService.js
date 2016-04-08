@@ -1,7 +1,7 @@
 smartFormApp.service('liensService', function() {
-	
+
 	var liensService = {};
-	
+
 	liensService.lienFicheMobile = function(fiche) {
 		referentiel_fiche = ""+fiche.infos_taxon.referentiel;
 		url_fiche = config.url_fiche_mobile.replace('{referentiel}', referentiel_fiche.toLowerCase());
@@ -9,7 +9,7 @@ smartFormApp.service('liensService', function() {
 		//console.log(url_fiche);
 		return url_fiche;
 	};
-	
+
 	liensService.lienQrCode = function(fiche) {
 		url = config.url_qr_code.replace('{referentiel}', fiche.infos_taxon.referentiel.toLowerCase());
 		url = url.replace('{num_nom}', fiche.infos_taxon.num_nom);
@@ -23,7 +23,7 @@ smartFormApp.service('liensService', function() {
 		url = url.replace('{sentierTitre}', sentierTitre);
 		return url;
 	};
-		
+
 	liensService.exporterSentierEnPdf = function(sentierTitre) {
 		url = config.url_service_export.replace('{referentiel}', '');
 		url = url.replace('{type}', 'sentier');
@@ -31,6 +31,6 @@ smartFormApp.service('liensService', function() {
 		url = url.replace('{sentierTitre}', sentierTitre);
 		return url;
 	};
-	
-	return liensService;	
+
+	return liensService;
 });

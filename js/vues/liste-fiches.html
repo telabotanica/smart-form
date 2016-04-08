@@ -2,19 +2,19 @@
 <div id="liste-fiches" ng-show='(etat == "liste" || etat == "")' ng-controller="ListeControleur as listeCtrl">
 	<div class="marge-gauche-15">
 		<span slide-toggle="#liste-fiches-interieur" duration="500" title="Afficher/Cacher ce panneau">
-			<h2 class="titre-section">Rechercher des fiches Smart'Flore </h2> 	
+			<h2 class="titre-section">Rechercher des fiches Smart'Flore </h2>
 			<button type="button" class="btn btn-default btn-sm bouton-afficher-cacher">
 				<span class="glyphicon glyphicon-collapse-down" aria-hidden="true"></span>
 			</button>
 		</span>
 	</div>
-	
+
 	<div id="liste-fiches-interieur" class="container-fluid">
-	
+
 		<!-- MOTEUR DE RECHERCHE -->
 		<moteurrecherche></moteurrecherche>
 
-		<!-- PAGINATION  DE LA LISTE -->	
+		<!-- PAGINATION  DE LA LISTE -->
 		<pagination></pagination>
 
 		<div ng-show="!chargement">
@@ -44,14 +44,14 @@
 						<td>
 							<button type="button" class="btn btn-default btn-sm"
 								title="{{fiche.existe ? 'Éditer cette fiche' : 'Créer cette fiche'}}"
-								ng-show="listeCtrl.afficherFonctionsUtilisateurIdentifie" 
+								ng-show="listeCtrl.afficherFonctionsUtilisateurIdentifie"
 								ng-click="listeCtrl.editerFiche(fiche)">
 								<span
 									class="glyphicon {{fiche.existe ? 'glyphicon-edit' : 'glyphicon-plus'}}"
 									aria-hidden="true"></span>
 							</button>
 							<a class="btn btn-default btn-sm"
-								title="Voir cette fiche" target="_blank" 
+								title="Voir cette fiche" target="_blank"
 								href="{{listeCtrl.liensService.lienFicheMobile(fiche)}}">
 								<span class="glyphicon glyphicon-phone" aria-hidden="true"></span>
 							</a>
@@ -80,6 +80,6 @@
 				Aucune fiche ne correspond à la recherche</div>
 		</div>
 	</div>
-	
+
 	<listefavoris class="col-md-6 bloc-liste" ng-show="!chargement"></listefavoris><sentiers class="col-md-6 bloc-liste" ng-show="!chargement"></sentiers>
 </div>

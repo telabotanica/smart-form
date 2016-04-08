@@ -3,7 +3,7 @@
 	<div ng-show="sentiersCtrl.afficherSentiers" class="liste-sentiers">
 		<h2 class="titre-section">Mes sentiers</h2>
 		<div id="conteneur" class="container-fluid">
-		
+
 			<div>
 				<div class="col-md-6 selecteur-sentier" ng-show="sentiersCtrl.sentiers.length > 0">
 					<select name="sentier" id="sentier" class="form-control"
@@ -12,7 +12,7 @@
 						ng-options="sentier.titre for sentier in sentiersCtrl.sentiers">
 					</select>
 				</div>
-			
+
 				<form ng-submit="sentiersCtrl.ajouterSentier()" class="col-md-6">
 					<div class="col-md-10">
 						<input type="text" class="form-control"
@@ -26,36 +26,49 @@
 					</div>
 				</form>
 			</div>
-			
+
 			<hr class="nettoyage" />
-		
+
 			<!-- MASQUE DE CHARGEMENT -->
 			<masquechargement ng-show="sentiersCtrl.chargementSentier"></masquechargement>
-		
-			<div class="liste-fiches-sentier" ng-show="!sentiersCtrl.chargementSentier && sentiersCtrl.sentiers.length > 0" >			
-				<div class="bouton-suppression-sentier" ng-show="sentiersCtrl.sentierSelectionne.auteur = sentiersCtrl.utilisateurNomWiki" >
+
+			<div class="liste-fiches-sentier" ng-show="!sentiersCtrl.chargementSentier && sentiersCtrl.sentiers.length > 0">
+				<div class="bouton-suppression-sentier" ng-show="sentiersCtrl.sentierSelectionne.auteur == sentiersCtrl.utilisateurNomWiki">
 					<button ng-click="sentiersCtrl.supprimerSentier(sentiersCtrl.sentierSelectionne)" type="button" class="btn btn-default btn-md" title="supprimer ce sentier">
 						<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
 					</button>
 				</div>
-				
-				<div class="bouton-export-sentier" ng-show="sentiersCtrl.sentierSelectionne.auteur = sentiersCtrl.utilisateurNomWiki && sentiersCtrl.sentierSelectionne.fiches.length > 0" >
+
+				<div class="bouton-export-sentier" ng-show="sentiersCtrl.sentierSelectionne.auteur == sentiersCtrl.utilisateurNomWiki && sentiersCtrl.sentierSelectionne.fiches.length > 0">
 					<a class="btn btn-default btn-sm"
 						title="Exporter le sentier en pdf"
-						href="{{listeCtrl.liensService.exporterSentierEnPdf(sentiersCtrl.sentierSelectionne.titre)}}">
+						href="{{ listeCtrl.liensService.exporterSentierEnPdf(sentiersCtrl.sentierSelectionne.titre) }}">
 						<span class="glyphicon glyphicon-export" aria-hidden="true"></span>
 					</a>
 				</div>
-				
-				<div class="sentier-aucune-fiche col-md-8">
-					<h4 class="titre-sentier">{{sentiersCtrl.sentierSelectionne.titre}}</h4> : 
-					{{sentiersCtrl.sentierSelectionne.fiches.length <= 1 ?
-						sentiersCtrl.sentierSelectionne.fiches.length+' fiche dans le sentier' : 
-						sentiersCtrl.sentierSelectionne.fiches.length+' fiches dans le sentier'
-					}}
-					<h5 class="createur-sentier">Créé par {{sentiersCtrl.sentierSelectionne.auteur}}</h5>
+
+				<div id="bouton-localiser-sentier">
+					<button ng-click="sentiersCtrl.demarrerLocalisationSentier(); sentiersCtrl.modalOpened = !sentiersCtrl.modalOpened" type="button" class="btn btn-default btn-md" title="localiser ce sentier">
+						<span class="glyphicon glyphicon-globe" aria-hidden="true"></span>
+					</button>
 				</div>
-			
+
+				<div class="sentier-aucune-fiche col-md-8">
+					<h4 class="titre-sentier">{{sentiersCtrl.sentierSelectionne.titre}}</h4> :
+					<ng-pluralize count="sentiersCtrl.sentierSelectionne.fiches.length"
+						when="{ '0': 'Pas de fiche dans le sentier',
+								'1': 'Une fiche dans le sentier',
+								'other': '{} fiches dans le sentier' }">
+					</ng-pluralize>
+					-
+					<ng-pluralize count="sentiersCtrl.sentierSelectionne.localisation.nbIndividus"
+						when="{	'0': 'Pas d\'individu localisé',
+								'1': 'Un individu localisé',
+								'other': '{} individus localisés'}">
+					</ng-pluralize>
+					<h5 class="createur-sentier">Créé par {{ sentiersCtrl.sentierSelectionne.auteur }}</h5>
+				</div>
+
 				<div class="row table-fiches-sentier">
 					<table class="table table-striped table-bordered table-condensed" colonne-collapsible visible="false">
 						<tr>
@@ -87,7 +100,7 @@
 										aria-hidden="true"></span>
 								</button>
 								<a class="btn btn-default btn-sm"
-									title="Voir cette fiche" target="_blank" 
+									title="Voir cette fiche" target="_blank"
 									href="{{sentiersCtrl.liensService.lienFicheMobile(fiche)}}">
 									<span class="glyphicon glyphicon-phone" aria-hidden="true"></span>
 								</a>
@@ -115,6 +128,115 @@
 			<div ng-show="sentiersCtrl.sentiers.length == 0" >
 				Aucun sentier existant
 			</div>
+
+			<div id="modalet" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog">
+			  <div class="modal-dialog">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <h4 id="titre-modal-localisation" class="modal-title">{{ sentiersCtrl.titreModal }}</h4>
+			      </div>
+			      <div class="modal-body">
+					<div class="flex-container">
+						<div ng-if="sentiersCtrl.choixAdresses.length > 1 && sentiersCtrl.etape == 'localiser-sentier'"
+							id="choix-adresses"
+							class="btn-group-vertical pull-left flex1" role="group" aria-label="choix adresse">
+							<button ng-repeat="adresse in sentiersCtrl.choixAdresses"
+								ng-click="sentiersCtrl.selectAdresse(adresse)"
+								type="button" class="btn btn-default">
+								{{ adresse.formatted_address }}
+							</button>
+						</div>
+
+						<leaflet class="leaflet-flex"
+							lf-center="sentiersCtrl.leafletConfig.center"
+							markers="sentiersCtrl.leafletConfig.markers"
+							tiles="sentiersCtrl.leafletConfig.tiles"
+							height="480" width="auto">
+						</leaflet>
+
+						<div ng-if="sentiersCtrl.sentierSelectionne.fiches.length > 1 && sentiersCtrl.etape == 'localiser-individus'"
+							id="liste-individus"
+							class="btn-group-vertical pull-right flex1" role="group" aria-label="individus à localiser">
+							<button
+								ng-repeat="fiche in sentiersCtrl.sentierSelectionne.fiches"
+								ng-click="sentiersCtrl.ajouterMarker(fiche)"
+								type="button" class="btn btn-default"
+								data-toggle="tooltip" data-placement="left" title="{{ fiche.infos_taxon.nom_sci_complet }}">{{ fiche.infos_taxon.nom_sci }}
+							</button>
+						</div>
+					</div>
+			      </div>
+			      <div class="modal-footer">
+					<div ng-if="sentiersCtrl.etape == 'localiser-sentier'" class="pull-left">
+						<div ng-hide="sentiersCtrl.methodeLocalisation != 'adresse'" class="inline-block">
+							<input type="text" ng-model="adresse" placeholder="Ex: mon sentier, avenue rue du chemin, 42007 Montvie"></input>
+							<button ng-click="sentiersCtrl.recupererLocaliteAdresse(adresse)" class="btn btn-default">Chercher l'adresse</button>
+						</div>
+						<button ng-click="sentiersCtrl.recupererLocaliteAuto(); sentiersCtrl.methodeLocalisation = 'auto'" class="btn btn-default">
+							<i class="glyphicon glyphicon-map-marker" aria-hidden="true"></i> Localisation automatique
+						</button>
+						<button ng-show="sentiersCtrl.methodeLocalisation == 'auto'" ng-click="sentiersCtrl.methodeLocalisation = 'adresse'" class="btn btn-default">
+							<i class="glyphicon glyphicon-search" aria-hidden="true"></i> Localiser par adresse
+						</button>
+					</div>
+
+					<div ng-repeat="marker in sentiersCtrl.leafletConfig.markers | limitTo : 2">
+						<div ng-if="sentiersCtrl.etape == 'localiser-individus' && (!$first && $last)" class="pull-left">
+							<button ng-click="sentiersCtrl.toggleSuppressionMarkers()"
+								ng-class="{ 'active': sentiersCtrl.modeSuppressionMarkers }"
+								class="btn btn-warning"
+								data-toggle="tooltip" data-placement="top" title="Active le mode suppression">
+								Supprimer des marqueurs
+							</button>
+							<i ng-show="sentiersCtrl.modeSuppressionMarkers">Cliquez sur un marqueur pour le supprimer</i>
+						</div>
+					</div>
+					<div ng-if="sentiersCtrl.etape == 'localiser-individus' && sentiersCtrl.leafletConfig.markers.length > 1" class="pull-left">
+						<button ng-click="sentiersCtrl.toggleSuppressionMarkers()"
+							ng-class="{ 'active': sentiersCtrl.modeSuppressionMarkers }"
+							class="btn btn-warning"
+							data-toggle="tooltip" data-placement="top" title="Active le mode suppression">
+							Supprimer des marqueurs
+						</button>
+						<i ng-show="sentiersCtrl.modeSuppressionMarkers">Cliquez sur un marqueur pour le supprimer</i>
+					</div>
+				    <button ng-click="sentiersCtrl.changerTiles('gmaps')" ng-class="{ 'active': (sentiersCtrl.leafletConfig.tiles.name == 'gmaps') }" 
+				    	type="button" class="btn btn-default">
+				    	GoogleMaps
+			    	</button>
+				    <button ng-click="sentiersCtrl.changerTiles('osm')" ng-class="{ 'active': (sentiersCtrl.leafletConfig.tiles.name == 'osm') }"
+				    	type="button" class="btn btn-default">
+				    	OpenStreetMaps
+			    	</button>
+
+				    <hr>
+
+			        <button ng-if="sentiersCtrl.etape == 'localiser-individus'"
+			        	ng-click="sentiersCtrl.retourLocalisationSentier()"
+			        	type="button" class="btn btn-default pull-left">
+			        	Retour
+		        	</button>
+			        <button ng-click="sentiersCtrl.annuler()" 
+			        	type="button" class="btn btn-default">
+			        	Annuler
+		        	</button>
+			        <button ng-if="sentiersCtrl.etape == 'localiser-sentier' && !sentiersCtrl.leafletConfig.markers.sentier"
+		        		type="button" class="btn btn-primary" disabled>
+			        	Valider la localisation du sentier
+		        	</button>
+		        	<button ng-if="sentiersCtrl.etape == 'localiser-sentier' && sentiersCtrl.leafletConfig.markers.sentier"
+			        	ng-click="sentiersCtrl.validerLocalisationSentier()"
+			        	type="button" class="btn btn-primary">
+			        	Valider la localisation du sentier
+		        	</button>
+			        <button ng-if="sentiersCtrl.etape == 'localiser-individus'" ng-click="sentiersCtrl.validerLocalisationIndividus()"
+			        	type="button" class="btn btn-primary">
+			        	Terminer
+		        	</button>
+			      </div>
+			    </div><!-- /.modal-content -->
+			  </div><!-- /.modal-dialog -->
+			</div><!-- /.modal -->
 		</div>
 	</div>
 </div>

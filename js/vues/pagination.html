@@ -1,14 +1,14 @@
 <!-- PAGINATION  DE LA LISTE -->
 <div ng-show="paginationCtrl.afficherPagination" ng-controller="PaginationControleur as paginationCtrl">
 	<div class="pagination-total ng-cloak">
-		<span class="ng-cloak">Affichage 
+		<span class="ng-cloak">Affichage
 			{{paginationCtrl.paginationApproximative ?
 				'de la page '+(paginationCtrl.pageCourante + 1)
 				:
 				'des '+paginationCtrl.nomElementTrouve+" "+paginationCtrl.getBorneMinIntervalleAffiche()+" à "+paginationCtrl.getBorneMaxIntervalleAffiche()
-			}} 
+			}}
 				sur un total de {{paginationCtrl.totalResultats}}
-			<span ng-show="paginationCtrl.totalResultats == 1"> {{paginationCtrl.nomElementTrouveSingulier}}</span> 
+			<span ng-show="paginationCtrl.totalResultats == 1"> {{paginationCtrl.nomElementTrouveSingulier}}</span>
 			<span ng-show="paginationCtrl.totalResultats > 1"> {{paginationCtrl.nomElementTrouvePluriel}}</span>
 		</span>
 	</div>
@@ -27,7 +27,7 @@
 				aria-hidden="true">&raquo;</span>
 		</a></li>
 	</ul>
-	
+
 	<span title="{{paginationCtrl.messagePaginationApproximative}}" class="pagination-taille-page">Afficher{{paginationCtrl.paginationApproximative ? ' '+paginationCtrl.environPaginationApproximative : ''}}
 					<select name="taillePage" id="taillePage" class="form-control"
 						ng-model="paginationCtrl.taillePage"

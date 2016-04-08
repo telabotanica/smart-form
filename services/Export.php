@@ -65,7 +65,7 @@ class Export extends SmartFloreService {
 		$search = array_keys($list);
 		$values = array_values($list);
 
-		return str_replace($search, $values, $chaine);	
+		return str_replace($search, $values, $chaine);
 	}
 
 	/**
@@ -118,7 +118,7 @@ class Export extends SmartFloreService {
 	/**
 	 * Exporte toutes les fiches d'un sentier dans un même fichier PDF
 	 */
-	protected function getExportSentier($sentier_titre) {	
+	protected function getExportSentier($sentier_titre) {
 		// TODO: suivant le nombre de fiches, faire un export en plusieurs fois à travers
 		// plusieurs appels ajax ou bien en une fois dans la fonction ci dessous
 		$this->deciderActionExportSentier($sentier_titre);
@@ -141,7 +141,7 @@ class Export extends SmartFloreService {
 		$url_export_tmp = $base_url_export.DIRECTORY_SEPARATOR.$nom_fichier.'.html';
 
 		// sauvegarde dans un fichier qui sera accessible directement pour le script de conversion par son url
-		file_put_contents($chemin_html, $panneau_html);	
+		file_put_contents($chemin_html, $panneau_html);
 
 		//debug
 		//echo file_get_contents($chemin_html);exit;
@@ -155,7 +155,7 @@ class Export extends SmartFloreService {
 		unlink($chemin_html);
 	}
 
-	protected function deciderActionExportSentier($sentier_titre) {	
+	protected function deciderActionExportSentier($sentier_titre) {
 		$sentier_titre_slug = $this->sluggifierPlus($sentier_titre);
 		$chemin_dossier_sentier = $this->config['export']['chemin_export_tmp'].$sentier_titre_slug.DIRECTORY_SEPARATOR;
 
@@ -173,7 +173,7 @@ class Export extends SmartFloreService {
 			list($referentiel, $num_tax) = $this->splitNt($nom_fichier);
 			$this->enregistrerFichePourExportSentier($sentier_titre, $referentiel, $num_tax);
 			unlink($fiche_a_exporter);
-		}	
+		}
 
 		$pdfs = implode(' ', glob($chemin_dossier_sentier."panneau-smartflore*.pdf"));
 		$commande = '/usr/bin/pdftk '.$pdfs.' cat output '.$chemin_dossier_sentier.$sentier_titre_slug.'.pdf';
@@ -241,7 +241,7 @@ class Export extends SmartFloreService {
 			$infos_v = @file_get_contents($url_verna);
 			$infos_verna = json_decode($infos_v, true);
 
-			if(!empty($infos_verna['resultat'])) {		
+			if(!empty($infos_verna['resultat'])) {
 				$infos_nom_verna = (array_shift($infos_verna['resultat']));
 				$nom_verna = $infos_nom_verna['nom'];
 			}

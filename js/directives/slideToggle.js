@@ -2,7 +2,7 @@ smartFormApp.directive('slideToggle', function($timeout) {
     return {
         restrict: 'A',
         link: function(scope, element, attrs) {
-        	
+
             var target = angular.element(document.querySelector(attrs.slideToggle));
             target.wrap('<div class="slideable_content" style="margin:0 !important; padding:0 !important" ></div>');
 
@@ -11,14 +11,14 @@ smartFormApp.directive('slideToggle', function($timeout) {
         	attrs.animate = (!attrs.animate) ? false : attrs.animate;
             attrs.duration = (!attrs.duration) ? '1000' : attrs.duration;
             attrs.easing = (!attrs.easing) ? 'ease-in-out' : attrs.easing;
-                        
+
             if(attrs.animate) {
-                target.css({      
+                target.css({
                     'transitionProperty': 'height',
                     'transitionDuration': attrs.duration+'ms',
                     'transitionTimingFunction': attrs.easing
                 });
-                
+
             	//TODO: wtf c'est moche mais on ne sait pas comment faire autrement !
                 $timeout(function() {
                     // stockage et affectation de la hauteur véritable afin d'animer correctement la transition
@@ -28,10 +28,10 @@ smartFormApp.directive('slideToggle', function($timeout) {
                 	});
                 }, 2000);
             }
-            
-        	element.find('span').removeClass("glyphicon-collapse-up"); 
+
+        	element.find('span').removeClass("glyphicon-collapse-up");
             element.find('span').addClass("glyphicon-collapse-down");
-            
+
             element.bind('click', function() {
             	attrs.expanded = (!attrs.expanded) ? false : attrs.expanded;
                 if(!attrs.expanded) {
@@ -40,7 +40,7 @@ smartFormApp.directive('slideToggle', function($timeout) {
 	                        'height': target[0].scrollHeight+'px',
 	                        'overflow': 'initial'
 	                    });
-	                	
+
 	                	// Afin d'éviter que lors d'un changement de taille (par exemple un liste qui s'agrandit
 	                	// les éléments s'affichent mal
 	                    $timeout(function() {
@@ -55,7 +55,7 @@ smartFormApp.directive('slideToggle', function($timeout) {
                     }
                 } else {
                 	 if(attrs.animate) {
-	                	// enregistrement de la hauteur avant de la mettre à 0 (afin de pouvoir rendre 
+	                	// enregistrement de la hauteur avant de la mettre à 0 (afin de pouvoir rendre
 	                	// à l'élément sa taille originale lors de l'opération contraire)
 	                	target.attr('data-height', target[0].clientHeight);
 	                	target.css({
@@ -68,8 +68,8 @@ smartFormApp.directive('slideToggle', function($timeout) {
  	                    });
                 	 }
                 }
-                
-            	element.find('span').toggleClass("glyphicon-collapse-up"); 
+
+            	element.find('span').toggleClass("glyphicon-collapse-up");
                 element.find('span').toggleClass("glyphicon-collapse-down");
                 attrs.expanded = !attrs.expanded;
             });

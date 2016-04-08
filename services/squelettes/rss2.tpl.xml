@@ -5,7 +5,7 @@
 		<link><?=$lien_smartflore?></link>
 		<atom:link href="<?=$lien_service?>" rel="self" type="application/rss+xml" />
 		<description><?=$description?></description>
-		
+
 		<?php if (isset($items)) : ?>
 		<?php foreach ($items as $item) : ?>
 		<item>
@@ -20,6 +20,6 @@
 		</item>
 		<?php endforeach; ?>
 		<?php endif; ?>
-		
+
 	</channel>
 </rss>

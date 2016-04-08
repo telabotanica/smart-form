@@ -2,20 +2,20 @@ var config = {
 	nom_application: "Tableau de bord Smart'Flore",
 	prod: false,
 	referentiels : ["BDTFX", "BDTXA", "ISFAN", "APD"],
-	infos_referentiels : 
+	infos_referentiels :
 	{
 		"BDTFX" : {
 			label : "France métropolitaine",
 			noms_vernaculaires : "nvjfl"
-		}, 
+		},
 		"BDTXA" : {
 			label : "Antilles Françaises",
 			noms_vernaculaires : "nva"
-		}, 
+		},
 		"ISFAN" : {
 			label : "Afrique du Nord",
 			noms_vernaculaires : null
-		}, 
+		},
 		"APD" : {
 			label : "Afrique du centre et de l'ouest",
 			noms_vernaculaires : null

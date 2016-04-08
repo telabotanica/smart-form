@@ -7,7 +7,7 @@
 		    		ng-model="boiteUtilisateurCtrl.utilisateur.courriel" placeholder="Courriel">
 		  	</div>
 		  <div class="form-group {{boiteUtilisateurCtrl.mdpOK && !boiteUtilisateurCtrl.erreur ? 'has-success' : ''}} ">
-		    <input type="password" class="form-control" id="utilisateur-mdp" ng-change="boiteUtilisateurCtrl.verifierValiditeFormulaire()" 
+		    <input type="password" class="form-control" id="utilisateur-mdp" ng-change="boiteUtilisateurCtrl.verifierValiditeFormulaire()"
 		    		ng-model="boiteUtilisateurCtrl.utilisateur.mdp" placeholder="Mot de passe">
 		  </div>
 		  <button title="Identifiez-vous afin de pouvoir saisir et modifier des fiches et des sentiers" type="submit" class="btn btn-success">
@@ -15,10 +15,10 @@
 		  </button>
 		  <a href="{{boiteUtilisateurCtrl.urlInscription}}" target="_blank" class="btn btn-default bouton-inscription">S'inscrire</a>
 		</div>
-		
+
 		<span class="message-erreur-connexion" ng-show="boiteUtilisateurCtrl.message != ''">{{boiteUtilisateurCtrl.message}}</span>
 	</form>
-	
+
 	<div id="boite-infos-utilisateur" ng-show='boiteUtilisateurCtrl.utilisateur.connecte' >
 		<div>Bienvenue {{boiteUtilisateurCtrl.utilisateur.intitule}}</div>
 		<div><a href="#" ng-click="boiteUtilisateurCtrl.deconnecterUtilisateur()"> Deconnexion </a></div>
