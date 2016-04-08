@@ -17,6 +17,7 @@ class SmartFloreService {
 
 	protected $triple_sentier = "smartFlore.sentiers";
 	protected $triple_sentier_fiche = "smartFlore.sentiers.fiche";
+	protected $triple_sentier_localisation = "smartFlore.sentiers.localisation";
 
 	protected $triple_favoris_fiche = "smartFlore.favoris.fiche";
 
@@ -186,6 +187,17 @@ class SmartFloreService {
 	 */
 	protected function lireJetonEntete() {
 		$jwt = null;
+		if (! function_exists('apache_request_headers')) {
+			function apache_request_headers() {
+				$headers = '';
+				foreach ($_SERVER as $name => $value) {
+					if (substr($name, 0, 5) == 'HTTP_') {
+						$headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+					}
+				}
+				return $headers;
+			}
+		}
 		$headers = apache_request_headers();
 		if (isset($headers[$this->auth_header]) && ($headers[$this->auth_header] != "")) {
 			$jwt = $headers[$this->auth_header];
@@ -256,6 +268,22 @@ class SmartFloreService {
 		return preg_split("/nt/", $page);
 	}
 
+	/**
+	 * Retourne le referentiel et le numero taxonomique à partir d'un indentifiant d'individu
+	 *
+	 * Ex: mange 'SmartFloreBDTFXnt6200#1' et recrache array('BDTFX', '6200')
+	 *
+	 * @param      string  $individu_id  (ex: SmartFloreBDTFXnt6200#1)
+	 *
+	 * @return     array
+	 */
+	function digestIndividuId($individu_id) {
+		$infos = str_replace('smartflore', '', strtolower($individu_id));
+		$infos = preg_replace('/#\d+$/i', '', $infos);
+
+		return preg_split("/nt/", $infos);
+	}
+
 	function getPagesWikiParRechercheFloue($recherche) {
 		$tpl_quote = $this->bdd->quote($recherche['noms_pages']);
 		return $this->getPagesWiki('tag LIKE '.$tpl_quote.' ', $recherche['debut'], $recherche['limite']);
@@ -300,7 +328,7 @@ class SmartFloreService {
 		return array($res, $res_comptage['nb_pages']);
 	}
 
-	protected function completerPagesParInfosTaxon(&$pages_wiki) {
+	protected function completerPagesParInfosTaxon($pages_wiki) {
 
 		$infos_indexees_par_referentiel_nt = array();
 		$infos_indexees_par_referentiel_nn = array();

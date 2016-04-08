@@ -172,6 +172,53 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 		});
 	};
 
+	smartFormService.getLocalisationASentier = function(sentierTitre, surSucces, surErreur) {
+		$http.get(config.url_service_sentiers + '/sentier-localisation/?sentierTitre=' + sentierTitre)
+		.success(function(data, status, headers, config) {
+			surSucces(data);
+		})
+		.error(function(data, status, headers, config) {
+			surErreur(data);
+		});
+	};
+
+	smartFormService.ajouterSentierLocalisation = function(sentierTitre, sentierLocalisation, surSucces, surErreur) {
+		$http({
+		    method: 'PUT',
+		    url: config.url_service_sentiers + '/sentier-localisation/',
+		    headers: etatApplicationService.getHeadersAuth(),
+		    data: {
+				"sentierTitre" : sentierTitre,
+				"sentierLocalisation" : sentierLocalisation
+			}
+		})
+		.success(function(data, status, headers, config) {
+			surSucces(data);
+		})
+		.error(function(data, status, headers, config) {
+			surErreur(data);
+		});
+	};
+
+	smartFormService.supprimerSentierLocalisation = function(sentierTitre, surSucces, surErreur) {
+		// Attention lors d'un delete les données supplémentaires doivent être encapsulé dans la propriété
+		// data de l'objet à envoyer (pourquoi ? je ne sais pas)
+		$http({
+		    method: 'DELETE',
+		    url: config.url_service_sentiers + '/sentier-localisation/',
+		    headers: etatApplicationService.getHeadersAuth(),
+		    data: {
+				"sentierTitre" : sentierTitre
+			}
+		})
+		.success(function(data, status, headers, config) {
+			surSucces(data);
+		})
+		.error(function(data, status, headers, config) {
+			surErreur(data);
+		});
+	};
+
 	smartFormService.getFichesASentier = function(sentierTitre, surSucces, surErreur) {
 		var sentier = "sentierTitre="+sentierTitre;
 		$http.get(config.url_service_sentiers+'/sentier-fiche/?'+sentier).
