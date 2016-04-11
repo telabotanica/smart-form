@@ -111,7 +111,7 @@ class Sentiers extends SmartFloreService {
 		$sentier_sql = 'SELECT *'
 			. ' FROM ' . $this->config['bdd']['table_prefixe'] . '_triples'
 			. ' WHERE property = ' . $this->bdd->quote($this->triple_sentier)
-			. ' AND id = ' . $this->bdd->quote($sentier_id)
+			. ' AND resource = ' . $this->bdd->quote($sentier_id)
 		;
 
 		$sentier_requete = $this->bdd->query($sentier_sql);
