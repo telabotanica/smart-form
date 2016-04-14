@@ -156,15 +156,20 @@ class Sentiers extends SmartFloreService {
 		return $fiches;
 	}
 
-	private function buildJsonInfosSentier($sentier, $localisation) {
+	private function buildJsonInfosSentier($sentier, $localisation = false) {
+		$lnglat = array();
+		if ($localisation) {
+			$lnglat = array(
+				$localisation['sentier']['lng'],
+				$localisation['sentier']['lat']
+			);
+		}
+
 		return array(
 			'id' => $sentier['id'],
 			'nom' => $sentier['resource'],
 			'auteur' => $sentier['value'],
-			'position' => array(
-				$localisation['sentier']['lng'],
-				$localisation['sentier']['lat']
-			),
+			'position' => $lnglat,
 			'info' => array(
 				'horaires' => [],
 				'gestionnaire' => '', // ex: Mairie de Montpellier
@@ -201,34 +206,36 @@ class Sentiers extends SmartFloreService {
 
 		$sentier_details = $this->buildJsonInfosSentier($sentier, $localisation);
 
-		$sentier_details['occurences'] = array();
-		foreach ($localisation['individus'] as $individu_id => $individu) {
-			list($referentiel, $numero_taxonomique) = $this->digestIndividuId($individu_id);
-			$fiche_individu = $fiches_eflore[$this->formaterPageNom($referentiel, $numero_taxonomique)];
-			$fiche_url = sprintf($this->config['eflore']['fiche_mobile'], $referentiel, $fiche_individu['nom_retenu.id']);
+		if ($localisation) {
+			$sentier_details['occurences'] = array();
+			foreach ($localisation['individus'] as $individu_id => $individu) {
+				list($referentiel, $numero_taxonomique) = $this->digestIndividuId($individu_id);
+				$fiche_individu = $fiches_eflore[$this->formaterPageNom($referentiel, $numero_taxonomique)];
+				$fiche_url = sprintf($this->config['eflore']['fiche_mobile'], $referentiel, $fiche_individu['nom_retenu.id']);
 
-			$sentier_details['occurences'][] = array(
-				'position' => array(
-					$individu['lng'],
-					$individu['lat']
-				),
-				'taxo' => array(
-					'espece' => $fiche_individu['nom_sci'],
-					'auteur_espece' => $fiche_individu['auteur'],
-					'auteur_genre' => '',
-					'auteur_famille' => '',
-					'genre' => $fiche_individu['genre'],
-					'famille' => $fiche_individu['famille'],
-					'referentiel' => $referentiel,
-					'num_nom' => $fiche_individu['nom_retenu.id']
-				),
-				'fiche' => array(
-					'fr' => $fiche_url
-				),
-				'infos' => array(
-					'photo' => ''
-				)
-			);
+				$sentier_details['occurences'][] = array(
+					'position' => array(
+						$individu['lng'],
+						$individu['lat']
+					),
+					'taxo' => array(
+						'espece' => $fiche_individu['nom_sci'],
+						'auteur_espece' => $fiche_individu['auteur'],
+						'auteur_genre' => '',
+						'auteur_famille' => '',
+						'genre' => $fiche_individu['genre'],
+						'famille' => $fiche_individu['famille'],
+						'referentiel' => $referentiel,
+						'num_nom' => $fiche_individu['nom_retenu.id']
+					),
+					'fiche' => array(
+						'fr' => $fiche_url
+					),
+					'infos' => array(
+						'photo' => ''
+					)
+				);
+			}
 		}
 
 		return json_encode($sentier_details);
@@ -260,7 +267,11 @@ class Sentiers extends SmartFloreService {
 		$infos_sentiers = $infos_sentiers_requete->fetchAll(PDO::FETCH_ASSOC);
 
 		foreach ($infos_sentiers as $infos_sentier) {
-			$liste_sentiers[] = $this->buildJsonInfosSentier($infos_sentier, json_decode($infos_sentier['localisation'], true));
+			$jsonInfosSentier = $this->buildJsonInfosSentier($infos_sentier, json_decode($infos_sentier['localisation'], true));
+
+			$jsonInfosSentier['details'] = urlencode(sprintf($this->config['service']['details_sentier_url'], $infos_sentier['resource']));
+
+			$liste_sentiers[] = $jsonInfosSentier;
 		}
 
 		header('Content-type: application/json');
