@@ -1,8 +1,7 @@
 smartFormApp = angular.module('smartFormApp', ['ngSanitize', 'ui.bootstrap', 'leaflet-directive', 'geolocation'])
-.config(['$httpProvider', function($httpProvider) {
+.config(['$httpProvider', '$logProvider', function($httpProvider, $logProvider) {
 	$httpProvider.defaults.withCredentials = true;
-}]);
 
-smartFormApp.config(function($logProvider){
-    $logProvider.debugEnabled(true);
-});
+  	$logProvider.debugEnabled(false);
+
+}]);

@@ -364,7 +364,8 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 
 		lthis.leafletConfig = {
 			tiles: lthis.tilesDict.osm,
-			center: lthis.leafletCenter
+			center: lthis.leafletCenter,
+			markers: {}
 		};
 
 		// En édition on ajoute à la config seulement le sentier pour la première étape

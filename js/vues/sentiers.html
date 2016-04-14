@@ -154,7 +154,7 @@
 							height="480" width="auto">
 						</leaflet>
 
-						<div ng-if="sentiersCtrl.sentierSelectionne.fiches.length > 1 && sentiersCtrl.etape == 'localiser-individus'"
+						<div ng-if="sentiersCtrl.sentierSelectionne.fiches.length > 0 && sentiersCtrl.etape == 'localiser-individus'"
 							id="liste-individus"
 							class="btn-group-vertical pull-right flex1" role="group" aria-label="individus à localiser">
 							<button
@@ -206,7 +206,7 @@
 			    	</button>
 				    <button ng-click="sentiersCtrl.changerTiles('osm')" ng-class="{ 'active': (sentiersCtrl.leafletConfig.tiles.name == 'osm') }"
 				    	type="button" class="btn btn-default">
-				    	OpenStreetMaps
+				    	OpenStreetMap
 			    	</button>
 
 				    <hr>
