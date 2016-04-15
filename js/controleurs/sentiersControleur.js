@@ -311,6 +311,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 	});
 
 	function initialiserLocalisation() {
+		lthis.modeSuppressionMarkers = false;
 		lthis.etape = 'localiser-sentier';
 		lthis.titreModal = 'Cliquer pour placer le point d\'entrée du sentier';
 		lthis.methodeLocalisation = 'auto';
@@ -354,7 +355,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 					markerName = creerNomMarker(value.ficheTag)
 				;
 
-				lthis.markers[markerName] = creerMarkerIndividu(value, fiche.nom_sci, value.ficheTag);
+				lthis.markers[markerName] = creerMarkerIndividu(value, fiche.infos_taxon.nom_sci, value.ficheTag);
 			});
 
 			// Le centre de la carte sur le sentier
