@@ -179,8 +179,7 @@ class Sentiers extends SmartFloreService {
 			),
 			'photo' => '',
 			'date_creation' => '',
-			'date_modification' => '',
-			'chemin' => ''
+			'date_modification' => ''
 		);
 	}
 
@@ -206,8 +205,7 @@ class Sentiers extends SmartFloreService {
 
 		$sentier_details = $this->buildJsonInfosSentier($sentier, $localisation);
 
-		if ($localisation) {
-			$sentier_details['occurences'] = array();
+		if ($localisation) {$sentier_details['occurences'] = array();
 			foreach ($localisation['individus'] as $individu_id => $individu) {
 				list($referentiel, $numero_taxonomique) = $this->digestIndividuId($individu_id);
 				$fiche_individu = $fiches_eflore[$this->formaterPageNom($referentiel, $numero_taxonomique)];
@@ -236,6 +234,14 @@ class Sentiers extends SmartFloreService {
 					)
 				);
 			}
+
+			$sentier_details['chemin'] = array(
+				'type' => 'LineString',
+				'coordinates' => array(
+					array($localisation['sentier']['lng'], $localisation['sentier']['lat']),
+					array($individu['lng'], $individu['lat'])
+				)
+			);
 		}
 
 		return json_encode($sentier_details);
@@ -269,7 +275,7 @@ class Sentiers extends SmartFloreService {
 		foreach ($infos_sentiers as $infos_sentier) {
 			$jsonInfosSentier = $this->buildJsonInfosSentier($infos_sentier, json_decode($infos_sentier['localisation'], true));
 
-			$jsonInfosSentier['details'] = urlencode(sprintf($this->config['service']['details_sentier_url'], $infos_sentier['resource']));
+			$jsonInfosSentier['details'] = sprintf($this->config['service']['details_sentier_url'], $infos_sentier['resource']);
 
 			$liste_sentiers[] = $jsonInfosSentier;
 		}
