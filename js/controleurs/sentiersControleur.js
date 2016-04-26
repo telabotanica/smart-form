@@ -11,6 +11,8 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 	this.liensService = liensService;
 	this.chargementSentier = false;
 
+	this.caracteresInterdits = ';/?:@=&';
+
 	var lthis = this;
 
 	$scope.$on('utilisateur.utilisateur-connecte', function(event, utilisateur) {
@@ -95,7 +97,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 
 	this.ajouterSentier = function() {
 		var lthis = this;
-		if(this.verifierValiditeSentier()) {
+		if (this.nomSentierValide()) {
 			smartFormService.ajouterSentier(this.nouveauSentierTitre,
 			function(data) {
 				if(data == 'OK') {
@@ -109,8 +111,6 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 			function(data) {
 				window.alert(data);
 			});
-		} else {
-			window.alert("Le nom du sentier n'est pas valide, vérifiez que n'avez pas saisi un nom vide ou qui existe déjà.");
 		}
 	};
 
@@ -191,8 +191,19 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 		this.sentierSelectionne = this.sentiers[this.sentiers.length - 1];
 	};
 
-	this.verifierValiditeSentier = function() {
-		return !!this.nouveauSentierTitre && !this.contientSentier(this.nouveauSentierTitre);
+	this.nomSentierValide = function() {
+		if (this.nouveauSentierTitre.match(new RegExp('[' + this.caracteresInterdits + ']'))) {
+			window.alert('Le nom du sentier ne doit pas contenir les caractères suivants ' + this.caracteresInterdits);
+			return false;
+		} else if (!this.nouveauSentierTitre) {
+			window.alert('Le nom du sentier ne doit pas être vide');
+			return false;
+		} else if (this.contientSentier(this.nouveauSentierTitre)) {
+			window.alert('Un sentier du même nom existe déjà');
+			return false;
+		}
+
+		return true;
 	};
 
 	this.contientSentier = function(sentierTitre) {
