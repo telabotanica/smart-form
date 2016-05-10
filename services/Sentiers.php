@@ -205,13 +205,18 @@ class Sentiers extends SmartFloreService {
 
 		$sentier_details = $this->buildJsonInfosSentier($sentier, $localisation);
 
-		if ($localisation) {$sentier_details['occurences'] = array();
+		if ($localisation) {
+			$sentier_details['occurrences'] = array();
 			foreach ($localisation['individus'] as $individu_id => $individu) {
 				list($referentiel, $numero_taxonomique) = $this->digestIndividuId($individu_id);
+				// si pour une raison X on n'a pas de nn, on oublie l'occurrence
+				if (empty($numero_taxonomique)) {
+					continue;
+				}
 				$fiche_individu = $fiches_eflore[$this->formaterPageNom($referentiel, $numero_taxonomique)];
 				$fiche_url = sprintf($this->config['eflore']['fiche_mobile'], $referentiel, $fiche_individu['nom_retenu.id']);
 
-				$sentier_details['occurences'][] = array(
+				$sentier_details['occurrences'][] = array(
 					'position' => array(
 						$individu['lng'],
 						$individu['lat']
@@ -235,6 +240,8 @@ class Sentiers extends SmartFloreService {
 				);
 			}
 
+			// génération d'un chemin minimaliste pour remplir les critères
+			// d'admissibilité @TODO remplacer par les vrais chemins
 			$sentier_details['chemin'] = array(
 				'type' => 'LineString',
 				'coordinates' => array(
@@ -247,7 +254,12 @@ class Sentiers extends SmartFloreService {
 		return json_encode($sentier_details);
 	}
 
+	/**
+	 * Retourne les détails d'un sentier en fontion de son "identifiant", qui
+	 * est en fait son nom ! (et pas l'ID interne de la BDD)
+	 */
 	private function publicSentierDetails($sentier_id) {
+		$sentier_id = urldecode($sentier_id);
 		$sentier = $this->getSentierById($sentier_id);
 
 		if ($sentier) {
@@ -259,6 +271,10 @@ class Sentiers extends SmartFloreService {
 		}
 	}
 
+	/**
+	 * Liste des sentiers PUBLICS - exclut les sentiers n'ayant pas de nom OU
+	 * zéro occurrence d'espèce OU un chemin de moins de deux points
+	 */
 	private function publicSentiersListe() {
 		$liste_sentiers = array();
 
@@ -273,21 +289,44 @@ class Sentiers extends SmartFloreService {
 		$infos_sentiers = $infos_sentiers_requete->fetchAll(PDO::FETCH_ASSOC);
 
 		foreach ($infos_sentiers as $infos_sentier) {
-			$jsonInfosSentier = $this->buildJsonInfosSentier($infos_sentier, json_decode($infos_sentier['localisation'], true));
-
-			$jsonInfosSentier['details'] = sprintf($this->config['service']['details_sentier_url'], $infos_sentier['resource']);
-
-			$liste_sentiers[] = $jsonInfosSentier;
+			// élimination des sentiers non valides (difficile à faire dans le
+			// SQL à cause des triplets)
+			if ($this->sentierPublicValide($infos_sentier)) {
+				// formatage du sentier; devrait correspondre à
+				// http://floristic.org/wiki/wakka.php?wiki=FormatDonneesSentiers
+				$jsonInfosSentier = $this->buildJsonInfosSentier($infos_sentier, json_decode($infos_sentier['localisation'], true));
+				$ressourceUrlEncodee = urlencode($infos_sentier['resource']);
+				$jsonInfosSentier['details'] = sprintf($this->config['service']['details_sentier_url'], $ressourceUrlEncodee);
+				$liste_sentiers[] = $jsonInfosSentier;
+			}
 		}
 
 		header('Content-type: application/json');
 		echo json_encode($liste_sentiers);
 	}
 
+	/**
+	 * Retourne true si un sentier est considéré comme diffusable : un ID, un
+	 * nom, au moins une occurrence d'espèce; false sinon. @TODO intégrer la
+	 * notion de validation par l'auteur + par l'administrateur
+	 */
+	protected function sentierPublicValide($infos_sentier) {
+		// pas de nom, pas de chocolat
+		if (empty($infos_sentier['resource'])) return false;
+		// pas de localisation, pas de chocolat
+		if (empty($infos_sentier['localisation'])) return false;
+		// au moins un individu exigé
+		$loc = json_decode($infos_sentier['localisation'], true);
+		if (empty($loc['individus']) || count($loc['individus']) == 0) return false;
+		// @TODO gérer la présence d'un vrai chemin :
+		// if (empty($loc['chemin']) || count($loc['chemin']) < 2) return false;
+
+		return true;
+	}
+
 	private function getPublicSentiers($requete) {
-		$sentier_id = $requete[1];
-		if (!empty($sentier_id)) {
-			return $this->publicSentierDetails($sentier_id);
+		if (!empty($requete[1])) {
+			return $this->publicSentierDetails($requete[1]);
 		} else {
 			return $this->publicSentiersListe();
 		}
