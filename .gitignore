@@ -2,6 +2,7 @@
 .project
 .settings/
 js/config/config.js
+services/config.ini
 nbproject
 logs/*
 !.gitkeep
