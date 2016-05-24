@@ -73,32 +73,56 @@ class Sentiers extends SmartFloreService {
 		}
 	}
 
+	/**
+	 * Renvoie les sentiers de l'utilisateur en cours seulement. Si celui-ci est
+	 * administrateur (liste d'adresses emails dans config.ini), les sentiers de
+	 * tous les utilisateurs seront retournés.
+	 */
 	private function getSentiers() {
 
 		$this->verifierAuthentification();
+		$estAdmin = $this->estAdmin();
 		$utilisateur = $this->utilisateur['nomWiki'];
-		if(!empty($utilisateur)) {
-			// permet de renvoyer les sentiers de l'utilisateur en premier
-			// si celui ci est précisé
-			$champs_requete = '*, IF(value = '.$this->bdd->quote($utilisateur).', 1, 0) as sentier_utilisateur';
-			$ordre = "ORDER BY sentier_utilisateur DESC, resource ASC";
-		} else {
-			$champs_requete = "*";
-			$ordre ="";
-		}
 
-		$requete = 'SELECT '.$champs_requete.' '.
-				'FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
-				'WHERE property = "'.$this->triple_sentier.'" '.
-				(!empty($utilisateur) ? 'AND value = '.$this->bdd->quote($utilisateur) : '');
+		$requete = "SELECT t2.id as id, t2.resource as resource, t2.property as property, t2.value as value "
+			. "FROM " . $this->config['bdd']['table_prefixe'] . "_triples t1 "
+			. "JOIN " . $this->config['bdd']['table_prefixe'] . "_triples t2 ON t1.resource = t2.resource "
+			. "WHERE t1.property = '" . $this->triple_sentier . "' ";
+		if (! $estAdmin) {
+			$requete .= "AND t1.value = '" . $this->bdd->quote($utilisateur) . "'";
+		}
 
 		$res = $this->bdd->query($requete);
 		$res = $res->fetchAll(PDO::FETCH_ASSOC);
 
-		$sentiers = array();
-		foreach($res as $sentier) {
-			$sentiers[] = array('titre' => $sentier['resource'], 'auteur' => $sentier['value'], 'fiches' => array());
+		$sentiersNommes = array();
+		foreach($res as $r) {
+			$nomSentier = $r['resource'];
+			if (!array_key_exists($nomSentier, $sentiersNommes)) {
+				$sentiersNommes[$nomSentier] = array(
+					'titre' => $nomSentier,
+					'fiches' => array()
+				);
+			}
+			// chargement des propriétés selon le triplet en cours
+			switch ($r['property']) {
+				case $this->triple_sentier:
+					$sentiersNommes[$nomSentier]['auteur'] = $r['value'];
+					break;
+				case $this->triple_sentier_meta:
+					$sentiersNommes[$nomSentier]['meta'] = $r['value'];
+					break;
+				case $this->triple_sentier_date_creation:
+					$sentiersNommes[$nomSentier]['date_creation'] = $r['value'];
+					break;
+				case $this->triple_sentier_date_derniere_modif:
+					$sentiersNommes[$nomSentier]['date_derniere_modif'] = $r['value'];
+					break;
+			}
 		}
+
+		// on retourne une liste et non un objet
+		$sentiers = array_values($sentiersNommes);
 
 		$retour = array('pagination' => array('total' => count($sentiers)), 'resultats' => $sentiers);
 

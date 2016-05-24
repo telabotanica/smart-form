@@ -18,6 +18,9 @@ class SmartFloreService {
 	protected $triple_sentier = "smartFlore.sentiers";
 	protected $triple_sentier_fiche = "smartFlore.sentiers.fiche";
 	protected $triple_sentier_localisation = "smartFlore.sentiers.localisation";
+	protected $triple_sentier_date_derniere_modif = "smartFlore.sentiers.date_derniere_modif";
+	protected $triple_sentier_date_creation = "smartFlore.sentiers.date_creation";
+	protected $triple_sentier_meta = "smartFlore.sentiers.meta";
 
 	protected $triple_favoris_fiche = "smartFlore.favoris.fiche";
 
@@ -149,6 +152,15 @@ class SmartFloreService {
 	}
 
 	/**
+	 * Retourne true si l'utilisateur en cours fait partie de la liste des
+	 * admins, définie dans config.ini
+	 */
+	protected function estAdmin() {
+		$listeAdmins = explode(',', $this->config['auth']['admins']);
+		return in_array($this->utilisateur['courriel'], $listeAdmins);
+	}
+
+	/**
 	 * Recherche un jeton SSO dans l'entête HTTP "Authorization", vérifie ce
 	 * jeton auprès de l'annuaire et en cas de succès charge les informations
 	 * de l'utilisateur associé dans $this->utilisateur
@@ -181,7 +193,8 @@ class SmartFloreService {
 
 
 	/**
-	 * Essaye de trouver un jeton JWT non vide dans l'entête HTTP "Authorization"
+	 * Essaye de trouver un jeton JWT non vide dans l'entête HTTP (par défaut
+	 * "Authorization")
 	 *
 	 * @return String un jeton JWT ou null
 	 */
