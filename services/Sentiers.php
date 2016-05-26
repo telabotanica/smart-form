@@ -73,32 +73,56 @@ class Sentiers extends SmartFloreService {
 		}
 	}
 
+	/**
+	 * Renvoie les sentiers de l'utilisateur en cours seulement. Si celui-ci est
+	 * administrateur (liste d'adresses emails dans config.ini), les sentiers de
+	 * tous les utilisateurs seront retournés.
+	 */
 	private function getSentiers() {
 
 		$this->verifierAuthentification();
+		$estAdmin = $this->estAdmin();
 		$utilisateur = $this->utilisateur['nomWiki'];
-		if(!empty($utilisateur)) {
-			// permet de renvoyer les sentiers de l'utilisateur en premier
-			// si celui ci est précisé
-			$champs_requete = '*, IF(value = '.$this->bdd->quote($utilisateur).', 1, 0) as sentier_utilisateur';
-			$ordre = "ORDER BY sentier_utilisateur DESC, resource ASC";
-		} else {
-			$champs_requete = "*";
-			$ordre ="";
-		}
 
-		$requete = 'SELECT '.$champs_requete.' '.
-				'FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
-				'WHERE property = "'.$this->triple_sentier.'" '.
-				(!empty($utilisateur) ? 'AND value = '.$this->bdd->quote($utilisateur) : '');
+		$requete = "SELECT t2.id as id, t2.resource as resource, t2.property as property, t2.value as value "
+			. "FROM " . $this->config['bdd']['table_prefixe'] . "_triples t1 "
+			. "JOIN " . $this->config['bdd']['table_prefixe'] . "_triples t2 ON t1.resource = t2.resource "
+			. "WHERE t1.property = " . $this->bdd->quote($this->triple_sentier) . " ";
+		if (! $estAdmin) {
+			$requete .= "AND t1.value = " . $this->bdd->quote($utilisateur);
+		}
 
 		$res = $this->bdd->query($requete);
 		$res = $res->fetchAll(PDO::FETCH_ASSOC);
 
-		$sentiers = array();
-		foreach($res as $sentier) {
-			$sentiers[] = array('titre' => $sentier['resource'], 'auteur' => $sentier['value'], 'fiches' => array());
+		$sentiersNommes = array();
+		foreach($res as $r) {
+			$nomSentier = $r['resource'];
+			if (!array_key_exists($nomSentier, $sentiersNommes)) {
+				$sentiersNommes[$nomSentier] = array(
+					'titre' => $nomSentier,
+					'fiches' => array()
+				);
+			}
+			// chargement des propriétés selon le triplet en cours
+			switch ($r['property']) {
+				case $this->triple_sentier:
+					$sentiersNommes[$nomSentier]['auteur'] = $r['value'];
+					break;
+				case $this->triple_sentier_meta:
+					$sentiersNommes[$nomSentier]['meta'] = $r['value'];
+					break;
+				case $this->triple_sentier_date_creation:
+					$sentiersNommes[$nomSentier]['date_creation'] = $r['value'];
+					break;
+				case $this->triple_sentier_date_derniere_modif:
+					$sentiersNommes[$nomSentier]['date_derniere_modif'] = $r['value'];
+					break;
+			}
 		}
+
+		// on retourne une liste et non un objet
+		$sentiers = array_values($sentiersNommes);
 
 		$retour = array('pagination' => array('total' => count($sentiers)), 'resultats' => $sentiers);
 
@@ -356,7 +380,9 @@ class Sentiers extends SmartFloreService {
 
 			$requete_insertion = 'INSERT INTO '.$this->config['bdd']['table_prefixe'].'_triples '.
 					'(resource, property, value) VALUES '.
-					' ('.$this->bdd->quote($sentier_titre).',"'.$this->triple_sentier.'", '.$this->bdd->quote($utilisateur).') ';
+					' ('.$this->bdd->quote($sentier_titre).',"'.$this->triple_sentier.'", '.$this->bdd->quote($utilisateur).'), '.
+					' ('.$this->bdd->quote($sentier_titre).',"'.$this->triple_sentier_date_creation.'", UNIX_TIMESTAMP()), '.
+					' ('.$this->bdd->quote($sentier_titre).',"'.$this->triple_sentier_date_derniere_modif.'", UNIX_TIMESTAMP()) ';
 
 			$res_insertion = $this->bdd->exec($requete_insertion);
 			$retour = ($res_insertion !== false) ? 'OK' : false;
@@ -374,6 +400,10 @@ class Sentiers extends SmartFloreService {
 		echo $retour;
 	}
 
+	/**
+	 * Supprime un sentier et tout ce qui le concerne : dates, métadonnées,
+	 * localisation, fiches liées
+	 */
 	private function supprimerSentier($data) {
 
 		$retour = false;
@@ -398,8 +428,23 @@ class Sentiers extends SmartFloreService {
 				'AND property = "'.$this->triple_sentier_fiche.'"';
 
 		$res_suppression_fiches = $this->bdd->exec($requete_suppression_fiches);
+		
+		// Supprimer également les dates, les métadonnées et la localisation
+		// @WARNING attention c'est violent @TODO vérifier que ça pète rien
+		$requete_suppression_proprietes = 'DELETE FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
+				'WHERE resource = '.$this->bdd->quote($sentier_titre).' '.
+				'AND property IN ('
+				.$this->bdd->quote($this->triple_sentier_date_creation).','
+				.$this->bdd->quote($this->triple_sentier_date_derniere_modif).','
+				.$this->bdd->quote($this->triple_sentier_localisation).','
+				.$this->bdd->quote($this->triple_sentier_meta).')'
+				;
+		$res_suppression_proprietes = $this->bdd->exec($requete_suppression_proprietes);
 
-		$retour = ($res_suppression !== false) && ($res_suppression_fiches !== false) ? 'OK' : false;
+		$retour = ($res_suppression !== false)
+				&& ($res_suppression_fiches !== false)
+				&& ($res_suppression_proprietes !== false)
+					? 'OK' : false;
 
 		header('Content-type: text/plain');
 		echo $retour;
@@ -496,10 +541,14 @@ class Sentiers extends SmartFloreService {
 
 			$requete_insertion = 'INSERT INTO '.$this->config['bdd']['table_prefixe'].'_triples '.
 					'(resource, property, value) VALUES '.
-					' ('.$this->bdd->quote($page_tag).',"'.$this->triple_sentier_fiche.'", '.$this->bdd->quote($sentier_titre).') ';
+					' ('.$this->bdd->quote($page_tag).',"'.$this->triple_sentier_fiche.'", '.$this->bdd->quote($sentier_titre).')';
 
 			$res_insertion = $this->bdd->exec($requete_insertion);
-			$retour = ($res_insertion !== false) ? 'OK' : false;
+			$retour = false;
+			if ($res_insertion !== false) {
+				$retour = 'OK';
+				$this->mettreAJourDateDerniereModif($sentier_titre);
+			}
 
 		} else {
 			$retour = 'OK';
@@ -526,7 +575,11 @@ class Sentiers extends SmartFloreService {
 				'AND resource = '.$this->bdd->quote($page_tag);
 
 		$res_suppression = $this->bdd->exec($requete_suppression);
-		$retour = ($res_suppression !== false) ? 'OK' : false;
+		$retour = false;
+		if ($res_suppression !== false) {
+			$retour = 'OK';
+			$this->mettreAJourDateDerniereModif($sentier_titre);
+		}
 
 		header('Content-type: text/plain');
 		echo $retour;
@@ -588,10 +641,28 @@ class Sentiers extends SmartFloreService {
 		}
 
 		$res = $this->bdd->exec($requete);
-		$retour = ($res !== false) ? 'OK' : false;
+		$retour = false;
+		if ($res !== false) {
+			$retour = 'OK';
+			$this->mettreAJourDateDerniereModif($sentier_titre);
+		}
 
 		header('Content-type: text/plain');
 		echo $retour;
+	}
+
+	/**
+	 * Met à jour la date de dernière modification d'un sentier
+	 * @WARNING considère que ce triplet existe (le ON DUPLICATE KEY UPDATE 
+	 * ne marche pas avec un id auto_increment)
+	 */
+	protected function mettreAJourDateDerniereModif($sentier_titre) {
+		$reqMajDdm = 'UPDATE '.$this->config['bdd']['table_prefixe'] . '_triples '.
+			'SET value = UNIX_TIMESTAMP() '.
+			'WHERE resource = '.$this->bdd->quote($sentier_titre).' '.
+			'AND property = '.$this->bdd->quote($this->triple_sentier_date_derniere_modif);
+
+		return $this->bdd->exec($reqMajDdm);
 	}
 
 	private function supprimerLocalisationASentier($data) {
@@ -607,7 +678,11 @@ class Sentiers extends SmartFloreService {
 		;
 
 		$res_suppression = $this->bdd->exec($requete_suppression);
-		$retour = ($res_suppression !== false) ? 'OK' : false;
+		$retour = false;
+		if ($res_suppression !== false) {
+			$retour = 'OK';
+			$this->mettreAJourDateDerniereModif($data['sentierTitre']);
+		}
 
 		header('Content-type: text/plain');
 		echo $retour;
