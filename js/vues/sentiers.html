@@ -9,7 +9,7 @@
 					<select name="sentier" id="sentier" class="form-control"
 						ng-model="sentiersCtrl.sentierSelectionne"
 						ng-change="sentiersCtrl.surChangementSentier()"
-						ng-options="sentier.titre for sentier in sentiersCtrl.sentiers">
+						ng-options="sentier.titre + ' (' + sentier.auteur + ')' for sentier in sentiersCtrl.sentiers">
 					</select>
 				</div>
 
@@ -66,7 +66,11 @@
 								'1': 'Un individu localisé',
 								'other': '{} individus localisés'}">
 					</ng-pluralize>
-					<h5 class="createur-sentier">Créé par {{ sentiersCtrl.sentierSelectionne.auteur }}</h5>
+					<h5 class="createur-sentier">
+						Créé par {{ sentiersCtrl.sentierSelectionne.auteur }}
+						le {{ sentiersCtrl.sentierSelectionne.date_creation * 1000 | date:'dd/MM/yyyy' }}
+						(dernière modif. le {{ sentiersCtrl.sentierSelectionne.date_derniere_modif * 1000 | date:'dd/MM/yyyy' }})
+					</h5>
 				</div>
 
 				<div class="row table-fiches-sentier">
