@@ -184,9 +184,12 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 	};
 
 	this.initialiserNouveauSentier = function(titre) {
-		var nouveauSentier = creerObjetSentierVide();
+		var nouveauSentier = creerObjetSentierVide(),
+			now = Math.round(new Date().getTime() / 1000);
 		nouveauSentier.titre = titre;
 		nouveauSentier.auteur = lthis.utilisateurNomWiki;
+		nouveauSentier.dateCreation = now;
+		nouveauSentier.dateDerniereModif = now;
 		this.sentiers.push(nouveauSentier);
 		this.sentierSelectionne = this.sentiers[this.sentiers.length - 1];
 	};

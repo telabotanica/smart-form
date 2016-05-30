@@ -113,10 +113,10 @@ class Sentiers extends SmartFloreService {
 					$sentiersNommes[$nomSentier]['meta'] = $r['value'];
 					break;
 				case $this->triple_sentier_date_creation:
-					$sentiersNommes[$nomSentier]['date_creation'] = $r['value'];
+					$sentiersNommes[$nomSentier]['dateCreation'] = $r['value'];
 					break;
 				case $this->triple_sentier_date_derniere_modif:
-					$sentiersNommes[$nomSentier]['date_derniere_modif'] = $r['value'];
+					$sentiersNommes[$nomSentier]['dateDerniereModif'] = $r['value'];
 					break;
 			}
 		}

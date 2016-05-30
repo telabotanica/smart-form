@@ -68,8 +68,10 @@
 					</ng-pluralize>
 					<h5 class="createur-sentier">
 						Créé par {{ sentiersCtrl.sentierSelectionne.auteur }}
-						le {{ sentiersCtrl.sentierSelectionne.date_creation * 1000 | date:'dd/MM/yyyy' }}
-						(dernière modif. le {{ sentiersCtrl.sentierSelectionne.date_derniere_modif * 1000 | date:'dd/MM/yyyy' }})
+						le {{ sentiersCtrl.sentierSelectionne.dateCreation * 1000 | date:'dd/MM/yyyy' }}
+						<span ng-show="sentiersCtrl.sentierSelectionne.dateDerniereModif !== sentiersCtrl.sentierSelectionne.dateCreation">
+							(dernière modif. le {{ sentiersCtrl.sentierSelectionne.dateDerniereModif * 1000 | date:'dd/MM/yyyy' }})
+						</span>
 					</h5>
 				</div>
 
