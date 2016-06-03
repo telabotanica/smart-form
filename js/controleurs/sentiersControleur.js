@@ -49,8 +49,18 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 				nbIndividus: 0
 			},
 			auteur: ''
-		}
+		};
 	}
+
+	enrichirSentierLabel = function(sentiers) {
+		sentiers.forEach(function(sentier, key, sentiers) {
+			if (sentier.auteur !== lthis.utilisateurNomWiki) {
+				sentiers[key].label = sentier.titre + ' (' + sentier.auteur + ')';
+			} else {
+				sentiers[key].label = sentier.titre;
+			}
+		});
+	};
 
 	this.editerFiche = function(fiche) {
 		$rootScope.$broadcast('edition.editer-fiche', fiche);
@@ -61,6 +71,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 		smartFormService.getFichesASentier(this.sentierSelectionne.titre,
 			function(data) {
 				lthis.sentierSelectionne.fiches = data.resultats;
+				lthis.chargementSentier = false;
 			},
 			function(data) {
 				console.log('C\'est pas bon !');
@@ -83,6 +94,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 		smartFormService.getSentiers(etatApplicationService.voirTousLesSentiers,
 			function(data) {
 				lthis.sentiers = data.resultats ? data.resultats : [] ;
+				enrichirSentierLabel(lthis.sentiers);
 				if (lthis.sentiers.length > 0) {
 					lthis.sentierSelectionne = lthis.sentiers[0];
 					lthis.surChangementSentier();
