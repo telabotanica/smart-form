@@ -1,4 +1,4 @@
-smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $window, $http, smartFormService, etatApplicationService, liensService, googleAnalyticsService, geolocation) {
+smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $window, $http, smartFormService, etatApplicationService, liensService, googleAnalyticsService, geolocation, leafletData) {
 
 	this.sentiers = [];
 	this.sentierSelectionne = creerObjetSentierVide();
@@ -81,7 +81,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 		smartFormService.getLocalisationASentier(this.sentierSelectionne.titre,
 			function(data) {
 				lthis.sentierSelectionne.localisation = data.localisation;
-				lthis.chargementSentier = false;
+				lthis.sentierSelectionne.dessin = data.dessin;
 			},
 			function(data) {
 				console.log('C\'est pas bon !');
@@ -141,15 +141,6 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 
 						lthis.surChangementSentier();
 
-						// suppression de la localisation également
-						smartFormService.supprimerSentierLocalisation(sentier.titre,
-							function() {
-								// console.log('C\'est cool !');
-							},
-							function() {
-								console.log('C\'est pas bon !');
-							}
-						);
 						// stats
 						googleAnalyticsService.envoyerEvenement("sentier", "suppression", sentier.titre);
 					}
@@ -336,38 +327,85 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 		}
 	});
 
+	function initialiserLeafletConfig() {
+		// layer du tracé du sentier (on doit surement charger un tracé existant là dedans, à base de fromGeoJson ou un truc du genre tavu)
+		lthis.editableLayers = new L.FeatureGroup();
+
+		// création de l'event pour recup le tracé
+		leafletData.getMap().then(function(map) {
+			map.addLayer(lthis.editableLayers);
+
+			leafletData.getLayers().then(function(baselayers) {
+				map.on('draw:created', function(e) {
+					lthis.editableLayers.addLayer(e.layer);
+					lthis.dessinSentier = e.layer;
+				});
+			});
+		});
+
+		lthis.baselayers = {
+			osm: {
+				url: 'http://osm.tela-botanica.org/tuiles/osmfr/{z}/{x}/{y}.png',
+				layerOptions: {
+	                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+					maxZoom: 20
+	            },
+	            name: 'osm',
+                type: 'xyz',
+                layerParams: {
+                	'showOnSelector': false
+                }
+			},
+			gmaps: {
+				url: 'http://mt1.google.com/vt/lyrs=y@218131653&hl=fr&src=app&x={x}&y={y}&z={z}',
+				layerOptions: {
+					attribution: 'Map data &copy;'+new Date().getFullYear()+' <a href="http://maps.google.com">Google</a>',
+					maxZoom: 21
+				},
+				name: 'gmaps',
+            	type: 'xyz',
+                layerParams: {
+                	'showOnSelector': false
+                }
+			}
+		};
+
+		// Initialisation du centre du leaflet (sur paris)
+		lthis.leafletCenter = {
+			lat: 48.856614,
+			lng: 2.3522219,
+			zoom: 14
+		};
+
+		// Config du leaflet
+		lthis.leafletConfig = {
+			layers: {
+				baselayers: {
+					osm: lthis.baselayers.osm
+				}
+			},
+			center: lthis.leafletCenter,
+			markers: {}
+		};
+	}
+
+	function purgerEtatLocalisation() {
+		$("#modalet").modal('hide');
+		lthis.editableLayers.removeLayer(lthis.dessinSentier);
+		lthis.etape = '';
+
+		initialiserLeafletConfig();
+	}
+
 	function initialiserLocalisation() {
 		lthis.modeSuppressionMarkers = false;
 		lthis.etape = 'localiser-sentier';
 		lthis.titreModal = 'Cliquer pour placer le point d\'entrée du sentier';
 		lthis.methodeLocalisation = 'auto';
 		lthis.choixAdresses = [];
-
-		lthis.tilesDict = {
-			osm: {
-				url: 'http://osm.tela-botanica.org/tuiles/osmfr/{z}/{x}/{y}.png',
-				options: {
-	                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-					maxZoom: 20
-	            },
-	            name: 'osm'
-			},
-			gmaps: {
-				url: 'http://mt1.google.com/vt/lyrs=y@218131653&hl=fr&src=app&x={x}&y={y}&z={z}',
-				options: {
-					attribution: 'Map data &copy;'+new Date().getFullYear()+' <a href="http://maps.google.com">Google</a>',
-					maxZoom: 21
-				},
-				name: 'gmaps'
-			}
-		};
-
-		// Initialisation du centre du leaflet
-		lthis.leafletCenter = {
-			lat: 48.856614,
-			lng: 2.3522219,
-			zoom: 14
-		};
+		lthis.dessinSentier = {}; // layer du leaflet contenant le polyline
+		lthis.dessinSentierAvantModif = undefined; // copie avant changements en mode édition
+		lthis.dessinModifie = false;
 
 		// Initialisation des markers
 		lthis.markers = {};
@@ -377,7 +415,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 		if (angular.isDefined(lthis.sentierSelectionne.localisation.individus)) {
 			// Les individus
 			angular.forEach(lthis.sentierSelectionne.localisation.individus, function(value, key) {
-				var fiche = getSentieSelectionneFicheParTag(value.ficheTag),
+				var fiche = getSentierSelectionneFicheParTag(value.ficheTag),
 					markerName = creerNomMarker(value.ficheTag)
 				;
 
@@ -389,12 +427,6 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 			lthis.leafletCenter.zoom = 18;
 		}
 
-		lthis.leafletConfig = {
-			tiles: lthis.tilesDict.osm,
-			center: lthis.leafletCenter,
-			markers: {}
-		};
-
 		// En édition on ajoute à la config seulement le sentier pour la première étape
 		if (angular.isDefined(lthis.sentierSelectionne.localisation.sentier)) {
 			lthis.leafletConfig.markers = {
@@ -402,7 +434,11 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 			}
 		}
 
-		function getSentieSelectionneFicheParTag(tag) {
+		// mic-mac dégueu (et magique) pour éviter la zone de réglages inutiles en haut à droite du leaflet
+		lthis.changerLayer('gmaps');
+		lthis.changerLayer('osm');
+
+		function getSentierSelectionneFicheParTag(tag) {
 			var fiche;
 			angular.forEach(lthis.sentierSelectionne.fiches, function(value, key){
 				if (tag === value.tag) {
@@ -424,6 +460,19 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 		}
 
 		return markerName;
+	}
+
+	/**
+	 * Active le mode édition d'un layer
+	 *
+	 * Si il est affiché sur la carte alors des éléments de controles
+	 * apparaitront pour pouvoir le modifier
+	 *
+	 * @param      {Object}  layer   Le layer à éditer
+	 */
+	function editerLayer(layer) {
+		layer.options.editing || (layer.options.editing = {}); // (fix: https://github.com/Leaflet/Leaflet.draw/issues/364#issuecomment-74184767)
+		layer.editing.enable();
 	}
 
 	this.ajouterMarker = function(fiche) {
@@ -450,10 +499,12 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 		}
 	};
 
-	this.changerTiles = function(tiles) {
-		lthis.leafletConfig.tiles = lthis.tilesDict[tiles];
+	this.changerLayer = function(layer) {
+		// obligé de détruire le précédent layer pour pouvoir en changer
+		lthis.leafletConfig.layers.baselayers = {};
+		lthis.leafletConfig.layers.baselayers[layer] = lthis.baselayers[layer];
 
-		if (tiles == 'osm' && lthis.leafletCenter.zoom > 20) {
+		if (layer == 'osm' && lthis.leafletCenter.zoom > 20) {
 			lthis.leafletCenter.zoom = 20;
 		}
 	};
@@ -507,11 +558,58 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 
 	this.annuler = function() {
 		if ($window.confirm('Les modifications en cours seront perdues')) {
-			initialiserLocalisation();
-			$("#modalet").modal('hide');
+			purgerEtatLocalisation();
 		}
 	};
 
+	function creerCopieDuPolyline(layer) {
+		var layerCoords = L.GeoJSON.coordsToLatLngs((layer.toGeoJSON()).geometry.coordinates);
+		return L.polyline(layerCoords);
+	}
+
+	this.supprimerDessin = function() {
+		if ($window.confirm('Recommencer à zéro ?')) {
+			// suppresion du layer visible sur la carte
+			lthis.editableLayers.removeLayer(lthis.dessinSentier);
+			// suppression de la référence interne
+			delete lthis.dessinSentier;
+
+			lthis.dessinModifie = true;
+
+			// réactive le mode dessin
+			leafletData.getMap().then(function(map) {
+				lthis.polylineDrawer = new L.Draw.Polyline(map);
+				lthis.polylineDrawer.options.shapeOptions.opacity = 0.7;
+				lthis.polylineDrawer.options.shapeOptions.weight = 8;
+
+				lthis.polylineDrawer.enable();
+			});
+		}
+	};
+
+	this.revertChangementsDessin = function() {
+		if (lthis.dessinSentierAvantModif) {
+			// enlève le layer édité
+			lthis.editableLayers.removeLayer(lthis.dessinSentier);
+			// rétablie la référence interne
+			lthis.dessinSentier = angular.copy(lthis.dessinSentierAvantModif);
+			// réactive le mode édition du layer
+			editerLayer(lthis.dessinSentier);
+			// rajoute le layer sur la carte
+			lthis.editableLayers.addLayer(lthis.dessinSentier);
+
+			lthis.dessinModifie = false;
+		} else {
+			window.alert('rien à rétablir');
+		}
+	};
+
+	// Étapes :
+	// 1 : placer le point d'entrée du sentier, servant à localiser le sentier sur le territoire
+	// 2 : placer les points des différents individus du sentier pour avoir des infos au cours de la balade
+	// 3 : tracer le chemin indicatif à suivre au sein du sentier
+
+	// FIN ÉTAPE 1, début étape 2
 	this.validerLocalisationSentier = function() {
 		// Restaure les markers d'individus dans le cas d'une édition du sentier
 		angular.merge(lthis.leafletConfig.markers, lthis.markers);
@@ -523,7 +621,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 		});
 
 		lthis.etape = 'localiser-individus';
-		this.changerTiles('gmaps');
+		this.changerLayer('gmaps');
 		lthis.titreModal = 'Cliquer sur une espèce pour créer un marqueur';
 
 		// On décale légèrement le centre pour éviter le chevauchement des markers et on zoom
@@ -534,9 +632,54 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 		});
 	};
 
+	// FIN ÉTAPE 2, début étape 3
 	this.validerLocalisationIndividus = function() {
-		var markers = angular.copy(lthis.leafletConfig.markers);
+		lthis.etape = 'dessin-sentier';
+		this.changerLayer('gmaps');
+		lthis.titreModal = 'Tracez le parcours à suivre';
 
+		// désactivation des autres markers
+		angular.forEach(lthis.leafletConfig.markers, function(marker) {
+			angular.merge(marker, {
+				draggable: false,
+				opacity: 0.7
+			});
+		});
+
+		// active le mode dessin si le tracé n'existe pas, sinon on passe en mode édition
+		leafletData.getMap().then(function(map) {
+			if (lthis.sentierSelectionne.dessin) {
+				var LatLng = L.GeoJSON.coordsToLatLngs(lthis.sentierSelectionne.dessin.coordinates);
+				var loadedLayer = L.polyline(LatLng);
+				// charge le layer du tracé
+				lthis.editableLayers.addLayer(loadedLayer);
+				lthis.dessinSentier = loadedLayer;
+				// active le mode édition du layer
+				editerLayer(loadedLayer);
+
+				if (angular.isUndefined(lthis.dessinSentierAvantModif)) {
+					// garde le tracé original pour pouvoir le restaurer
+					lthis.dessinSentierAvantModif = creerCopieDuPolyline(lthis.dessinSentier);
+				}
+
+				map.on('draw:editvertex', function(e) {
+					lthis.dessinModifie = true;
+				});
+			} else {
+				lthis.polylineDrawer = new L.Draw.Polyline(map);
+				lthis.polylineDrawer.options.shapeOptions.opacity = 0.7;
+				lthis.polylineDrawer.options.shapeOptions.weight = 8;
+
+				lthis.polylineDrawer.enable();
+			}
+		});
+	};
+
+	// FIN ÉTAPE 3, envoi des données
+	this.terminerLocalisation = function() {
+		// on copie les marqueurs
+		var markers = angular.copy(lthis.leafletConfig.markers);
+		// on prépare l'objet contenant les infos de localisation qui va être stocké
 		var localisation = {
 			sentier:  {
 				lat: markers.sentier.lat,
@@ -544,9 +687,14 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 			},
 			individus: {}
 		};
-
+		var dessin = '';
+		// prépare les infos du dessin du sentier
+		if (lthis.dessinSentier) {
+			dessin = (lthis.dessinSentier.toGeoJSON()).geometry;
+		}
+		// on enlève les infos du sentier de la copie
 		delete markers.sentier;
-
+		// on parcours les marqueurs qu'on ajoute aux infos de localisation
 		angular.forEach(markers, function(marker, markerName) {
 			localisation.individus[markerName] = {
 				ficheTag: marker.ficheTag,
@@ -554,16 +702,24 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 				lng: marker.lng
 			};
 		});
-
-		smartFormService.ajouterSentierLocalisation(lthis.sentierSelectionne.titre, localisation,
+		// on envoi les infos de localisation au stockage
+		smartFormService.ajouterSentierLocalisation(
+			lthis.sentierSelectionne.titre,
+			localisation,
+			dessin,
 			function(data) {
 				if (data == 'OK') {
 					lthis.sentierSelectionne.localisation = localisation;
 					lthis.sentierSelectionne.localisation.nbIndividus = Object.keys(localisation.individus).length;
-					initialiserLocalisation();
-					$('#modalet').modal('hide');
+					lthis.sentierSelectionne.dessin = dessin;
+					// @todo: date de modification
+					purgerEtatLocalisation();
+
 					// stats
 					googleAnalyticsService.envoyerEvenement('sentier', 'ajout-localisation', '{ "sentier": "' + sentier.titre + '" }');
+					if (lthis.dessinSentier) {
+						googleAnalyticsService.envoyerEvenement('sentier', 'ajout-dessin-sentier', '{ "sentier": "' + sentier.titre + '" }');
+					}
 				}
 			},
 			function() {
@@ -575,7 +731,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 	this.retourLocalisationSentier = function() {
 		if ($window.confirm('Abandonner les modifications en cours et revenir à la localisation du sentier ?')) {
 			lthis.etape = 'localiser-sentier';
-			lthis.changerTiles('osm');
+			lthis.changerLayer('osm');
 			lthis.titreModal = 'Cliquer pour placer le point d\'entrée du sentier';
 
 			angular.merge(lthis.leafletConfig.markers.sentier, {
@@ -592,7 +748,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 		}
 	};
 
-	initialiserLocalisation();
+	initialiserLeafletConfig();
 
 	if (this.afficherSentiers) {
 		this.getSentiers();
