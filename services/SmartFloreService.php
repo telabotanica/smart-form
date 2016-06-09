@@ -18,6 +18,7 @@ class SmartFloreService {
 	protected $triple_sentier = "smartFlore.sentiers";
 	protected $triple_sentier_fiche = "smartFlore.sentiers.fiche";
 	protected $triple_sentier_localisation = "smartFlore.sentiers.localisation";
+	protected $triple_sentier_dessin = "smartFlore.sentiers.dessin";
 	protected $triple_sentier_date_derniere_modif = "smartFlore.sentiers.date_derniere_modif";
 	protected $triple_sentier_date_creation = "smartFlore.sentiers.date_creation";
 	protected $triple_sentier_meta = "smartFlore.sentiers.meta";

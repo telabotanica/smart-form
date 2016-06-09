@@ -157,6 +157,19 @@ class Sentiers extends SmartFloreService {
 		return $localisation;
 	}
 
+	private function getDessinBySentier($sentier_id) {
+		$dessin_sql = 'SELECT *'
+			. ' FROM ' . $this->config['bdd']['table_prefixe'] . '_triples'
+			. ' WHERE property = ' . $this->bdd->quote($this->triple_sentier_dessin)
+			. ' AND resource = ' . $this->bdd->quote($sentier_id)
+		;
+
+		$dessin_requete = $this->bdd->query($dessin_sql);
+		$dessin = $dessin_requete->fetch(PDO::FETCH_ASSOC);
+
+		return $dessin;
+	}
+
 	/**
 	 * Retourne un tableau des fiches d'un sentier, indexé par le tag de la fiche
 	 *
@@ -213,6 +226,9 @@ class Sentiers extends SmartFloreService {
 		$raw_localisation = $this->getLocalisationBySentier($sentier['resource']);
 		$localisation = json_decode($raw_localisation['value'], true);
 
+		$raw_dessin_sentier = $this->getDessinBySentier($sentier['resource']);
+		$dessin_sentier = json_decode($raw_dessin_sentier['value'], true);
+
 		// On va chercher sur eflore les infos complètes de chaque fiche
 		$fiches_eflore = array();
 		foreach ($fiches as $fiche) {
@@ -266,13 +282,7 @@ class Sentiers extends SmartFloreService {
 
 			// génération d'un chemin minimaliste pour remplir les critères
 			// d'admissibilité @TODO remplacer par les vrais chemins
-			$sentier_details['chemin'] = array(
-				'type' => 'LineString',
-				'coordinates' => array(
-					array($localisation['sentier']['lng'], $localisation['sentier']['lat']),
-					array($individu['lng'], $individu['lat'])
-				)
-			);
+			$sentier_details['chemin'] = $dessin_sentier;
 		}
 
 		return json_encode($sentier_details);
@@ -342,8 +352,8 @@ class Sentiers extends SmartFloreService {
 		// au moins un individu exigé
 		$loc = json_decode($infos_sentier['localisation'], true);
 		if (empty($loc['individus']) || count($loc['individus']) == 0) return false;
-		// @TODO gérer la présence d'un vrai chemin :
-		// if (empty($loc['chemin']) || count($loc['chemin']) < 2) return false;
+		// au moins deux points pour un chemin exigés
+		if (empty($loc['chemin']) || count($loc['chemin']) < 2) return false;
 
 		return true;
 	}
@@ -591,6 +601,7 @@ class Sentiers extends SmartFloreService {
 		}
 
 		$localisation = $this->getLocalisationBySentier($_GET['sentierTitre']);
+		$dessin = $this->getDessinBySentier($_GET['sentierTitre']);
 
 		$retour = array('nbIndividus' => 0);
 		if (count($localisation) > 0) {
@@ -600,7 +611,8 @@ class Sentiers extends SmartFloreService {
 
 		header('Content-type: application/json');
 		echo json_encode(array(
-			'localisation' => $retour
+			'localisation' => $retour,
+			'dessin' => json_decode($dessin['value'], true)
 		));
 
 		exit;
@@ -613,30 +625,66 @@ class Sentiers extends SmartFloreService {
 
 		$sentier_titre = $data['sentierTitre'];
 		$sentier_localisation = json_encode($data['sentierLocalisation']);
+		$sentier_dessin = json_encode($data['sentierDessin']);
 
-		$requete_existe = 'SELECT COUNT(resource) as localisation_sentier_existe'
+		$succes = $this->stockerDataTriple($this->triple_sentier_localisation, $sentier_localisation, $sentier_titre);
+
+		// @todo: factorisation correcte
+		if ($succes && !empty($data['sentierLocalisation'])) {
+			$this->stockerDataTriple($this->triple_sentier_dessin, $sentier_dessin, $sentier_titre);
+		}
+
+		header('Content-type: text/plain');
+		echo $succes;
+	}
+
+	/**
+	 * Met à jour la date de dernière modification d'un sentier
+	 * @WARNING considère que ce triplet existe (le ON DUPLICATE KEY UPDATE
+	 * ne marche pas avec un id auto_increment)
+	 */
+	protected function mettreAJourDateDerniereModif($sentier_titre) {
+		$reqMajDdm = 'UPDATE '.$this->config['bdd']['table_prefixe'] . '_triples '.
+			'SET value = UNIX_TIMESTAMP() '.
+			'WHERE resource = '.$this->bdd->quote($sentier_titre).' '.
+			'AND property = '.$this->bdd->quote($this->triple_sentier_date_derniere_modif);
+
+		return $this->bdd->exec($reqMajDdm);
+	}
+
+	/**
+	 * Enregistre (créé ou màj) un triple $triple de valeur $data pour le
+	 * sentier $sentier_titre
+	 * Parfait pour stocker des meta, du json, toussa
+	 *
+	 * @param      string  $triple         Le triple
+	 * @param      string  $data           Les données
+	 * @param      string  $sentier_titre  Le titre du sentier
+	 */
+	protected function stockerDataTriple($triple, $data, $sentier_titre) {
+		$requete_existe = 'SELECT COUNT(resource) as triple_existe'
 			. ' FROM ' . $this->config['bdd']['table_prefixe'] . '_triples'
 			. ' WHERE resource = ' . $this->bdd->quote($sentier_titre)
-			. ' AND property = ' . $this->bdd->quote($this->triple_sentier_localisation)
+			. ' AND property = ' . $this->bdd->quote($triple)
 		;
 
 		$res_existe = $this->bdd->query($requete_existe);
 		$res_existe = $res_existe->fetch(PDO::FETCH_ASSOC);
 
-		if ($res_existe['localisation_sentier_existe'] == 0) {
+		if ($res_existe['triple_existe'] == 0) {
 			$requete = 'INSERT INTO ' . $this->config['bdd']['table_prefixe'] . '_triples'
 				. ' (resource, property, value) VALUES'
 				. ' ('
 					. $this->bdd->quote($sentier_titre)
-					. ',"' . $this->triple_sentier_localisation . '"'
-					. ', ' . $this->bdd->quote($sentier_localisation)
+					. ',"' . $triple . '"'
+					. ', ' . $this->bdd->quote($data)
 				. ' )'
 			;
 		} else {
 			$requete = 'UPDATE ' . $this->config['bdd']['table_prefixe'] . '_triples'
-				. ' SET value = '.$this->bdd->quote($sentier_localisation)
+				. ' SET value = '.$this->bdd->quote($data)
 				. ' WHERE resource = ' . $this->bdd->quote($sentier_titre)
-				. ' AND property = ' . $this->bdd->quote($this->triple_sentier_localisation)
+				. ' AND property = ' . $this->bdd->quote($triple)
 			;
 		}
 
@@ -647,22 +695,7 @@ class Sentiers extends SmartFloreService {
 			$this->mettreAJourDateDerniereModif($sentier_titre);
 		}
 
-		header('Content-type: text/plain');
-		echo $retour;
-	}
-
-	/**
-	 * Met à jour la date de dernière modification d'un sentier
-	 * @WARNING considère que ce triplet existe (le ON DUPLICATE KEY UPDATE 
-	 * ne marche pas avec un id auto_increment)
-	 */
-	protected function mettreAJourDateDerniereModif($sentier_titre) {
-		$reqMajDdm = 'UPDATE '.$this->config['bdd']['table_prefixe'] . '_triples '.
-			'SET value = UNIX_TIMESTAMP() '.
-			'WHERE resource = '.$this->bdd->quote($sentier_titre).' '.
-			'AND property = '.$this->bdd->quote($this->triple_sentier_date_derniere_modif);
-
-		return $this->bdd->exec($reqMajDdm);
+		return $retour;
 	}
 
 	private function supprimerLocalisationASentier($data) {

@@ -255,6 +255,11 @@ body {
 	flex: 1;
 }
 
+/* leaflet-directive hack pour cacher l'inutile choix de layer */
+.leaflet-control-layers.leaflet-control {
+	display: none;
+}
+
 .logos-partenaires {
 	/*border: solid red 2px;*/
 	margin-top: 20px;

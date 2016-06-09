@@ -182,14 +182,15 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 		});
 	};
 
-	smartFormService.ajouterSentierLocalisation = function(sentierTitre, sentierLocalisation, surSucces, surErreur) {
+	smartFormService.ajouterSentierLocalisation = function(sentierTitre, sentierLocalisation, sentierDessin, surSucces, surErreur) {
 		$http({
 		    method: 'PUT',
 		    url: config.url_service_sentiers + '/sentier-localisation/',
 		    headers: etatApplicationService.getHeadersAuth(),
 		    data: {
 				"sentierTitre" : sentierTitre,
-				"sentierLocalisation" : sentierLocalisation
+				"sentierLocalisation" : sentierLocalisation,
+				"sentierDessin": sentierDessin
 			}
 		})
 		.success(function(data, status, headers, config) {
