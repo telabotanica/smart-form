@@ -269,5 +269,23 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 		});
 	};
 
+	smartFormService.demanderValidationSentier = function(sentierTitre, sentierEtat, surSucces, surErreur) {
+		$http({
+		    method: 'PUT',
+		    url: config.url_service_sentiers + '/sentier-validation/',
+		    headers: etatApplicationService.getHeadersAuth(),
+		    data: {
+				'sentierTitre' : sentierTitre,
+				'sentierEtat' : sentierEtat
+			}
+		})
+		.success(function(data, status, headers, config) {
+			surSucces(data);
+		})
+		.error(function(data, status, headers, config) {
+			surErreur(data);
+		});
+	}
+
 	return smartFormService;
 });

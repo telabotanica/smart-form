@@ -1,4 +1,4 @@
-smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $window, $http, smartFormService, etatApplicationService, liensService, googleAnalyticsService, geolocation, leafletData) {
+smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope, $window, $http, smartFormService, etatApplicationService, liensService, googleAnalyticsService, geolocation, leafletData) {
 
 	this.sentiers = [];
 	this.sentierSelectionne = creerObjetSentierVide();
@@ -48,7 +48,8 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 			localisation: {
 				nbIndividus: 0
 			},
-			auteur: ''
+			auteur: '',
+			etat: ''
 		};
 	}
 
@@ -58,6 +59,17 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 				sentiers[key].label = sentier.titre + ' (' + sentier.auteur + ')';
 			} else {
 				sentiers[key].label = sentier.titre;
+			}
+
+			switch (sentier.etat) {
+				case 'En attente':
+					sentiers[key].label += ' (En attente)';
+					break;
+				case 'Validé':
+					sentiers[key].label += ' (Validé)';
+					break;
+				default:
+					break;
 			}
 		});
 	};
@@ -82,6 +94,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 			function(data) {
 				lthis.sentierSelectionne.localisation = data.localisation;
 				lthis.sentierSelectionne.dessin = data.dessin;
+				lthis.sentierSelectionne.etat = data.etat;
 			},
 			function(data) {
 				console.log('C\'est pas bon !');
@@ -704,11 +717,17 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 		});
 	};
 
+	function testerValiditeDuSentier(localisation, dessin) {
+		return angular.isDefined(localisation.sentier) && Object.keys(localisation.sentier).length > 0
+			&& angular.isDefined(localisation.individus) && Object.keys(localisation.individus).length > 0
+			&& angular.isDefined(dessin.coordinates) && dessin.coordinates.length > 2;
+	}
+
 	// FIN ÉTAPE 3, envoi des données
 	this.terminerLocalisation = function() {
-		// on copie les marqueurs
+		// copie les marqueurs
 		var markers = angular.copy(lthis.leafletConfig.markers);
-		// on prépare l'objet contenant les infos de localisation qui va être stocké
+		// prépare l'objet contenant les infos de localisation qui va être stocké
 		var localisation = {
 			sentier:  {
 				lat: markers.sentier.lat,
@@ -721,9 +740,9 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 		if (lthis.dessinSentier) {
 			dessin = (lthis.dessinSentier.toGeoJSON()).geometry;
 		}
-		// on enlève les infos du sentier de la copie
+		// enlève les infos du sentier de la copie
 		delete markers.sentier;
-		// on parcours les marqueurs qu'on ajoute aux infos de localisation
+		// parcours les marqueurs et les ajoute aux infos de localisation
 		angular.forEach(markers, function(marker, markerName) {
 			localisation.individus[markerName] = {
 				ficheTag: marker.ficheTag,
@@ -732,7 +751,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 			};
 		});
 
-		// on envoi les infos de localisation au stockage
+		// envoi les infos de localisation au stockage
 		smartFormService.ajouterSentierLocalisation(
 			lthis.sentierSelectionne.titre,
 			localisation,
@@ -750,6 +769,11 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 					googleAnalyticsService.envoyerEvenement('sentier', 'ajout-localisation', '{ "sentier": "' + sentier.titre + '" }');
 					if (lthis.dessinSentier) {
 						googleAnalyticsService.envoyerEvenement('sentier', 'ajout-dessin-sentier', '{ "sentier": "' + sentier.titre + '" }');
+					}
+
+					// Si ce n'est déjà fait, on propose la vérification des données au créateur du sentier
+					if (!lthis.sentierSelectionne.etat && testerValiditeDuSentier(localisation, dessin)) {
+						$("#modale-publication").modal();
 					}
 				}
 			},
@@ -777,6 +801,29 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 			});
 			lthis.leafletConfig.markers.sentier = sentier;
 		}
+	};
+
+	this.changerEtatSentier = function(etat) {
+		// si etat est vide, correspond à la demande de publication du sentier
+		smartFormService.demanderValidationSentier(
+			lthis.sentierSelectionne.titre,
+			etat,
+			function(data) {
+				if (data == 'OK') {
+					$('#modale-publication').modal('hide');
+
+					if (!etat) {
+						lthis.sentierSelectionne.etat = 'En attente';
+					} else {
+						lthis.sentierSelectionne.etat = etat;
+					}
+					enrichirSentierLabel();
+				}
+			},
+			function() {
+				console.log('C\'est pas bon !');
+			}
+		);
 	};
 
 	initialiserLeafletConfig();

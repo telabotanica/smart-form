@@ -13,6 +13,14 @@
 					</select>
 				</div>
 
+					<!-- <select name="sentier" id="sentier" class="form-control"
+						ng-model="sentiersCtrl.sentierSelectionne"
+						ng-change="sentiersCtrl.surChangementSentier()">
+						<option ng-repeat="sentier in sentiersCtrl.sentiers">
+							<span ng-bind-html="sentiersCtrl.labelIcon"></span> {{ sentier.label }}
+						</option>
+					</select> -->
+
 				<form ng-submit="sentiersCtrl.ajouterSentier()" class="col-md-6">
 					<div class="col-md-10">
 						<input type="text" class="form-control"
@@ -66,6 +74,10 @@
 								'1': 'Un individu localisé',
 								'other': '{} individus localisés'}">
 					</ng-pluralize>
+					-
+					<span ng-if="sentiersCtrl.sentierSelectionne.etat">État : {{ sentiersCtrl.sentierSelectionne.etat }}</span>
+					<span ng-if="!sentiersCtrl.sentierSelectionne.etat">État : Localisation incomplète</span>
+
 					<h5 class="createur-sentier">
 						Créé par {{ sentiersCtrl.sentierSelectionne.auteur }}
 						le {{ sentiersCtrl.sentierSelectionne.dateCreation * 1000 | date:'dd/MM/yyyy' }}
@@ -135,6 +147,7 @@
 				Aucun sentier existant
 			</div>
 
+			<!-- modale de localisation -->
 			<div id="modalet" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog">
 			  <div class="modal-dialog">
 				<div class="modal-content">
@@ -249,6 +262,26 @@
 						type="button" class="btn btn-primary">
 						Enregistrer le sentier
 					</button>
+				  </div>
+				</div><!-- /.modal-content -->
+			  </div><!-- /.modal-dialog -->
+			</div><!-- /.modal -->
+
+			<!-- modale de publication des données -->
+			<div id="modale-publication" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog">
+			  <div class="modal-dialog">
+				<div class="modal-content">
+				  <div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">Publier le sentier ?</h4>
+				  </div>
+				  <div class="modal-body">
+					<p>Votre sentier semble prêt à être publié. Cependant, une validation manuelle est nécessaire avant qu'il soit visible sur l'application Smart'Flore.</p>
+					<p>Souhaitez-vous informer la personne responsable pour qu'elle passe en revue votre sentier&nbsp;?</p>
+				  </div>
+				  <div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Plus tard</button>
+					<button ng-click="sentiersCtrl.changerEtatSentier()" type="button" class="btn btn-primary">Soumettre le sentier</button>
 				  </div>
 				</div><!-- /.modal-content -->
 			  </div><!-- /.modal-dialog -->

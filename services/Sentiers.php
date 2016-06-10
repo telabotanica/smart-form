@@ -46,6 +46,9 @@ class Sentiers extends SmartFloreService {
 			case 'sentier-localisation':
 				$this->ajouterLocalisationASentier($data);
 				break;
+			case 'sentier-validation':
+				$this->ajouterValidationASentier($data);
+				break;
 			default:
 				$this->error(400, "Aucune commande connue n'a été spécifiée");
 				break;
@@ -112,6 +115,9 @@ class Sentiers extends SmartFloreService {
 				case $this->triple_sentier_meta:
 					$sentiersNommes[$nomSentier]['meta'] = $r['value'];
 					break;
+				case $this->triple_sentier_etat:
+					$sentiersNommes[$nomSentier]['etat'] = $r['value'];
+					break;
 				case $this->triple_sentier_date_creation:
 					$sentiersNommes[$nomSentier]['dateCreation'] = $r['value'];
 					break;
@@ -168,6 +174,19 @@ class Sentiers extends SmartFloreService {
 		$dessin = $dessin_requete->fetch(PDO::FETCH_ASSOC);
 
 		return $dessin;
+	}
+
+	private function getEtatBySentier($sentier_id) {
+		$etat_sql = 'SELECT *'
+			. ' FROM ' . $this->config['bdd']['table_prefixe'] . '_triples'
+			. ' WHERE property = ' . $this->bdd->quote($this->triple_sentier_etat)
+			. ' AND resource = ' . $this->bdd->quote($sentier_id)
+		;
+
+		$etat_requete = $this->bdd->query($etat_sql);
+		$etat = $etat_requete->fetch(PDO::FETCH_ASSOC);
+
+		return $etat;
 	}
 
 	/**
@@ -602,6 +621,7 @@ class Sentiers extends SmartFloreService {
 
 		$localisation = $this->getLocalisationBySentier($_GET['sentierTitre']);
 		$dessin = $this->getDessinBySentier($_GET['sentierTitre']);
+		$etat = $this->getEtatBySentier($_GET['sentierTitre']);
 
 		$retour = array('nbIndividus' => 0);
 		if (count($localisation) > 0) {
@@ -612,7 +632,8 @@ class Sentiers extends SmartFloreService {
 		header('Content-type: application/json');
 		echo json_encode(array(
 			'localisation' => $retour,
-			'dessin' => json_decode($dessin['value'], true)
+			'dessin' => json_decode($dessin['value'], true),
+			'etat' => $etat['value']
 		));
 
 		exit;
@@ -633,6 +654,51 @@ class Sentiers extends SmartFloreService {
 		if ($succes && !empty($data['sentierLocalisation'])) {
 			$this->stockerDataTriple($this->triple_sentier_dessin, $sentier_dessin, $sentier_titre);
 		}
+
+		header('Content-type: text/plain');
+		echo $succes;
+	}
+
+	private function ajouterValidationASentier($data) {
+		if (empty($data['sentierTitre'])) {
+			$this->error('400', 'Le paramètre sentierTitre est obligatoire');
+		}
+
+		$sentier_titre = $data['sentierTitre'];
+		$sentier_etat = null;
+
+		if (array_key_exists('sentierEtat', $data) && '' !== $data['sentierEtat']) {
+			// @todo: verifier ici si l'utilisateur est admin
+			$sentier_etat = $data['sentierEtat'];
+		} else {
+			$sentier_etat = 'En attente';
+
+			$message = 'Bonjour, ' . "\r\n" .
+				'vous recevez ce message car vous êtres administrateur des sentiers SmartFlore. ' . "\r\n" .
+				'Un nouveau sentier requiert votre attention : ' . "\r\n" .
+				"\r\n" .
+				'Nom du sentier: ' . $data['sentierTitre'] . "\r\n" .
+				"\r\n" .
+				'Rendez-vous sur ' . $this->config['smartflore']['application_saisie_url'];
+
+			$headers = 'Content-Type: text/plain; charset="utf-8" ' .
+				'Content-Transfer-Encoding: 8bit' .
+				'From: smartflore@tela-botanica.org' .
+				'Reply-To: no-reply@example.com' .
+				'X-Mailer: PHP/' . phpversion();
+
+			$listeAdmins = explode(',', $this->config['auth']['admins']);
+			foreach($listeAdmins as $admin) {
+				mail(
+					$admin,
+					'Demande de validation d\'un sentier',
+					$message,
+					$headers
+				);
+			}
+		}
+
+		$succes = $this->stockerDataTriple($this->triple_sentier_etat, $sentier_etat, $sentier_titre);
 
 		header('Content-type: text/plain');
 		echo $succes;
