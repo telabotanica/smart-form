@@ -53,6 +53,33 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 		};
 	}
 
+	/**
+	 * Teste si l'utilisateur courant est admin
+	 *
+	 * L'idée c'est que le service de sentiers montre les sentiers des autres
+	 * utilisateurs aux admins. Donc si un utilisateur peut voir un sentier qui
+	 * ne lui appartient pas, alors il est admin. (C'est crade un peu)
+	 * Idéalement il faudrait se baser sur les infos données par le service
+	 * d'annuaire. Ou au pire une liste en dur.
+	 *
+	 * Devrait être dans le service etatApplication
+	 *
+	 * @return     {boolean}
+	 */
+	this.estAdmin = function() {
+		return lthis.sentiers.some(function(sentier) {
+			return sentier.auteur !== lthis.utilisateurNomWiki;
+		});
+	};
+
+	/**
+	 * Ajoute à la liste des sentiers les labels correspondant à l'affichage du
+	 * nom de chaque sentier dans le select principal. Si l'utilisateur connecté
+	 * n'est pas le propriétaire du sentier, affiche le nom du propriétaire
+	 * entre parenthèses. Affiche également l'état de publication du sentier
+	 *
+	 * @param      {array}  sentiers  Les sentiers à enrichir
+	 */
 	enrichirSentierLabel = function(sentiers) {
 		sentiers.forEach(function(sentier, key, sentiers) {
 			if (sentier.auteur !== lthis.utilisateurNomWiki) {
@@ -63,10 +90,10 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 
 			switch (sentier.etat) {
 				case 'En attente':
-					sentiers[key].label += ' (En attente)';
+					sentiers[key].label += ' (Publication en attente)';
 					break;
 				case 'Validé':
-					sentiers[key].label += ' (Validé)';
+					sentiers[key].label += ' (Publication validée)';
 					break;
 				default:
 					break;

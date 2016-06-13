@@ -372,7 +372,14 @@ class Sentiers extends SmartFloreService {
 		$loc = json_decode($infos_sentier['localisation'], true);
 		if (empty($loc['individus']) || count($loc['individus']) == 0) return false;
 		// au moins deux points pour un chemin exigés
-		if (empty($loc['chemin']) || count($loc['chemin']) < 2) return false;
+		$raw_dessin_sentier = $this->getDessinBySentier($infos_sentier['resource']);
+		$dessin_sentier = json_decode($raw_dessin_sentier['value'], true);
+		if (empty($dessin_sentier['coordinates']) || count($dessin_sentier['coordinates']) < 2) return false;
+		// enfin on vérifie que le sentier est validé pour la publication
+		// on pourrait même commencer par ça tant ces sentiers sont rares actuellement
+		// @todo: optimiser et/ou différencier ces tests
+		$raw_etat_sentier = $this->getEtatBySentier($infos_sentier['resource']);
+		if (empty($raw_etat_sentier) || $raw_etat_sentier['value'] !== 'Validé') return false;
 
 		return true;
 	}
@@ -650,8 +657,7 @@ class Sentiers extends SmartFloreService {
 
 		$succes = $this->stockerDataTriple($this->triple_sentier_localisation, $sentier_localisation, $sentier_titre);
 
-		// @todo: factorisation correcte
-		if ($succes && !empty($data['sentierLocalisation'])) {
+		if ($succes) {
 			$this->stockerDataTriple($this->triple_sentier_dessin, $sentier_dessin, $sentier_titre);
 		}
 
@@ -667,9 +673,12 @@ class Sentiers extends SmartFloreService {
 		$sentier_titre = $data['sentierTitre'];
 		$sentier_etat = null;
 
-		if (array_key_exists('sentierEtat', $data) && '' !== $data['sentierEtat']) {
-			// @todo: verifier ici si l'utilisateur est admin
-			$sentier_etat = $data['sentierEtat'];
+		if (!empty($data['sentierEtat'])) {
+			if ($this->estAdmin()) {
+				$sentier_etat = $data['sentierEtat'];
+			} else {
+				$this->error('400', 'Bas les pattes, faut être admin');
+			}
 		} else {
 			$sentier_etat = 'En attente';
 

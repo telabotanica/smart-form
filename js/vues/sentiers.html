@@ -56,8 +56,19 @@
 				</div>
 
 				<div id="bouton-localiser-sentier">
-					<button ng-click="sentiersCtrl.demarrerLocalisationSentier(); sentiersCtrl.modalOpened = !sentiersCtrl.modalOpened" type="button" class="btn btn-default btn-md" title="localiser ce sentier">
+					<button ng-click="sentiersCtrl.demarrerLocalisationSentier(); sentiersCtrl.modalOpened = !sentiersCtrl.modalOpened"
+						type="button" class="btn btn-default btn-md"
+						title="Localiser ce sentier">
 						<span class="glyphicon glyphicon-globe" aria-hidden="true"></span>
+					</button>
+				</div>
+
+				<div id="bouton-valider-sentier" ng-if="sentiersCtrl.estAdmin()">
+					<button ng-if="sentiersCtrl.sentierSelectionne.auteur == sentiersCtrl.utilisateurNomWiki && sentiersCtrl.sentierSelectionne.etat == 'En attente'"
+						ng-click="sentiersCtrl.changerEtatSentier('Validé')"
+						type="button" class="btn btn-default btn-md"
+						title="Valider ce sentier">
+						<span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 					</button>
 				</div>
 
