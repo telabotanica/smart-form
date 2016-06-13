@@ -63,9 +63,8 @@
 					</button>
 				</div>
 
-				<div id="bouton-valider-sentier" ng-if="sentiersCtrl.estAdmin()">
-					<button ng-if="sentiersCtrl.sentierSelectionne.auteur == sentiersCtrl.utilisateurNomWiki && sentiersCtrl.sentierSelectionne.etat == 'En attente'"
-						ng-click="sentiersCtrl.changerEtatSentier('Validé')"
+				<div id="bouton-valider-sentier" ng-if="sentiersCtrl.estAdmin() && sentiersCtrl.sentierSelectionne.etat == 'En attente'">
+					<button ng-click="sentiersCtrl.changerEtatSentier('Validé')"
 						type="button" class="btn btn-default btn-md"
 						title="Valider ce sentier">
 						<span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>

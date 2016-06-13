@@ -6,7 +6,7 @@ services/config.ini
 nbproject
 logs/*
 !.gitkeep
-# node_modules/
+node_modules/
 # bower/
 tmp
 .DS_Store
