@@ -9,9 +9,17 @@
 					<select name="sentier" id="sentier" class="form-control"
 						ng-model="sentiersCtrl.sentierSelectionne"
 						ng-change="sentiersCtrl.surChangementSentier()"
-						ng-options="sentier.titre + ' (' + sentier.auteur + ')' for sentier in sentiersCtrl.sentiers">
+						ng-options="sentier.label for sentier in sentiersCtrl.sentiers">
 					</select>
 				</div>
+
+					<!-- <select name="sentier" id="sentier" class="form-control"
+						ng-model="sentiersCtrl.sentierSelectionne"
+						ng-change="sentiersCtrl.surChangementSentier()">
+						<option ng-repeat="sentier in sentiersCtrl.sentiers">
+							<span ng-bind-html="sentiersCtrl.labelIcon"></span> {{ sentier.label }}
+						</option>
+					</select> -->
 
 				<form ng-submit="sentiersCtrl.ajouterSentier()" class="col-md-6">
 					<div class="col-md-10">
@@ -33,13 +41,13 @@
 			<masquechargement ng-show="sentiersCtrl.chargementSentier"></masquechargement>
 
 			<div class="liste-fiches-sentier" ng-show="!sentiersCtrl.chargementSentier && sentiersCtrl.sentiers.length > 0">
-				<div class="bouton-suppression-sentier" ng-show="sentiersCtrl.sentierSelectionne.auteur == sentiersCtrl.utilisateurNomWiki">
+				<div class="bouton-suppression-sentier">
 					<button ng-click="sentiersCtrl.supprimerSentier(sentiersCtrl.sentierSelectionne)" type="button" class="btn btn-default btn-md" title="supprimer ce sentier">
 						<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
 					</button>
 				</div>
 
-				<div class="bouton-export-sentier" ng-show="sentiersCtrl.sentierSelectionne.auteur == sentiersCtrl.utilisateurNomWiki && sentiersCtrl.sentierSelectionne.fiches.length > 0">
+				<div class="bouton-export-sentier" ng-show="sentiersCtrl.sentierSelectionne.fiches.length > 0">
 					<a class="btn btn-default btn-sm"
 						title="Exporter le sentier en pdf"
 						href="{{ listeCtrl.liensService.exporterSentierEnPdf(sentiersCtrl.sentierSelectionne.titre) }}">
@@ -48,8 +56,19 @@
 				</div>
 
 				<div id="bouton-localiser-sentier">
-					<button ng-click="sentiersCtrl.demarrerLocalisationSentier(); sentiersCtrl.modalOpened = !sentiersCtrl.modalOpened" type="button" class="btn btn-default btn-md" title="localiser ce sentier">
+					<button ng-click="sentiersCtrl.demarrerLocalisationSentier(); sentiersCtrl.modalOpened = !sentiersCtrl.modalOpened"
+						type="button" class="btn btn-default btn-md"
+						title="Localiser ce sentier">
 						<span class="glyphicon glyphicon-globe" aria-hidden="true"></span>
+					</button>
+				</div>
+
+				<div id="bouton-valider-sentier" ng-if="sentiersCtrl.estAdmin()">
+					<button ng-if="sentiersCtrl.sentierSelectionne.auteur == sentiersCtrl.utilisateurNomWiki && sentiersCtrl.sentierSelectionne.etat == 'En attente'"
+						ng-click="sentiersCtrl.changerEtatSentier('Validé')"
+						type="button" class="btn btn-default btn-md"
+						title="Valider ce sentier">
+						<span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 					</button>
 				</div>
 
@@ -66,10 +85,16 @@
 								'1': 'Un individu localisé',
 								'other': '{} individus localisés'}">
 					</ng-pluralize>
+					-
+					<span ng-if="sentiersCtrl.sentierSelectionne.etat">État : {{ sentiersCtrl.sentierSelectionne.etat }}</span>
+					<span ng-if="!sentiersCtrl.sentierSelectionne.etat">État : Localisation incomplète</span>
+
 					<h5 class="createur-sentier">
 						Créé par {{ sentiersCtrl.sentierSelectionne.auteur }}
-						le {{ sentiersCtrl.sentierSelectionne.date_creation * 1000 | date:'dd/MM/yyyy' }}
-						(dernière modif. le {{ sentiersCtrl.sentierSelectionne.date_derniere_modif * 1000 | date:'dd/MM/yyyy' }})
+						le {{ sentiersCtrl.sentierSelectionne.dateCreation * 1000 | date:'dd/MM/yyyy' }}
+						<span ng-show="sentiersCtrl.sentierSelectionne.dateDerniereModif !== sentiersCtrl.sentierSelectionne.dateCreation">
+							(dernière modif. le {{ sentiersCtrl.sentierSelectionne.dateDerniereModif * 1000 | date:'dd/MM/yyyy' }})
+						</span>
 					</h5>
 				</div>
 
@@ -133,13 +158,14 @@
 				Aucun sentier existant
 			</div>
 
+			<!-- modale de localisation -->
 			<div id="modalet" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog">
 			  <div class="modal-dialog">
-			    <div class="modal-content">
-			      <div class="modal-header">
-			        <h4 id="titre-modal-localisation" class="modal-title">{{ sentiersCtrl.titreModal }}</h4>
-			      </div>
-			      <div class="modal-body">
+				<div class="modal-content">
+				  <div class="modal-header">
+					<h4 id="titre-modal-localisation" class="modal-title">{{ sentiersCtrl.titreModal }}</h4>
+				  </div>
+				  <div class="modal-body">
 					<div class="flex-container">
 						<div ng-if="sentiersCtrl.choixAdresses.length > 1 && sentiersCtrl.etape == 'localiser-sentier'"
 							id="choix-adresses"
@@ -154,7 +180,7 @@
 						<leaflet class="leaflet-flex"
 							lf-center="sentiersCtrl.leafletConfig.center"
 							markers="sentiersCtrl.leafletConfig.markers"
-							tiles="sentiersCtrl.leafletConfig.tiles"
+							layers="sentiersCtrl.leafletConfig.layers"
 							height="480" width="auto">
 						</leaflet>
 
@@ -169,8 +195,8 @@
 							</button>
 						</div>
 					</div>
-			      </div>
-			      <div class="modal-footer">
+				  </div>
+				  <div class="modal-footer">
 					<div ng-if="sentiersCtrl.etape == 'localiser-sentier'" class="pull-left">
 						<div ng-hide="sentiersCtrl.methodeLocalisation != 'adresse'" class="inline-block">
 							<input type="text" ng-model="adresse" placeholder="Ex: mon sentier, avenue rue du chemin, 42007 Montvie"></input>
@@ -195,50 +221,80 @@
 							<i ng-show="sentiersCtrl.modeSuppressionMarkers">Cliquez sur un marqueur pour le supprimer</i>
 						</div>
 					</div>
-					<div ng-if="sentiersCtrl.etape == 'localiser-individus' && sentiersCtrl.leafletConfig.markers.length > 1" class="pull-left">
-						<button ng-click="sentiersCtrl.toggleSuppressionMarkers()"
-							ng-class="{ 'active': sentiersCtrl.modeSuppressionMarkers }"
+					<div ng-if="sentiersCtrl.etape == 'dessin-sentier'" class="pull-left">
+						<button ng-click="sentiersCtrl.supprimerDessin()"
+							ng-if="sentiersCtrl.dessinSentier"
 							class="btn btn-warning"
-							data-toggle="tooltip" data-placement="top" title="Active le mode suppression">
-							Supprimer des marqueurs
+							data-toggle="tooltip" data-placement="top" title="Supprime le tracé actuel du parcours">
+							Supprimer le parcours
 						</button>
-						<i ng-show="sentiersCtrl.modeSuppressionMarkers">Cliquez sur un marqueur pour le supprimer</i>
+						<button ng-click="sentiersCtrl.revertChangementsDessin()"
+							ng-if="sentiersCtrl.dessinModifie && sentiersCtrl.dessinSentierAvantModif"
+							class="btn btn-warning"
+							data-toggle="tooltip" data-placement="top" title="Annule les modifications au parcours">
+							Annuler les modifications
+						</button>
 					</div>
-				    <button ng-click="sentiersCtrl.changerTiles('gmaps')" ng-class="{ 'active': (sentiersCtrl.leafletConfig.tiles.name == 'gmaps') }" 
-				    	type="button" class="btn btn-default">
-				    	GoogleMaps
-			    	</button>
-				    <button ng-click="sentiersCtrl.changerTiles('osm')" ng-class="{ 'active': (sentiersCtrl.leafletConfig.tiles.name == 'osm') }"
-				    	type="button" class="btn btn-default">
-				    	OpenStreetMap
-			    	</button>
+					<button ng-click="sentiersCtrl.changerBaselayer('gmaps')"
+						ng-class="{ 'active': (sentiersCtrl.layerActif == 'gmaps') }"
+						type="button" class="btn btn-default">
+						GoogleMaps
+					</button>
+					<button ng-click="sentiersCtrl.changerBaselayer('osm')"
+						ng-class="{ 'active': (sentiersCtrl.layerActif == 'osm') }"
+						type="button" class="btn btn-default">
+						OpenStreetMap
+					</button>
 
-				    <hr>
+					<hr>
 
-			        <button ng-if="sentiersCtrl.etape == 'localiser-individus'"
-			        	ng-click="sentiersCtrl.retourLocalisationSentier()"
-			        	type="button" class="btn btn-default pull-left">
-			        	Retour
-		        	</button>
-			        <button ng-click="sentiersCtrl.annuler()" 
-			        	type="button" class="btn btn-default">
-			        	Annuler
-		        	</button>
-			        <button ng-if="sentiersCtrl.etape == 'localiser-sentier' && !sentiersCtrl.leafletConfig.markers.sentier"
-		        		type="button" class="btn btn-primary" disabled>
-			        	Valider la localisation du sentier
-		        	</button>
-		        	<button ng-if="sentiersCtrl.etape == 'localiser-sentier' && sentiersCtrl.leafletConfig.markers.sentier"
-			        	ng-click="sentiersCtrl.validerLocalisationSentier()"
-			        	type="button" class="btn btn-primary">
-			        	Valider la localisation du sentier
-		        	</button>
-			        <button ng-if="sentiersCtrl.etape == 'localiser-individus'" ng-click="sentiersCtrl.validerLocalisationIndividus()"
-			        	type="button" class="btn btn-primary">
-			        	Terminer
-		        	</button>
-			      </div>
-			    </div><!-- /.modal-content -->
+					<button ng-if="sentiersCtrl.etape == 'localiser-individus'"
+						ng-click="sentiersCtrl.retourLocalisationSentier()"
+						type="button" class="btn btn-default pull-left">
+						Retour
+					</button>
+					<button ng-click="sentiersCtrl.annuler()"
+						type="button" class="btn btn-default">
+						Annuler
+					</button>
+					<button ng-if="sentiersCtrl.etape == 'localiser-sentier'" ng-disabled="!sentiersCtrl.leafletConfig.markers.sentier"
+						ng-click="sentiersCtrl.validerLocalisationSentier()"
+						type="button" class="btn btn-primary" disabled>
+						Valider la localisation du sentier
+					</button>
+					<button ng-if="sentiersCtrl.etape == 'localiser-individus'"
+						ng-click="sentiersCtrl.validerLocalisationIndividus()"
+						type="button" class="btn btn-primary">
+						Valider la localisation des individus
+					</button>
+					<button ng-if="sentiersCtrl.etape == 'dessin-sentier'"
+						ng-disabled="sentiersCtrl.dessinEnCours"
+						ng-click="sentiersCtrl.terminerLocalisation()"
+						type="button" class="btn btn-primary">
+						Enregistrer le sentier
+					</button>
+				  </div>
+				</div><!-- /.modal-content -->
+			  </div><!-- /.modal-dialog -->
+			</div><!-- /.modal -->
+
+			<!-- modale de publication des données -->
+			<div id="modale-publication" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog">
+			  <div class="modal-dialog">
+				<div class="modal-content">
+				  <div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">Publier le sentier ?</h4>
+				  </div>
+				  <div class="modal-body">
+					<p>Votre sentier semble prêt à être publié. Cependant, une validation manuelle est nécessaire avant qu'il soit visible sur l'application Smart'Flore.</p>
+					<p>Souhaitez-vous informer la personne responsable pour qu'elle passe en revue votre sentier&nbsp;?</p>
+				  </div>
+				  <div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Plus tard</button>
+					<button ng-click="sentiersCtrl.changerEtatSentier()" type="button" class="btn btn-primary">Soumettre le sentier</button>
+				  </div>
+				</div><!-- /.modal-content -->
 			  </div><!-- /.modal-dialog -->
 			</div><!-- /.modal -->
 		</div>

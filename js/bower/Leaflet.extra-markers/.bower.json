@@ -31,7 +31,7 @@
     "tag": "v1.0.6",
     "commit": "8d160fc9b50610d8d852eb2a5dd09ca745549e22"
   },
-  "_source": "git://github.com/coryasilva/Leaflet.ExtraMarkers.git",
-  "_target": "~1.0.6",
+  "_source": "https://github.com/coryasilva/Leaflet.ExtraMarkers.git",
+  "_target": "~1.0.x",
   "_originalSource": "Leaflet.extra-markers"
 }

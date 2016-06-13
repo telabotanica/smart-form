@@ -19,6 +19,7 @@ smartFormApp.service('etatApplicationService', function($http) {
 
 	// etat de l'utilisateur
 	// @WTF pourquoi ne pas utiliser boiteUtilisateurControleur.initialiserUtilisateurVide() ?
+	// @WTF en fait initialiserUtilisateurVide devrait faire partie de etatApplicationService. L'idéal serait un userService
 	etatApplicationService.utilisateur = {};
 	etatApplicationService.utilisateur.connecte = false;
 	etatApplicationService.utilisateur.id = "";

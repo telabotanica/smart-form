@@ -1,4 +1,4 @@
-smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $window, $http, smartFormService, etatApplicationService, liensService, googleAnalyticsService, geolocation) {
+smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope, $window, $http, smartFormService, etatApplicationService, liensService, googleAnalyticsService, geolocation, leafletData) {
 
 	this.sentiers = [];
 	this.sentierSelectionne = creerObjetSentierVide();
@@ -21,7 +21,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 		lthis.getSentiers();
 	});
 
-	$scope.$on('utilisateur.utilisateur-deconnecte', function(event) {
+	$scope.$on('utilisateur.utilisateur-deconnecte', function() {
 		lthis.afficherSentiers = false;
 		lthis.utilisateurNomWiki = "";
 	});
@@ -48,9 +48,58 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 			localisation: {
 				nbIndividus: 0
 			},
-			auteur: ''
-		}
+			auteur: '',
+			etat: ''
+		};
 	}
+
+	/**
+	 * Teste si l'utilisateur courant est admin
+	 *
+	 * L'idée c'est que le service de sentiers montre les sentiers des autres
+	 * utilisateurs aux admins. Donc si un utilisateur peut voir un sentier qui
+	 * ne lui appartient pas, alors il est admin. (C'est crade un peu)
+	 * Idéalement il faudrait se baser sur les infos données par le service
+	 * d'annuaire. Ou au pire une liste en dur.
+	 *
+	 * Devrait être dans le service etatApplication
+	 *
+	 * @return     {boolean}
+	 */
+	this.estAdmin = function() {
+		return lthis.sentiers.some(function(sentier) {
+			return sentier.auteur !== lthis.utilisateurNomWiki;
+		});
+	};
+
+	/**
+	 * Ajoute à la liste des sentiers les labels correspondant à l'affichage du
+	 * nom de chaque sentier dans le select principal. Si l'utilisateur connecté
+	 * n'est pas le propriétaire du sentier, affiche le nom du propriétaire
+	 * entre parenthèses. Affiche également l'état de publication du sentier
+	 *
+	 * @param      {array}  sentiers  Les sentiers à enrichir
+	 */
+	enrichirSentierLabel = function(sentiers) {
+		sentiers.forEach(function(sentier, key, sentiers) {
+			if (sentier.auteur !== lthis.utilisateurNomWiki) {
+				sentiers[key].label = sentier.titre + ' (' + sentier.auteur + ')';
+			} else {
+				sentiers[key].label = sentier.titre;
+			}
+
+			switch (sentier.etat) {
+				case 'En attente':
+					sentiers[key].label += ' (Publication en attente)';
+					break;
+				case 'Validé':
+					sentiers[key].label += ' (Publication validée)';
+					break;
+				default:
+					break;
+			}
+		});
+	};
 
 	this.editerFiche = function(fiche) {
 		$rootScope.$broadcast('edition.editer-fiche', fiche);
@@ -61,6 +110,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 		smartFormService.getFichesASentier(this.sentierSelectionne.titre,
 			function(data) {
 				lthis.sentierSelectionne.fiches = data.resultats;
+				lthis.chargementSentier = false;
 			},
 			function(data) {
 				console.log('C\'est pas bon !');
@@ -70,7 +120,8 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 		smartFormService.getLocalisationASentier(this.sentierSelectionne.titre,
 			function(data) {
 				lthis.sentierSelectionne.localisation = data.localisation;
-				lthis.chargementSentier = false;
+				lthis.sentierSelectionne.dessin = data.dessin;
+				lthis.sentierSelectionne.etat = data.etat;
 			},
 			function(data) {
 				console.log('C\'est pas bon !');
@@ -79,14 +130,16 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 	};
 
 	this.getSentiers = function() {
-		var lthis = this;
 		smartFormService.getSentiers(etatApplicationService.voirTousLesSentiers,
 			function(data) {
 				lthis.sentiers = data.resultats ? data.resultats : [] ;
+				enrichirSentierLabel(lthis.sentiers);
+
 				if (lthis.sentiers.length > 0) {
 					lthis.sentierSelectionne = lthis.sentiers[0];
 					lthis.surChangementSentier();
 				}
+
 				lthis.afficherSentiers = etatApplicationService.utilisateur.connecte;
 			},
 			function(data) {
@@ -96,7 +149,6 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 	};
 
 	this.ajouterSentier = function() {
-		var lthis = this;
 		if (this.nomSentierValide()) {
 			smartFormService.ajouterSentier(this.nouveauSentierTitre,
 			function(data) {
@@ -115,7 +167,6 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 	};
 
 	this.supprimerSentier = function(sentier) {
-		var lthis = this;
 		if(window.confirm("Êtes-vous sûr de vouloir supprimer ce sentier ?")) {
 			smartFormService.supprimerSentier(sentier.titre,
 				function(data) {
@@ -129,15 +180,6 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 
 						lthis.surChangementSentier();
 
-						// suppression de la localisation également
-						smartFormService.supprimerSentierLocalisation(sentier.titre,
-							function() {
-								// console.log('C\'est cool !');
-							},
-							function() {
-								console.log('C\'est pas bon !');
-							}
-						);
 						// stats
 						googleAnalyticsService.envoyerEvenement("sentier", "suppression", sentier.titre);
 					}
@@ -150,7 +192,6 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 	};
 
 	this.ajouterFicheASentier = function(sentier, fiche) {
-		var lthis = this;
 		if(!lthis.sentierSelectionneContientFiche(fiche.tag)) {
 			smartFormService.ajouterFicheASentier(sentier.titre, fiche.tag,
 			function(data) {
@@ -167,7 +208,6 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 	};
 
 	this.supprimerFicheASentier = function(sentier, fiche) {
-		var lthis = this;
 		if(window.confirm("Êtes-vous sûr de vouloir supprimer cette fiche du sentier ?")) {
 			smartFormService.supprimerFicheASentier(sentier.titre, fiche.tag,
 			function(data) {
@@ -184,10 +224,14 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 	};
 
 	this.initialiserNouveauSentier = function(titre) {
-		var nouveauSentier = creerObjetSentierVide();
+		var nouveauSentier = creerObjetSentierVide(),
+			now = Math.round(new Date().getTime() / 1000);
 		nouveauSentier.titre = titre;
 		nouveauSentier.auteur = lthis.utilisateurNomWiki;
+		nouveauSentier.dateCreation = now;
+		nouveauSentier.dateDerniereModif = now;
 		this.sentiers.push(nouveauSentier);
+		enrichirSentierLabel(this.sentiers);
 		this.sentierSelectionne = this.sentiers[this.sentiers.length - 1];
 	};
 
@@ -321,38 +365,90 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 		}
 	});
 
+	function initialiserLeafletConfig() {
+		// création du layer de support du tracé
+		lthis.editableLayers = new L.FeatureGroup();
+
+		leafletData.getMap().then(function(map) {
+			map.addLayer(lthis.editableLayers);
+
+			leafletData.getLayers().then(function(baselayers) {
+				map.on('draw:created', function(e) {
+					// ajouter le tracé frais au layer
+					lthis.editableLayers.addLayer(e.layer);
+					// référence interne pour les manipulations
+					lthis.dessinSentier = e.layer;
+				});
+			});
+		});
+
+		lthis.baselayers = {
+			osm: {
+				url: 'http://osm.tela-botanica.org/tuiles/osmfr/{z}/{x}/{y}.png',
+				layerOptions: {
+					attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+					maxZoom: 20
+				},
+				name: 'osm',
+				type: 'xyz'
+			},
+			gmaps: {
+				url: 'http://mt1.google.com/vt/lyrs=y@218131653&hl=fr&src=app&x={x}&y={y}&z={z}',
+				layerOptions: {
+					attribution: 'Map data &copy;'+new Date().getFullYear()+' <a href="http://maps.google.com">Google</a>',
+					maxZoom: 21
+				},
+				name: 'gmaps',
+				type: 'xyz'
+			}
+		};
+
+		// Initialisation du centre du leaflet (sur paris)
+		lthis.leafletCenter = {
+			lat: 48.856614,
+			lng: 2.3522219,
+			zoom: 14
+		};
+
+		// Config du leaflet
+		lthis.layerActif = 'osm';
+		lthis.leafletConfig = {
+			layers: {
+				baselayers: {
+					osm: lthis.baselayers.osm
+				}
+			},
+			center: lthis.leafletCenter,
+			markers: {}
+		};
+	}
+
+	function purgerEtatLocalisation() {
+		$("#modalet").modal('hide');
+		lthis.editableLayers.removeLayer(lthis.dessinSentier);
+		lthis.etape = '';
+		lthis.dessinEnCours = false;
+
+		// si un dessin était en cours, on le tue
+		if (lthis.polylineDrawer) {
+			lthis.polylineDrawer.disable();
+		}
+		// suppression de la référence interne
+		delete lthis.dessinSentier;
+
+		initialiserLeafletConfig();
+	}
+
 	function initialiserLocalisation() {
 		lthis.modeSuppressionMarkers = false;
 		lthis.etape = 'localiser-sentier';
 		lthis.titreModal = 'Cliquer pour placer le point d\'entrée du sentier';
 		lthis.methodeLocalisation = 'auto';
 		lthis.choixAdresses = [];
-
-		lthis.tilesDict = {
-			osm: {
-				url: 'http://osm.tela-botanica.org/tuiles/osmfr/{z}/{x}/{y}.png',
-				options: {
-	                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-					maxZoom: 20
-	            },
-	            name: 'osm'
-			},
-			gmaps: {
-				url: 'http://mt1.google.com/vt/lyrs=y@218131653&hl=fr&src=app&x={x}&y={y}&z={z}',
-				options: {
-					attribution: 'Map data &copy;'+new Date().getFullYear()+' <a href="http://maps.google.com">Google</a>',
-					maxZoom: 21
-				},
-				name: 'gmaps'
-			}
-		};
-
-		// Initialisation du centre du leaflet
-		lthis.leafletCenter = {
-			lat: 48.856614,
-			lng: 2.3522219,
-			zoom: 14
-		};
+		lthis.dessinSentier = undefined; // layer du leaflet contenant le polyline
+		lthis.dessinSentierAvantModif = undefined; // copie avant changements en mode édition
+		lthis.dessinModifie = false;
+		lthis.dessinEnCours = false;
 
 		// Initialisation des markers
 		lthis.markers = {};
@@ -362,7 +458,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 		if (angular.isDefined(lthis.sentierSelectionne.localisation.individus)) {
 			// Les individus
 			angular.forEach(lthis.sentierSelectionne.localisation.individus, function(value, key) {
-				var fiche = getSentieSelectionneFicheParTag(value.ficheTag),
+				var fiche = getSentierSelectionneFicheParTag(value.ficheTag),
 					markerName = creerNomMarker(value.ficheTag)
 				;
 
@@ -374,12 +470,6 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 			lthis.leafletCenter.zoom = 18;
 		}
 
-		lthis.leafletConfig = {
-			tiles: lthis.tilesDict.osm,
-			center: lthis.leafletCenter,
-			markers: {}
-		};
-
 		// En édition on ajoute à la config seulement le sentier pour la première étape
 		if (angular.isDefined(lthis.sentierSelectionne.localisation.sentier)) {
 			lthis.leafletConfig.markers = {
@@ -387,7 +477,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 			}
 		}
 
-		function getSentieSelectionneFicheParTag(tag) {
+		function getSentierSelectionneFicheParTag(tag) {
 			var fiche;
 			angular.forEach(lthis.sentierSelectionne.fiches, function(value, key){
 				if (tag === value.tag) {
@@ -430,18 +520,48 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 	});
 
 	this.supprimerMarker = function(markerName) {
-		if ($window.confirm('Confirmer la suppression de ' + lthis.leafletConfig.markers[markerName].message + ' ?')) {
+		if ('sentier' !== markerName && $window.confirm('Confirmer la suppression de ' + lthis.leafletConfig.markers[markerName].message + ' ?')) {
 			delete lthis.leafletConfig.markers[markerName];
 		}
 	};
 
-	this.changerTiles = function(tiles) {
-		lthis.leafletConfig.tiles = lthis.tilesDict[tiles];
+	/**
+	 * Change le layer de fond de carte affiché
+	 *
+	 * @param      {string}  layer   L'index du layer à utiliser
+	 */
+	this.changerBaselayer = function(nomLayer) {
+		var layerInfos = lthis.baselayers[nomLayer];
 
-		if (tiles == 'osm' && lthis.leafletCenter.zoom > 20) {
+		leafletData.getMap().then(function(map) {
+			leafletData.getLayers().then(function(layers) {
+				angular.forEach(layers.baselayers, function(baselayer) {
+					map.removeLayer(baselayer);
+				});
+				map.addLayer(L.tileLayer(layerInfos.url, layerInfos.layerOptions));
+
+				lthis.layerActif = nomLayer;
+			});
+		});
+
+
+		if (nomLayer == 'osm' && lthis.leafletCenter.zoom > 20) {
 			lthis.leafletCenter.zoom = 20;
 		}
 	};
+
+	/**
+	 * Active le mode édition d'un layer
+	 *
+	 * Si il est affiché sur la carte alors des éléments de controles
+	 * apparaitront pour pouvoir le modifier
+	 *
+	 * @param      {Object}  layer   Le layer à éditer
+	 */
+	function editerLayer(layer) {
+		layer.options.editing || (layer.options.editing = {}); // (fix: https://github.com/Leaflet/Leaflet.draw/issues/364#issuecomment-74184767)
+		layer.editing.enable();
+	}
 
 	this.demarrerLocalisationSentier = function() {
 		$("#modalet").modal();
@@ -492,11 +612,65 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 
 	this.annuler = function() {
 		if ($window.confirm('Les modifications en cours seront perdues')) {
-			initialiserLocalisation();
-			$("#modalet").modal('hide');
+			purgerEtatLocalisation();
 		}
 	};
 
+	function creerCopieDuPolyline(layer) {
+		var layerCoords = L.GeoJSON.coordsToLatLngs((layer.toGeoJSON()).geometry.coordinates);
+		return L.polyline(layerCoords);
+	}
+
+	this.supprimerDessin = function() {
+		if ($window.confirm('Recommencer à zéro ?')) {
+			// suppresion du layer visible sur la carte
+			lthis.editableLayers.removeLayer(lthis.dessinSentier);
+			// suppression de la référence interne
+			delete lthis.dessinSentier;
+
+			lthis.dessinModifie = true;
+
+			// réactive le mode dessin
+			leafletData.getMap().then(function(map) {
+				lthis.polylineDrawer = new L.Draw.Polyline(map);
+				lthis.polylineDrawer.options.shapeOptions.opacity = 0.7;
+				lthis.polylineDrawer.options.shapeOptions.weight = 8;
+
+				lthis.polylineDrawer.enable();
+			});
+		}
+	};
+
+	this.revertChangementsDessin = function() {
+		if ($window.confirm('Effacer toutes les modifications du tracé ?')) {
+			if (lthis.dessinSentierAvantModif) {
+				// désactive le mode dessin
+				if (lthis.polylineDrawer) {
+					lthis.polylineDrawer.disable();
+				}
+				// enlève le layer édité
+				lthis.editableLayers.removeLayer(lthis.dessinSentier);
+				// rétablie la référence interne
+				lthis.dessinSentier = angular.copy(lthis.dessinSentierAvantModif);
+				// réactive le mode édition du layer
+				editerLayer(lthis.dessinSentier);
+				// rajoute le layer sur la carte
+				lthis.editableLayers.addLayer(lthis.dessinSentier);
+
+				lthis.dessinModifie = false;
+				lthis.dessinEnCours = false;
+			} else {
+				window.alert('rien à rétablir');
+			}
+		}
+	};
+
+	// Étapes :
+	// 1 : placer le point d'entrée du sentier, servant à localiser le sentier sur le territoire
+	// 2 : placer les points des différents individus du sentier pour avoir des infos au cours de la balade
+	// 3 : tracer le chemin indicatif à suivre au sein du sentier
+
+	// FIN ÉTAPE 1, début étape 2
 	this.validerLocalisationSentier = function() {
 		// Restaure les markers d'individus dans le cas d'une édition du sentier
 		angular.merge(lthis.leafletConfig.markers, lthis.markers);
@@ -508,7 +682,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 		});
 
 		lthis.etape = 'localiser-individus';
-		this.changerTiles('gmaps');
+		this.changerBaselayer('gmaps');
 		lthis.titreModal = 'Cliquer sur une espèce pour créer un marqueur';
 
 		// On décale légèrement le centre pour éviter le chevauchement des markers et on zoom
@@ -519,9 +693,68 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 		});
 	};
 
+	// FIN ÉTAPE 2, début étape 3
 	this.validerLocalisationIndividus = function() {
-		var markers = angular.copy(lthis.leafletConfig.markers);
+		lthis.etape = 'dessin-sentier';
+		this.changerBaselayer('gmaps');
+		lthis.titreModal = 'Tracez le parcours à suivre';
 
+		// désactivation des autres markers
+		angular.forEach(lthis.leafletConfig.markers, function(marker) {
+			angular.merge(marker, {
+				draggable: false,
+				opacity: 0.7
+			});
+		});
+
+		// active le mode dessin si le tracé n'existe pas, sinon on passe en mode édition
+		leafletData.getMap().then(function(map) {
+			if (lthis.sentierSelectionne.dessin) {
+				var LatLng = L.GeoJSON.coordsToLatLngs(lthis.sentierSelectionne.dessin.coordinates);
+				var loadedLayer = L.polyline(LatLng);
+				// charge le layer du tracé
+				lthis.editableLayers.addLayer(loadedLayer);
+				lthis.dessinSentier = loadedLayer;
+				// active le mode édition du layer
+				editerLayer(loadedLayer);
+
+				if (angular.isUndefined(lthis.dessinSentierAvantModif)) {
+					// garde le tracé original pour pouvoir le restaurer
+					lthis.dessinSentierAvantModif = creerCopieDuPolyline(lthis.dessinSentier);
+				}
+
+				map.on('draw:editvertex', function() {
+					lthis.dessinModifie = true;
+				});
+			} else {
+				lthis.polylineDrawer = new L.Draw.Polyline(map);
+				lthis.polylineDrawer.options.shapeOptions.opacity = 0.7;
+				lthis.polylineDrawer.options.shapeOptions.weight = 8;
+
+				lthis.polylineDrawer.enable();
+			}
+
+			map.on('draw:drawstop', function() {
+				lthis.dessinEnCours = false;
+			});
+
+			map.on('draw:drawvertex', function() {
+				lthis.dessinEnCours = true;
+			});
+		});
+	};
+
+	function testerValiditeDuSentier(localisation, dessin) {
+		return angular.isDefined(localisation.sentier) && Object.keys(localisation.sentier).length > 0
+			&& angular.isDefined(localisation.individus) && Object.keys(localisation.individus).length > 0
+			&& angular.isDefined(dessin.coordinates) && dessin.coordinates.length > 2;
+	}
+
+	// FIN ÉTAPE 3, envoi des données
+	this.terminerLocalisation = function() {
+		// copie les marqueurs
+		var markers = angular.copy(lthis.leafletConfig.markers);
+		// prépare l'objet contenant les infos de localisation qui va être stocké
 		var localisation = {
 			sentier:  {
 				lat: markers.sentier.lat,
@@ -529,9 +762,14 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 			},
 			individus: {}
 		};
-
+		var dessin = '';
+		// prépare les infos du dessin du sentier
+		if (lthis.dessinSentier) {
+			dessin = (lthis.dessinSentier.toGeoJSON()).geometry;
+		}
+		// enlève les infos du sentier de la copie
 		delete markers.sentier;
-
+		// parcours les marqueurs et les ajoute aux infos de localisation
 		angular.forEach(markers, function(marker, markerName) {
 			localisation.individus[markerName] = {
 				ficheTag: marker.ficheTag,
@@ -540,15 +778,30 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 			};
 		});
 
-		smartFormService.ajouterSentierLocalisation(lthis.sentierSelectionne.titre, localisation,
+		// envoi les infos de localisation au stockage
+		smartFormService.ajouterSentierLocalisation(
+			lthis.sentierSelectionne.titre,
+			localisation,
+			dessin,
 			function(data) {
 				if (data == 'OK') {
 					lthis.sentierSelectionne.localisation = localisation;
 					lthis.sentierSelectionne.localisation.nbIndividus = Object.keys(localisation.individus).length;
-					initialiserLocalisation();
-					$('#modalet').modal('hide');
+					lthis.sentierSelectionne.dessin = dessin;
+					lthis.sentierSelectionne.dateDerniereModif = Math.round(new Date().getTime() / 1000);
+
+					purgerEtatLocalisation();
+
 					// stats
 					googleAnalyticsService.envoyerEvenement('sentier', 'ajout-localisation', '{ "sentier": "' + sentier.titre + '" }');
+					if (lthis.dessinSentier) {
+						googleAnalyticsService.envoyerEvenement('sentier', 'ajout-dessin-sentier', '{ "sentier": "' + sentier.titre + '" }');
+					}
+
+					// Si ce n'est déjà fait, on propose la vérification des données au créateur du sentier
+					if (!lthis.sentierSelectionne.etat && testerValiditeDuSentier(localisation, dessin)) {
+						$("#modale-publication").modal();
+					}
 				}
 			},
 			function() {
@@ -560,7 +813,7 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 	this.retourLocalisationSentier = function() {
 		if ($window.confirm('Abandonner les modifications en cours et revenir à la localisation du sentier ?')) {
 			lthis.etape = 'localiser-sentier';
-			lthis.changerTiles('osm');
+			lthis.changerBaselayer('osm');
 			lthis.titreModal = 'Cliquer pour placer le point d\'entrée du sentier';
 
 			angular.merge(lthis.leafletConfig.markers.sentier, {
@@ -577,7 +830,30 @@ smartFormApp.controller('SentiersControleur', function ($scope, $rootScope, $win
 		}
 	};
 
-	initialiserLocalisation();
+	this.changerEtatSentier = function(etat) {
+		// si etat est vide, correspond à la demande de publication du sentier
+		smartFormService.demanderValidationSentier(
+			lthis.sentierSelectionne.titre,
+			etat,
+			function(data) {
+				if (data == 'OK') {
+					$('#modale-publication').modal('hide');
+
+					if (!etat) {
+						lthis.sentierSelectionne.etat = 'En attente';
+					} else {
+						lthis.sentierSelectionne.etat = etat;
+					}
+					enrichirSentierLabel();
+				}
+			},
+			function() {
+				console.log('C\'est pas bon !');
+			}
+		);
+	};
+
+	initialiserLeafletConfig();
 
 	if (this.afficherSentiers) {
 		this.getSentiers();

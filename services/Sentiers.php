@@ -46,6 +46,9 @@ class Sentiers extends SmartFloreService {
 			case 'sentier-localisation':
 				$this->ajouterLocalisationASentier($data);
 				break;
+			case 'sentier-validation':
+				$this->ajouterValidationASentier($data);
+				break;
 			default:
 				$this->error(400, "Aucune commande connue n'a été spécifiée");
 				break;
@@ -112,11 +115,14 @@ class Sentiers extends SmartFloreService {
 				case $this->triple_sentier_meta:
 					$sentiersNommes[$nomSentier]['meta'] = $r['value'];
 					break;
+				case $this->triple_sentier_etat:
+					$sentiersNommes[$nomSentier]['etat'] = $r['value'];
+					break;
 				case $this->triple_sentier_date_creation:
-					$sentiersNommes[$nomSentier]['date_creation'] = $r['value'];
+					$sentiersNommes[$nomSentier]['dateCreation'] = $r['value'];
 					break;
 				case $this->triple_sentier_date_derniere_modif:
-					$sentiersNommes[$nomSentier]['date_derniere_modif'] = $r['value'];
+					$sentiersNommes[$nomSentier]['dateDerniereModif'] = $r['value'];
 					break;
 			}
 		}
@@ -155,6 +161,32 @@ class Sentiers extends SmartFloreService {
 		$localisation = $localisation_requete->fetch(PDO::FETCH_ASSOC);
 
 		return $localisation;
+	}
+
+	private function getDessinBySentier($sentier_id) {
+		$dessin_sql = 'SELECT *'
+			. ' FROM ' . $this->config['bdd']['table_prefixe'] . '_triples'
+			. ' WHERE property = ' . $this->bdd->quote($this->triple_sentier_dessin)
+			. ' AND resource = ' . $this->bdd->quote($sentier_id)
+		;
+
+		$dessin_requete = $this->bdd->query($dessin_sql);
+		$dessin = $dessin_requete->fetch(PDO::FETCH_ASSOC);
+
+		return $dessin;
+	}
+
+	private function getEtatBySentier($sentier_id) {
+		$etat_sql = 'SELECT *'
+			. ' FROM ' . $this->config['bdd']['table_prefixe'] . '_triples'
+			. ' WHERE property = ' . $this->bdd->quote($this->triple_sentier_etat)
+			. ' AND resource = ' . $this->bdd->quote($sentier_id)
+		;
+
+		$etat_requete = $this->bdd->query($etat_sql);
+		$etat = $etat_requete->fetch(PDO::FETCH_ASSOC);
+
+		return $etat;
 	}
 
 	/**
@@ -213,6 +245,9 @@ class Sentiers extends SmartFloreService {
 		$raw_localisation = $this->getLocalisationBySentier($sentier['resource']);
 		$localisation = json_decode($raw_localisation['value'], true);
 
+		$raw_dessin_sentier = $this->getDessinBySentier($sentier['resource']);
+		$dessin_sentier = json_decode($raw_dessin_sentier['value'], true);
+
 		// On va chercher sur eflore les infos complètes de chaque fiche
 		$fiches_eflore = array();
 		foreach ($fiches as $fiche) {
@@ -266,13 +301,7 @@ class Sentiers extends SmartFloreService {
 
 			// génération d'un chemin minimaliste pour remplir les critères
 			// d'admissibilité @TODO remplacer par les vrais chemins
-			$sentier_details['chemin'] = array(
-				'type' => 'LineString',
-				'coordinates' => array(
-					array($localisation['sentier']['lng'], $localisation['sentier']['lat']),
-					array($individu['lng'], $individu['lat'])
-				)
-			);
+			$sentier_details['chemin'] = $dessin_sentier;
 		}
 
 		return json_encode($sentier_details);
@@ -342,8 +371,15 @@ class Sentiers extends SmartFloreService {
 		// au moins un individu exigé
 		$loc = json_decode($infos_sentier['localisation'], true);
 		if (empty($loc['individus']) || count($loc['individus']) == 0) return false;
-		// @TODO gérer la présence d'un vrai chemin :
-		// if (empty($loc['chemin']) || count($loc['chemin']) < 2) return false;
+		// au moins deux points pour un chemin exigés
+		$raw_dessin_sentier = $this->getDessinBySentier($infos_sentier['resource']);
+		$dessin_sentier = json_decode($raw_dessin_sentier['value'], true);
+		if (empty($dessin_sentier['coordinates']) || count($dessin_sentier['coordinates']) < 2) return false;
+		// enfin on vérifie que le sentier est validé pour la publication
+		// on pourrait même commencer par ça tant ces sentiers sont rares actuellement
+		// @todo: optimiser et/ou différencier ces tests
+		$raw_etat_sentier = $this->getEtatBySentier($infos_sentier['resource']);
+		if (empty($raw_etat_sentier) || $raw_etat_sentier['value'] !== 'Validé') return false;
 
 		return true;
 	}
@@ -591,6 +627,8 @@ class Sentiers extends SmartFloreService {
 		}
 
 		$localisation = $this->getLocalisationBySentier($_GET['sentierTitre']);
+		$dessin = $this->getDessinBySentier($_GET['sentierTitre']);
+		$etat = $this->getEtatBySentier($_GET['sentierTitre']);
 
 		$retour = array('nbIndividus' => 0);
 		if (count($localisation) > 0) {
@@ -600,7 +638,9 @@ class Sentiers extends SmartFloreService {
 
 		header('Content-type: application/json');
 		echo json_encode(array(
-			'localisation' => $retour
+			'localisation' => $retour,
+			'dessin' => json_decode($dessin['value'], true),
+			'etat' => $etat['value']
 		));
 
 		exit;
@@ -613,30 +653,113 @@ class Sentiers extends SmartFloreService {
 
 		$sentier_titre = $data['sentierTitre'];
 		$sentier_localisation = json_encode($data['sentierLocalisation']);
+		$sentier_dessin = json_encode($data['sentierDessin']);
 
-		$requete_existe = 'SELECT COUNT(resource) as localisation_sentier_existe'
+		$succes = $this->stockerDataTriple($this->triple_sentier_localisation, $sentier_localisation, $sentier_titre);
+
+		if ($succes) {
+			$this->stockerDataTriple($this->triple_sentier_dessin, $sentier_dessin, $sentier_titre);
+		}
+
+		header('Content-type: text/plain');
+		echo $succes;
+	}
+
+	private function ajouterValidationASentier($data) {
+		if (empty($data['sentierTitre'])) {
+			$this->error('400', 'Le paramètre sentierTitre est obligatoire');
+		}
+
+		$sentier_titre = $data['sentierTitre'];
+		$sentier_etat = null;
+
+		if (!empty($data['sentierEtat'])) {
+			if ($this->estAdmin()) {
+				$sentier_etat = $data['sentierEtat'];
+			} else {
+				$this->error('400', 'Bas les pattes, faut être admin');
+			}
+		} else {
+			$sentier_etat = 'En attente';
+
+			$message = 'Bonjour, ' . "\r\n" .
+				'vous recevez ce message car vous êtres administrateur des sentiers SmartFlore. ' . "\r\n" .
+				'Un nouveau sentier requiert votre attention : ' . "\r\n" .
+				"\r\n" .
+				'Nom du sentier: ' . $data['sentierTitre'] . "\r\n" .
+				"\r\n" .
+				'Rendez-vous sur ' . $this->config['smartflore']['application_saisie_url'];
+
+			$headers = 'Content-Type: text/plain; charset="utf-8" ' .
+				'Content-Transfer-Encoding: 8bit' .
+				'From: smartflore@tela-botanica.org' .
+				'Reply-To: no-reply@example.com' .
+				'X-Mailer: PHP/' . phpversion();
+
+			$listeAdmins = explode(',', $this->config['auth']['admins']);
+			foreach($listeAdmins as $admin) {
+				mail(
+					$admin,
+					'Demande de validation d\'un sentier',
+					$message,
+					$headers
+				);
+			}
+		}
+
+		$succes = $this->stockerDataTriple($this->triple_sentier_etat, $sentier_etat, $sentier_titre);
+
+		header('Content-type: text/plain');
+		echo $succes;
+	}
+
+	/**
+	 * Met à jour la date de dernière modification d'un sentier
+	 * @WARNING considère que ce triplet existe (le ON DUPLICATE KEY UPDATE
+	 * ne marche pas avec un id auto_increment)
+	 */
+	protected function mettreAJourDateDerniereModif($sentier_titre) {
+		$reqMajDdm = 'UPDATE '.$this->config['bdd']['table_prefixe'] . '_triples '.
+			'SET value = UNIX_TIMESTAMP() '.
+			'WHERE resource = '.$this->bdd->quote($sentier_titre).' '.
+			'AND property = '.$this->bdd->quote($this->triple_sentier_date_derniere_modif);
+
+		return $this->bdd->exec($reqMajDdm);
+	}
+
+	/**
+	 * Enregistre (créé ou màj) un triple $triple de valeur $data pour le
+	 * sentier $sentier_titre
+	 * Parfait pour stocker des meta, du json, toussa
+	 *
+	 * @param      string  $triple         Le triple
+	 * @param      string  $data           Les données
+	 * @param      string  $sentier_titre  Le titre du sentier
+	 */
+	protected function stockerDataTriple($triple, $data, $sentier_titre) {
+		$requete_existe = 'SELECT COUNT(resource) as triple_existe'
 			. ' FROM ' . $this->config['bdd']['table_prefixe'] . '_triples'
 			. ' WHERE resource = ' . $this->bdd->quote($sentier_titre)
-			. ' AND property = ' . $this->bdd->quote($this->triple_sentier_localisation)
+			. ' AND property = ' . $this->bdd->quote($triple)
 		;
 
 		$res_existe = $this->bdd->query($requete_existe);
 		$res_existe = $res_existe->fetch(PDO::FETCH_ASSOC);
 
-		if ($res_existe['localisation_sentier_existe'] == 0) {
+		if ($res_existe['triple_existe'] == 0) {
 			$requete = 'INSERT INTO ' . $this->config['bdd']['table_prefixe'] . '_triples'
 				. ' (resource, property, value) VALUES'
 				. ' ('
 					. $this->bdd->quote($sentier_titre)
-					. ',"' . $this->triple_sentier_localisation . '"'
-					. ', ' . $this->bdd->quote($sentier_localisation)
+					. ',"' . $triple . '"'
+					. ', ' . $this->bdd->quote($data)
 				. ' )'
 			;
 		} else {
 			$requete = 'UPDATE ' . $this->config['bdd']['table_prefixe'] . '_triples'
-				. ' SET value = '.$this->bdd->quote($sentier_localisation)
+				. ' SET value = '.$this->bdd->quote($data)
 				. ' WHERE resource = ' . $this->bdd->quote($sentier_titre)
-				. ' AND property = ' . $this->bdd->quote($this->triple_sentier_localisation)
+				. ' AND property = ' . $this->bdd->quote($triple)
 			;
 		}
 
@@ -647,22 +770,7 @@ class Sentiers extends SmartFloreService {
 			$this->mettreAJourDateDerniereModif($sentier_titre);
 		}
 
-		header('Content-type: text/plain');
-		echo $retour;
-	}
-
-	/**
-	 * Met à jour la date de dernière modification d'un sentier
-	 * @WARNING considère que ce triplet existe (le ON DUPLICATE KEY UPDATE 
-	 * ne marche pas avec un id auto_increment)
-	 */
-	protected function mettreAJourDateDerniereModif($sentier_titre) {
-		$reqMajDdm = 'UPDATE '.$this->config['bdd']['table_prefixe'] . '_triples '.
-			'SET value = UNIX_TIMESTAMP() '.
-			'WHERE resource = '.$this->bdd->quote($sentier_titre).' '.
-			'AND property = '.$this->bdd->quote($this->triple_sentier_date_derniere_modif);
-
-		return $this->bdd->exec($reqMajDdm);
+		return $retour;
 	}
 
 	private function supprimerLocalisationASentier($data) {
