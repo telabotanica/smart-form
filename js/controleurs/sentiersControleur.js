@@ -462,7 +462,9 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 					markerName = creerNomMarker(value.ficheTag)
 				;
 
-				lthis.markers[markerName] = creerMarkerIndividu(value, fiche.infos_taxon.nom_sci, value.ficheTag);
+				if (fiche) {
+					lthis.markers[markerName] = creerMarkerIndividu(value, fiche.infos_taxon.nom_sci, value.ficheTag);
+				}
 			});
 
 			// Le centre de la carte sur le sentier
@@ -844,7 +846,7 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 					} else {
 						lthis.sentierSelectionne.etat = etat;
 					}
-					enrichirSentierLabel();
+					enrichirSentierLabel(lthis.sentiers);
 				}
 			},
 			function() {

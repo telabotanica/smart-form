@@ -464,7 +464,7 @@ class Sentiers extends SmartFloreService {
 				'AND property = "'.$this->triple_sentier_fiche.'"';
 
 		$res_suppression_fiches = $this->bdd->exec($requete_suppression_fiches);
-		
+
 		// Supprimer également les dates, les métadonnées et la localisation
 		// @WARNING attention c'est violent @TODO vérifier que ça pète rien
 		$requete_suppression_proprietes = 'DELETE FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
@@ -615,6 +615,7 @@ class Sentiers extends SmartFloreService {
 		if ($res_suppression !== false) {
 			$retour = 'OK';
 			$this->mettreAJourDateDerniereModif($sentier_titre);
+			$this->mettreAJourLocalisation($sentier_titre, 'suppressionFiche', $page_tag);
 		}
 
 		header('Content-type: text/plain');
@@ -725,6 +726,37 @@ class Sentiers extends SmartFloreService {
 			'AND property = '.$this->bdd->quote($this->triple_sentier_date_derniere_modif);
 
 		return $this->bdd->exec($reqMajDdm);
+	}
+
+	protected function mettreAJourLocalisation($sentier_titre, $action, $ressource) {
+		$raw_localisation = $this->getLocalisationBySentier($sentier_titre);
+		$localisation = json_decode($raw_localisation['value'], true);
+
+		switch ($action) {
+			case 'suppressionFiche':
+				$nom_espece_a_supprimer = $ressource;
+				// enlève les individus correspondant à la fiche d'espèce supprimée
+				$localisation['individus'] = array_filter($localisation['individus'], function($individu) use ($nom_espece_a_supprimer) {
+					return 0 !== strpos($individu['ficheTag'], $nom_espece_a_supprimer);
+				});
+
+				// Si on a plus d'individus localisés on dépublie
+				if (count($localisation['individus']) === 0) {
+					$this->stockerDataTriple($this->triple_sentier_etat, '', $sentier_titre);
+				}
+
+				break;
+			default:
+				throw new UnexpectedValueException("$action n'est pas une action supportée");
+		}
+
+		$update_localisation_sql = 'UPDATE ' . $this->config['bdd']['table_prefixe'] . '_triples'
+			. ' SET value = '.$this->bdd->quote(json_encode($localisation))
+			. ' WHERE property = ' . $this->bdd->quote($this->triple_sentier_localisation)
+			. ' AND resource = ' . $this->bdd->quote($sentier_titre)
+		;
+
+		return $this->bdd->exec($update_localisation_sql);
 	}
 
 	/**
