@@ -254,6 +254,8 @@ body {
 #liste-individus {
 	padding-left: 15px;
 	flex: 1;
+	height: 480px;
+	overflow: auto;
 }
 
 /* leaflet-directive hack pour cacher l'inutile choix de layer */
