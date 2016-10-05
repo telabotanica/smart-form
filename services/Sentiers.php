@@ -478,9 +478,11 @@ class Sentiers extends SmartFloreService {
 		$utilisateur = $this->utilisateur['nomWiki'];
 
 		$requete_suppression = 'DELETE FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
-				'WHERE value = '.$this->bdd->quote($utilisateur).' '.
-				'AND property = "'.$this->triple_sentier.'" '.
+				'WHERE property = "'.$this->triple_sentier.'" '.
 				'AND resource = '.$this->bdd->quote($sentier_titre);
+		if (false === $this->estAdmin()) {
+			$requete_suppression += 'and value = '.$this->bdd->quote($utilisateur).' ';
+		}
 
 		$res_suppression = $this->bdd->exec($requete_suppression);
 
