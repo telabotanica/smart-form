@@ -99,7 +99,13 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 				case 'Validé':
 					sentiers[key].label += ' (Publication validée)';
 					break;
+				case 'Refusé':
+					sentiers[key].label += ' (Publication refusée)';
+				case '':
+				case undefined:
+					break
 				default:
+					sentiers[key].label += ' (État : ' + sentier.etat + ')';
 					break;
 			}
 		});

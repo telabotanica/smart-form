@@ -71,6 +71,14 @@
 					</button>
 				</div>
 
+				<div id="bouton-invalider-sentier" ng-if="sentiersCtrl.estAdmin() && (['En attente', 'Validé'].indexOf(sentiersCtrl.sentierSelectionne.etat) > -1)">
+					<button ng-click="sentiersCtrl.changerEtatSentier('Refusé')"
+						type="button" class="btn btn-default btn-md"
+						title="Invalider ce sentier">
+						<span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span>
+					</button>
+				</div>
+
 				<div id="bouton-valider-sentier" ng-if="sentiersCtrl.estAdmin() && sentiersCtrl.sentierSelectionne.etat == 'En attente'">
 					<button ng-click="sentiersCtrl.changerEtatSentier('Validé')"
 						type="button" class="btn btn-default btn-md"
