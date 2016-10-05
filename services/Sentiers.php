@@ -21,8 +21,8 @@ class Sentiers extends SmartFloreService {
 			case 'sentier-fiche':
 				$this->getFichesASentier();
 				break;
-			case 'sentier-localisation':
-				$this->getLocalisationASentier();
+			case 'sentier-informations':
+				$this->getInformationsSentier();
 				break;
 			case 'sentiers':
 				// Diffère de 'sentier', informations formatées pour l'appli smartflore mobile
@@ -48,6 +48,9 @@ class Sentiers extends SmartFloreService {
 				break;
 			case 'sentier-validation':
 				$this->ajouterValidationASentier($data);
+				break;
+			case 'sentier-meta':
+				$this->ajouterMetaASentier($data);
 				break;
 			default:
 				$this->error(400, "Aucune commande connue n'a été spécifiée");
@@ -189,6 +192,19 @@ class Sentiers extends SmartFloreService {
 		return $etat;
 	}
 
+	private function getMetaBySentier($sentier_id) {
+		$meta_sql = 'SELECT *'
+			. ' FROM ' . $this->config['bdd']['table_prefixe'] . '_triples'
+			. ' WHERE property = ' . $this->bdd->quote($this->triple_sentier_meta)
+			. ' AND resource = ' . $this->bdd->quote($sentier_id)
+		;
+
+		$meta_requete = $this->bdd->query($meta_sql);
+		$meta = $meta_requete->fetch(PDO::FETCH_ASSOC);
+
+		return $meta;
+	}
+
 	/**
 	 * Retourne un tableau des fiches d'un sentier, indexé par le tag de la fiche
 	 *
@@ -212,7 +228,7 @@ class Sentiers extends SmartFloreService {
 		return $fiches;
 	}
 
-	private function buildJsonInfosSentier($sentier, $localisation = false) {
+	private function buildJsonInfosSentier($sentier, $meta, $localisation = false) {
 		$lnglat = array();
 		if ($localisation) {
 			$lnglat = array(
@@ -223,8 +239,8 @@ class Sentiers extends SmartFloreService {
 
 		return array(
 			'id' => $sentier['id'],
-			'nom' => $sentier['resource'],
-			'auteur' => $sentier['value'],
+			'nom' => $meta['titre'] ?: $sentier['resource'],
+			'auteur' => $meta['auteur'] ?: $sentier['value'],
 			'position' => $lnglat,
 			'info' => array(
 				'horaires' => [],
@@ -248,6 +264,9 @@ class Sentiers extends SmartFloreService {
 		$raw_dessin_sentier = $this->getDessinBySentier($sentier['resource']);
 		$dessin_sentier = json_decode($raw_dessin_sentier['value'], true);
 
+		$raw_meta_sentier = $this->getMetaBySentier($sentier['resource']);
+		$meta = json_decode($raw_meta_sentier['value'], true);
+
 		// On va chercher sur eflore les infos complètes de chaque fiche
 		$fiches_eflore = array();
 		foreach ($fiches as $fiche) {
@@ -262,7 +281,7 @@ class Sentiers extends SmartFloreService {
 			$fiches_eflore[$fiche['resource']] = $fiche_eflore;
 		}
 
-		$sentier_details = $this->buildJsonInfosSentier($sentier, $localisation);
+		$sentier_details = $this->buildJsonInfosSentier($sentier, $meta, $localisation);
 
 		if ($localisation) {
 			$sentier_details['occurrences'] = array();
@@ -331,11 +350,13 @@ class Sentiers extends SmartFloreService {
 	private function publicSentiersListe() {
 		$liste_sentiers = array();
 
-		$infos_sentiers_sql = 'SELECT DISTINCT t1.id as id, t1.resource AS resource, t1.value AS value, t2.value AS localisation'
+		$infos_sentiers_sql = 'SELECT DISTINCT t1.id as id, t1.resource AS resource, t1.value AS value, t2.value AS localisation, t3.value as meta'
 			. ' FROM ' . $this->config['bdd']['table_prefixe'] . '_triples AS t1'
 			. ' JOIN ' . $this->config['bdd']['table_prefixe'] . '_triples AS t2 ON t1.resource = t2.resource'
+			. ' JOIN ' . $this->config['bdd']['table_prefixe'] . '_triples AS t3 ON t1.resource = t3.resource'
 			. ' WHERE t1.property = ' . $this->bdd->quote($this->triple_sentier)
 			. ' AND t2.property = ' . $this->bdd->quote($this->triple_sentier_localisation)
+			. ' AND t3.property = ' . $this->bdd->quote($this->triple_sentier_meta)
 		;
 
 		$infos_sentiers_requete = $this->bdd->query($infos_sentiers_sql);
@@ -347,7 +368,12 @@ class Sentiers extends SmartFloreService {
 			if ($this->sentierPublicValide($infos_sentier)) {
 				// formatage du sentier; devrait correspondre à
 				// http://floristic.org/wiki/wakka.php?wiki=FormatDonneesSentiers
-				$jsonInfosSentier = $this->buildJsonInfosSentier($infos_sentier, json_decode($infos_sentier['localisation'], true));
+				$jsonInfosSentier = $this->buildJsonInfosSentier(
+					$infos_sentier,
+					json_decode($infos_sentier['meta'], true),
+					json_decode($infos_sentier['localisation'], true)
+				);
+
 				$ressourceUrlEncodee = urlencode($infos_sentier['resource']);
 				$jsonInfosSentier['details'] = sprintf($this->config['service']['details_sentier_url'], $ressourceUrlEncodee);
 				$liste_sentiers[] = $jsonInfosSentier;
@@ -622,7 +648,7 @@ class Sentiers extends SmartFloreService {
 		echo $retour;
 	}
 
-	private function getLocalisationASentier() {
+	private function getInformationsSentier() {
 		if (empty($_GET['sentierTitre'])) {
 			$this->error('400', 'Le paramètre sentierTitre est obligatoire');
 		}
@@ -630,6 +656,7 @@ class Sentiers extends SmartFloreService {
 		$localisation = $this->getLocalisationBySentier($_GET['sentierTitre']);
 		$dessin = $this->getDessinBySentier($_GET['sentierTitre']);
 		$etat = $this->getEtatBySentier($_GET['sentierTitre']);
+		$meta = $this->getMetaBySentier($_GET['sentierTitre']);
 
 		$retour = array('nbIndividus' => 0);
 		if (count($localisation) > 0) {
@@ -641,7 +668,8 @@ class Sentiers extends SmartFloreService {
 		echo json_encode(array(
 			'localisation' => $retour,
 			'dessin' => json_decode($dessin['value'], true),
-			'etat' => $etat['value']
+			'etat' => $etat['value'],
+			'meta' => json_decode($meta['value'], true)
 		));
 
 		exit;
@@ -709,6 +737,20 @@ class Sentiers extends SmartFloreService {
 		}
 
 		$succes = $this->stockerDataTriple($this->triple_sentier_etat, $sentier_etat, $sentier_titre);
+
+		header('Content-type: text/plain');
+		echo $succes;
+	}
+
+	private function ajouterMetaASentier($data) {
+		if (empty($data['sentierTitre']) || empty($data['sentierMeta'])) {
+			$this->error('400', 'Les paramètres sentierTitre et sentierMeta sont obligatoires');
+		}
+
+		$sentier_titre = $data['sentierTitre'];
+		$sentier_meta = json_encode($data['sentierMeta']);
+
+		$succes = $this->stockerDataTriple($this->triple_sentier_meta, $sentier_meta, $sentier_titre);
 
 		header('Content-type: text/plain');
 		echo $succes;

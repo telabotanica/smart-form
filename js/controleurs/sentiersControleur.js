@@ -49,7 +49,11 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 				nbIndividus: 0
 			},
 			auteur: '',
-			etat: ''
+			etat: '',
+			meta: {
+				titre: '',
+				auteur: ''
+			}
 		};
 	}
 
@@ -117,11 +121,23 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 			}
 		);
 
-		smartFormService.getLocalisationASentier(this.sentierSelectionne.titre,
+		smartFormService.getInformationsSentier(this.sentierSelectionne.titre,
 			function(data) {
 				lthis.sentierSelectionne.localisation = data.localisation;
 				lthis.sentierSelectionne.dessin = data.dessin;
 				lthis.sentierSelectionne.etat = data.etat;
+				lthis.sentierSelectionne.meta = data.meta;
+
+				// Affectations par défaut
+				if (!lthis.sentierSelectionne.meta) {
+					lthis.sentierSelectionne.meta = {};
+				}
+				if (!lthis.sentierSelectionne.meta.titre) {
+					lthis.sentierSelectionne.meta.titre = lthis.sentierSelectionne.titre;
+				}
+				if (!lthis.sentierSelectionne.meta.auteur) {
+					lthis.sentierSelectionne.meta.auteur = lthis.sentierSelectionne.auteur;
+				}
 			},
 			function(data) {
 				console.log('C\'est pas bon !');
@@ -847,6 +863,25 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 						lthis.sentierSelectionne.etat = etat;
 					}
 					enrichirSentierLabel(lthis.sentiers);
+				}
+			},
+			function() {
+				console.log('C\'est pas bon !');
+			}
+		);
+	};
+
+	this.saisirMetaSentier = function() {
+		$('#modale-meta-sentier').modal();
+	};
+
+	this.enregistrerMetaSentier = function() {
+		smartFormService.ajouterMetaASentier(
+			lthis.sentierSelectionne.titre,
+			lthis.sentierSelectionne.meta,
+			function(data) {
+				if (data == 'OK') {
+					$('#modale-meta-sentier').modal('hide');
 				}
 			},
 			function() {
