@@ -42,14 +42,14 @@
 
 			<div class="liste-fiches-sentier" ng-show="!sentiersCtrl.chargementSentier && sentiersCtrl.sentiers.length > 0">
 				<div class="bouton-suppression-sentier">
-					<button ng-click="sentiersCtrl.supprimerSentier(sentiersCtrl.sentierSelectionne)" type="button" class="btn btn-default btn-md" title="supprimer ce sentier">
+					<button ng-click="sentiersCtrl.supprimerSentier(sentiersCtrl.sentierSelectionne)" type="button" class="btn btn-default btn-md" title="Supprimer ce sentier">
 						<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
 					</button>
 				</div>
 
 				<div class="bouton-export-sentier" ng-show="sentiersCtrl.sentierSelectionne.fiches.length > 0">
 					<a class="btn btn-default btn-sm"
-						title="Exporter le sentier en pdf"
+						title="Exporter ce sentier en pdf"
 						href="{{ listeCtrl.liensService.exporterSentierEnPdf(sentiersCtrl.sentierSelectionne.titre) }}">
 						<span class="glyphicon glyphicon-export" aria-hidden="true"></span>
 					</a>
@@ -100,7 +100,7 @@
 								'1': 'Un individu localisé',
 								'other': '{} individus localisés'}">
 					</ng-pluralize>
-					-
+					<br>
 					<span ng-if="sentiersCtrl.sentierSelectionne.etat">État : {{ sentiersCtrl.sentierSelectionne.etat }}</span>
 					<span ng-if="!sentiersCtrl.sentierSelectionne.etat">État : Localisation incomplète</span>
 
@@ -212,9 +212,9 @@
 					</div>
 				  </div>
 				  <div class="modal-footer">
-					<div ng-if="sentiersCtrl.etape == 'localiser-sentier'" class="pull-left">
+					<div ng-if="sentiersCtrl.etape == 'localiser-sentier'" class="pull-left form-inline">
 						<div ng-hide="sentiersCtrl.methodeLocalisation != 'adresse'" class="inline-block">
-							<input type="text" ng-model="adresse" placeholder="Ex: mon sentier, avenue rue du chemin, 42007 Montvie"></input>
+							<input type="text" class="form-control" ng-model="adresse" placeholder="Ex: rue du Sentier, 75042 Paris"></input>
 							<button ng-click="sentiersCtrl.recupererLocaliteAdresse(adresse)" class="btn btn-default">Chercher l'adresse</button>
 						</div>
 						<button ng-click="sentiersCtrl.recupererLocaliteAuto(); sentiersCtrl.methodeLocalisation = 'auto'" class="btn btn-default">

@@ -103,6 +103,8 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 					sentiers[key].label += ' (Publication refusée)';
 				case '':
 				case undefined:
+				case false:
+				case null:
 					break
 				default:
 					sentiers[key].label += ' (État : ' + sentier.etat + ')';
@@ -116,39 +118,41 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 	};
 
 	this.surChangementSentier = function() {
-		this.chargementSentier = true;
-		smartFormService.getFichesASentier(this.sentierSelectionne.titre,
-			function(data) {
-				lthis.sentierSelectionne.fiches = data.resultats;
-				lthis.chargementSentier = false;
-			},
-			function(data) {
-				console.log('C\'est pas bon !');
-			}
-		);
+		if (this.sentierSelectionne.titre) {
+			this.chargementSentier = true;
+			smartFormService.getFichesASentier(this.sentierSelectionne.titre,
+				function(data) {
+					lthis.sentierSelectionne.fiches = data.resultats;
+					lthis.chargementSentier = false;
+				},
+				function(data) {
+					console.log('C\'est pas bon !');
+				}
+			);
 
-		smartFormService.getInformationsSentier(this.sentierSelectionne.titre,
-			function(data) {
-				lthis.sentierSelectionne.localisation = data.localisation;
-				lthis.sentierSelectionne.dessin = data.dessin;
-				lthis.sentierSelectionne.etat = data.etat;
-				lthis.sentierSelectionne.meta = data.meta;
+			smartFormService.getInformationsSentier(this.sentierSelectionne.titre,
+				function(data) {
+					lthis.sentierSelectionne.localisation = data.localisation;
+					lthis.sentierSelectionne.dessin = data.dessin;
+					lthis.sentierSelectionne.etat = data.etat;
+					lthis.sentierSelectionne.meta = data.meta;
 
-				// Affectations par défaut
-				if (!lthis.sentierSelectionne.meta) {
-					lthis.sentierSelectionne.meta = {};
+					// Affectations par défaut
+					if (!lthis.sentierSelectionne.meta) {
+						lthis.sentierSelectionne.meta = {};
+					}
+					if (!lthis.sentierSelectionne.meta.titre) {
+						lthis.sentierSelectionne.meta.titre = lthis.sentierSelectionne.titre;
+					}
+					if (!lthis.sentierSelectionne.meta.auteur) {
+						lthis.sentierSelectionne.meta.auteur = lthis.sentierSelectionne.auteur;
+					}
+				},
+				function(data) {
+					console.log('C\'est pas bon !');
 				}
-				if (!lthis.sentierSelectionne.meta.titre) {
-					lthis.sentierSelectionne.meta.titre = lthis.sentierSelectionne.titre;
-				}
-				if (!lthis.sentierSelectionne.meta.auteur) {
-					lthis.sentierSelectionne.meta.auteur = lthis.sentierSelectionne.auteur;
-				}
-			},
-			function(data) {
-				console.log('C\'est pas bon !');
-			}
-		);
+			);
+		}
 	};
 
 	this.getSentiers = function() {
@@ -252,6 +256,8 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 		nouveauSentier.auteur = lthis.utilisateurNomWiki;
 		nouveauSentier.dateCreation = now;
 		nouveauSentier.dateDerniereModif = now;
+		nouveauSentier.meta.titre = titre;
+		nouveauSentier.meta.auteur = lthis.utilisateurNomWiki;
 		this.sentiers.push(nouveauSentier);
 		enrichirSentierLabel(this.sentiers);
 		this.sentierSelectionne = this.sentiers[this.sentiers.length - 1];
