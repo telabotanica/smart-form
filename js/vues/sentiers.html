@@ -42,14 +42,14 @@
 
 			<div class="liste-fiches-sentier" ng-show="!sentiersCtrl.chargementSentier && sentiersCtrl.sentiers.length > 0">
 				<div class="bouton-suppression-sentier">
-					<button ng-click="sentiersCtrl.supprimerSentier(sentiersCtrl.sentierSelectionne)" type="button" class="btn btn-default btn-md" title="supprimer ce sentier">
-						<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+					<button ng-click="sentiersCtrl.supprimerSentier(sentiersCtrl.sentierSelectionne)" type="button" class="btn btn-default btn-md" title="Supprimer ce sentier">
+						<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
 					</button>
 				</div>
 
 				<div class="bouton-export-sentier" ng-show="sentiersCtrl.sentierSelectionne.fiches.length > 0">
 					<a class="btn btn-default btn-sm"
-						title="Exporter le sentier en pdf"
+						title="Exporter ce sentier en pdf"
 						href="{{ listeCtrl.liensService.exporterSentierEnPdf(sentiersCtrl.sentierSelectionne.titre) }}">
 						<span class="glyphicon glyphicon-export" aria-hidden="true"></span>
 					</a>
@@ -60,6 +60,22 @@
 						type="button" class="btn btn-default btn-md"
 						title="Localiser ce sentier">
 						<span class="glyphicon glyphicon-globe" aria-hidden="true"></span>
+					</button>
+				</div>
+
+				<div id="bouton-meta-sentier">
+					<button ng-click="sentiersCtrl.saisirMetaSentier(); sentiersCtrl.modalOpened = !sentiersCtrl.modalOpened"
+						type="button" class="btn btn-default btn-md"
+						title="Saisir les informations de ce sentier">
+						<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+					</button>
+				</div>
+
+				<div id="bouton-invalider-sentier" ng-if="sentiersCtrl.estAdmin() && (['En attente', 'Validé'].indexOf(sentiersCtrl.sentierSelectionne.etat) > -1)">
+					<button ng-click="sentiersCtrl.changerEtatSentier('Refusé')"
+						type="button" class="btn btn-default btn-md"
+						title="Invalider ce sentier">
+						<span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span>
 					</button>
 				</div>
 
@@ -84,7 +100,7 @@
 								'1': 'Un individu localisé',
 								'other': '{} individus localisés'}">
 					</ng-pluralize>
-					-
+					<br>
 					<span ng-if="sentiersCtrl.sentierSelectionne.etat">État : {{ sentiersCtrl.sentierSelectionne.etat }}</span>
 					<span ng-if="!sentiersCtrl.sentierSelectionne.etat">État : Localisation incomplète</span>
 
@@ -146,7 +162,7 @@
 								<button type="button" class="btn btn-default btn-sm"
 									title="Supprimer cette fiche du sentier"
 									ng-click="sentiersCtrl.supprimerFicheASentier(sentiersCtrl.sentierSelectionne, fiche)">
-									<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+									<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
 								</button>
 							</td>
 						</tr>
@@ -196,9 +212,9 @@
 					</div>
 				  </div>
 				  <div class="modal-footer">
-					<div ng-if="sentiersCtrl.etape == 'localiser-sentier'" class="pull-left">
+					<div ng-if="sentiersCtrl.etape == 'localiser-sentier'" class="pull-left form-inline">
 						<div ng-hide="sentiersCtrl.methodeLocalisation != 'adresse'" class="inline-block">
-							<input type="text" ng-model="adresse" placeholder="Ex: mon sentier, avenue rue du chemin, 42007 Montvie"></input>
+							<input type="text" class="form-control" ng-model="adresse" placeholder="Ex: rue du Sentier, 75042 Paris">
 							<button ng-click="sentiersCtrl.recupererLocaliteAdresse(adresse)" class="btn btn-default">Chercher l'adresse</button>
 						</div>
 						<button ng-click="sentiersCtrl.recupererLocaliteAuto(); sentiersCtrl.methodeLocalisation = 'auto'" class="btn btn-default">
@@ -244,6 +260,26 @@
 						type="button" class="btn btn-default">
 						OpenStreetMap
 					</button>
+
+					<div ng-if="['localiser-sentier', 'localiser-individus'].indexOf(sentiersCtrl.etape) > -1">
+						<form name="coords" class="form-inline"
+							ng-show="sentiersCtrl.markerActif || sentiersCtrl.etape == 'localiser-sentier'"
+							ng-submit="sentiersCtrl.rafraichirMarkerActif()">
+							<hr>
+							<div class="form-group" ng-class="{'has-error': !coords.input.$valid}">
+								<input type="text" id="input" name="input" placeholder="xx.xxxx, xx.xxxx"
+									ng-model="sentiersCtrl.saisieCoordGps.txt"
+									ng-paste="sentiersCtrl.collerCoordsGps($event.clipboardData.getData('text/plain')); $event.preventDefault(); pasted=true" ng-init="pasted=false"
+									ng-pattern="sentiersCtrl.regexpCoordsGps"
+									class="form-control" size=35 autocomplete="off"
+									data-toggle="tooltip" data-placement="top" title="Formats acceptés : &quot;[lng, lat]&quot;, &quot;lat, lng&quot;">
+							</div>
+							<button class="btn btn-default" type="submit"
+								ng-disabled="!sentiersCtrl.saisieCoordGps.txt || sentiersCtrl.saisieCoordGps.txt.length == 0">
+								<i class="glyphicon glyphicon-pencil" aria-hidden="true"></i> Valider coordonnées GPS
+							</button>
+						</form>
+					</div>
 
 					<hr>
 
@@ -292,6 +328,34 @@
 				  <div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">Plus tard</button>
 					<button ng-click="sentiersCtrl.changerEtatSentier()" type="button" class="btn btn-primary">Soumettre le sentier</button>
+				  </div>
+				</div><!-- /.modal-content -->
+			  </div><!-- /.modal-dialog -->
+			</div><!-- /.modal -->
+
+			<!-- modale de saisies des meta d'un sentier -->
+			<div id="modale-meta-sentier" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog">
+			  <div class="modal-dialog">
+				<div class="modal-content">
+				  <div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">Informations</h4>
+				  </div>
+				  <div class="modal-body">
+					<div class="form-group">
+						<label for="nomSentier">Nom du sentier</label>
+						<input type="text" class="form-control" id="nomSentier"  name="nomSentier"
+							ng-model="sentiersCtrl.sentierSelectionne.meta.titre">
+					</div>
+					<div class="form-group">
+						<label for="auteurSentier">Auteur du sentier</label>
+						<input type="text" class="form-control" id="auteurSentier" name="auteurSentier"
+							ng-model="sentiersCtrl.sentierSelectionne.meta.auteur" placeholder="{{ sentiersCtrl.sentierSelectionne.meta.auteur }}">
+					</div>
+				  </div>
+				  <div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+					<button ng-click="sentiersCtrl.enregistrerMetaSentier()" type="button" class="btn btn-primary">Valider</button>
 				  </div>
 				</div><!-- /.modal-content -->
 			  </div><!-- /.modal-dialog -->

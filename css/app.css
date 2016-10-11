@@ -132,7 +132,9 @@ body {
 .bouton-suppression-sentier,
 .bouton-export-sentier,
 #bouton-localiser-sentier,
-#bouton-valider-sentier {
+#bouton-valider-sentier,
+#bouton-invalider-sentier,
+#bouton-meta-sentier {
 	float: right;
 	z-index: 999;
 	margin-right: 5px;

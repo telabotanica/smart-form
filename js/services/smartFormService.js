@@ -172,8 +172,8 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 		});
 	};
 
-	smartFormService.getLocalisationASentier = function(sentierTitre, surSucces, surErreur) {
-		$http.get(config.url_service_sentiers + '/sentier-localisation/?sentierTitre=' + sentierTitre)
+	smartFormService.getInformationsSentier = function(sentierTitre, surSucces, surErreur) {
+		$http.get(config.url_service_sentiers + '/sentier-informations/?sentierTitre=' + sentierTitre)
 		.success(function(data, status, headers, config) {
 			surSucces(data);
 		})
@@ -277,6 +277,24 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 		    data: {
 				'sentierTitre' : sentierTitre,
 				'sentierEtat' : sentierEtat
+			}
+		})
+		.success(function(data, status, headers, config) {
+			surSucces(data);
+		})
+		.error(function(data, status, headers, config) {
+			surErreur(data);
+		});
+	}
+
+	smartFormService.ajouterMetaASentier = function(sentierTitre, sentierMeta, surSucces, surErreur) {
+		$http({
+		    method: 'PUT',
+		    url: config.url_service_sentiers + '/sentier-meta/',
+		    headers: etatApplicationService.getHeadersAuth(),
+		    data: {
+				'sentierTitre' : sentierTitre,
+				'sentierMeta' : sentierMeta
 			}
 		})
 		.success(function(data, status, headers, config) {
