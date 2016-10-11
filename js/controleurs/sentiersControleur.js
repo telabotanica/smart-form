@@ -1,4 +1,4 @@
-smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope, $window, $http, smartFormService, etatApplicationService, liensService, googleAnalyticsService, geolocation, leafletData) {
+smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope, $window, $http, smartFormService, etatApplicationService, liensService, googleAnalyticsService, geolocation, leafletData, leafletGeoJsonHelpers) {
 
 	this.sentiers = [];
 	this.sentierSelectionne = creerObjetSentierVide();
@@ -328,13 +328,15 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 		if (lthis.etape == 'localiser-sentier') {
 			if (angular.isDefined(lthis.leafletConfig.markers)) {
 				angular.merge(lthis.leafletConfig.markers, {
-					sentier: creerMarkerSentier(args.leafletEvent.latlng)
+					sentier: _creerMarkerSentier(args.leafletEvent.latlng)
 				});
 			} else {
 				lthis.leafletConfig.markers = {
-					sentier: creerMarkerSentier(args.leafletEvent.latlng)
+					sentier: _creerMarkerSentier(args.leafletEvent.latlng)
 				};
 			}
+
+			lthis.markerActif = lthis.leafletConfig.markers.sentier;
 		}
 	});
 
@@ -347,15 +349,13 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 	 * }
 	 * Sinon deux paramètres, lat et lng
 	 *
-	 * @method     creerMarkerSentier
+	 * @method     _creerMarkerSentier
 	 * @param      {mixed}  latlng  Soit un tableau contenant lat et lng, soit juste lat
 	 * @param      {mixed}  lng     Dans le premier cas est nul, sinon contient lng
 	 * @return     {Object}
 	 */
-	function creerMarkerSentier(latlng, lng) {
-		return {
-			lat: angular.isDefined(lng) ? latlng : latlng.lat,
-			lng: angular.isDefined(lng) ? lng : latlng.lng,
+	function _creerMarkerSentier(latlng, lng) {
+		var marker = {
 			message: "Cliquez pour me déplacer !",
 			draggable: true,
 			focus: false,
@@ -366,10 +366,24 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
                 markerColor: 'red'
             }
 		};
+
+		if (angular.isDefined(lng)) {
+			marker.lat = latlng;
+			marker.lng = lng;
+		} else {
+			marker.lat = latlng.lat;
+			marker.lng = latlng.lng;
+		}
+
+		lthis.markerActif = marker;
+
+		_rafraichirSaisieCoordGps(marker.lat, marker.lng);
+
+		return marker;
 	}
 
-	function creerMarkerIndividu(latlng, nom_sci, ficheTag) {
-		return {
+	function _creerMarkerIndividu(latlng, nom_sci, ficheTag) {
+		var marker = {
 			lat: latlng.lat,
 			lng: latlng.lng,
 			message: nom_sci,
@@ -383,14 +397,24 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
             },
             ficheTag: ficheTag
 		};
+
+		lthis.markerActif = marker;
+
+		_rafraichirSaisieCoordGps(marker.lat, marker.lng);
+
+		return marker;
 	}
 
 	$scope.$on('leafletDirectiveMarker.move', function(event, args) {
 		if (lthis.etape == 'localiser-sentier') {
 			angular.merge(lthis.leafletConfig.markers.sentier, args.leafletEvent.latlng);
+			lthis.markerActif = lthis.leafletConfig.markers.sentier;
 		} else if (lthis.etape == 'localiser-individus') {
 			angular.merge(lthis.leafletConfig.markers[args.modelName], args.leafletEvent.latlng);
+			lthis.markerActif = lthis.leafletConfig.markers[args.modelName];
 		}
+
+		_rafraichirSaisieCoordGps(args.leafletEvent.latlng.lat, args.leafletEvent.latlng.lng);
 	});
 
 	function initialiserLeafletConfig() {
@@ -456,6 +480,8 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 		lthis.editableLayers.removeLayer(lthis.dessinSentier);
 		lthis.etape = '';
 		lthis.dessinEnCours = false;
+		lthis.markerActif = null;
+		lthis.saisieCoordGps = {};
 
 		// si un dessin était en cours, on le tue
 		if (lthis.polylineDrawer) {
@@ -477,6 +503,7 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 		lthis.dessinSentierAvantModif = undefined; // copie avant changements en mode édition
 		lthis.dessinModifie = false;
 		lthis.dessinEnCours = false;
+		lthis.saisieCoordGps = {};
 
 		// Initialisation des markers
 		lthis.markers = {};
@@ -491,7 +518,7 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 				;
 
 				if (fiche) {
-					lthis.markers[markerName] = creerMarkerIndividu(value, fiche.infos_taxon.nom_sci, value.ficheTag);
+					lthis.markers[markerName] = _creerMarkerIndividu(value, fiche.infos_taxon.nom_sci, value.ficheTag);
 				}
 			});
 
@@ -503,7 +530,7 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 		// En édition on ajoute à la config seulement le sentier pour la première étape
 		if (angular.isDefined(lthis.sentierSelectionne.localisation.sentier)) {
 			lthis.leafletConfig.markers = {
-				sentier: creerMarkerSentier(lthis.sentierSelectionne.localisation.sentier)
+				sentier: _creerMarkerSentier(lthis.sentierSelectionne.localisation.sentier)
 			}
 		}
 
@@ -532,7 +559,7 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 	}
 
 	this.ajouterMarker = function(fiche) {
-		var marker = creerMarkerIndividu(lthis.leafletCenter, fiche.infos_taxon.nom_sci, fiche.tag),
+		var marker = _creerMarkerIndividu(lthis.leafletCenter, fiche.infos_taxon.nom_sci, fiche.tag),
 			markerName = creerNomMarker(fiche.tag)
 		;
 
@@ -546,12 +573,77 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 	$scope.$on('leafletDirectiveMarker.click', function(event, args) {
 		if (lthis.modeSuppressionMarkers) {
 			lthis.supprimerMarker(args.modelName);
+		} else if ('sentier' !== args.modelName) {
+			lthis.markerActif = lthis.leafletConfig.markers[args.modelName];
+			_rafraichirSaisieCoordGps(lthis.markerActif.lat, lthis.markerActif.lng);
 		}
 	});
 
 	this.supprimerMarker = function(markerName) {
 		if ('sentier' !== markerName && $window.confirm('Confirmer la suppression de ' + lthis.leafletConfig.markers[markerName].message + ' ?')) {
 			delete lthis.leafletConfig.markers[markerName];
+			lthis.markerActif = null;
+		}
+	};
+
+	// Permet de valider des coords gps avec ou sans crochets autour
+	this.regexpCoordsGps = '^\\[?\\d{1,2}(?:\\.\\d+)?, ?\\d{1,2}(?:\\.\\d+)?\\]?$';
+
+	/**
+	 * Récupère le contenu collé et le modifie si besoin
+	 *
+	 * Si le contenu collé est entre crochets, format [lng,lat]
+	 * alors il est modifié pour coller au format lat,lng
+	 *
+	 * @param      {string}  pasted  The pasted
+	 */
+	this.collerCoordsGps = function(pasted) {
+		// trim et enlève les crochets, remet lat et lng dans le bon sens
+		var re = new RegExp(lthis.regexpCoordsGps);
+		if (pasted.search(re) > -1) {
+			var tmp = '' + pasted,
+				lat, lng;
+			tmp = tmp.trim();
+
+			if ('[' === tmp[0] || ']' === tmp[tmp.length - 1]) {
+				tmp = tmp.replace(/\[|\]/g, '');
+				tmp = tmp.split(',');
+				lat = tmp[1].trim();
+				lng = tmp[0].trim();
+			} else {
+				tmp = tmp.split(',');
+				lat = tmp[0].trim();
+				lng = tmp[1].trim();
+			}
+
+			_rafraichirSaisieCoordGps(parseFloat(lat), parseFloat(lng));
+		}
+	};
+
+	_rafraichirSaisieCoordGps = function(lat, lng) {
+		lthis.saisieCoordGps = {
+			lat: lat,
+			lng: lng,
+			txt: lat + ', ' + lng
+		};
+	};
+
+	/**
+	 * Met à jour les informations du marker actif
+	 * Si il n'existe pas, le créé le cas échant
+	 */
+	this.rafraichirMarkerActif = function() {
+		if (lthis.markerActif) {
+			lthis.markerActif.lat = lthis.saisieCoordGps.lat || 0;
+			lthis.markerActif.lng = lthis.saisieCoordGps.lng || 0;
+			leafletData.getMap().then(function(map) {
+				map.panTo([lthis.saisieCoordGps.lat || 0, lthis.saisieCoordGps.lng || 0]);
+			});
+		} else if (lthis.etape == 'localiser-sentier' && angular.isUndefined(lthis.leafletConfig.markers.sentier)) {
+			lthis.leafletConfig.markers = {
+				sentier: _creerMarkerSentier(lthis.saisieCoordGps.lat, lthis.saisieCoordGps.lng)
+			};
+			lthis.markerActif = lthis.leafletConfig.markers.sentier;
 		}
 	};
 
@@ -721,6 +813,9 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 			lng: lthis.leafletConfig.markers.sentier.lng + 0.00005,
 			zoom: 19
 		});
+
+		lthis.markerActif = null;
+		lthis.saisieCoordGps = {};
 	};
 
 	// FIN ÉTAPE 2, début étape 3
