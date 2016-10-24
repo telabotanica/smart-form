@@ -343,13 +343,7 @@ class Sentiers extends SmartFloreService {
 		}
 	}
 
-	/**
-	 * Liste des sentiers PUBLICS - exclut les sentiers n'ayant pas de nom OU
-	 * zéro occurrence d'espèce OU un chemin de moins de deux points
-	 */
-	private function publicSentiersListe() {
-		$liste_sentiers = array();
-
+	private function getPublicInfosSentiers() {
 		$infos_sentiers_sql = 'SELECT DISTINCT t1.id as id, t1.resource AS resource, t1.value AS value, t2.value AS localisation, t3.value as meta'
 			. ' FROM ' . $this->config['bdd']['table_prefixe'] . '_triples AS t1'
 			. ' JOIN ' . $this->config['bdd']['table_prefixe'] . '_triples AS t2 ON t1.resource = t2.resource'
@@ -360,8 +354,17 @@ class Sentiers extends SmartFloreService {
 		;
 
 		$infos_sentiers_requete = $this->bdd->query($infos_sentiers_sql);
-		$infos_sentiers = $infos_sentiers_requete->fetchAll(PDO::FETCH_ASSOC);
+		return $infos_sentiers_requete->fetchAll(PDO::FETCH_ASSOC);
+	}
 
+	/**
+	 * Liste des sentiers PUBLICS - exclut les sentiers n'ayant pas de nom OU
+	 * zéro occurrence d'espèce OU un chemin de moins de deux points
+	 */
+	private function publicSentiersListe() {
+		$infos_sentiers = $this->getPublicInfosSentiers();
+
+		$liste_sentiers = array();
 		foreach ($infos_sentiers as $infos_sentier) {
 			// élimination des sentiers non valides (difficile à faire dans le
 			// SQL à cause des triplets)
@@ -420,7 +423,11 @@ class Sentiers extends SmartFloreService {
 
 	private function ajouterSentier($data) {
 
+
+
 		$retour = false;
+
+
 
 		if (empty($data['sentierTitre'])) {
 			$this->error('400', 'Le paramètre sentierTitre est obligatoire');
