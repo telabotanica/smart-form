@@ -206,7 +206,7 @@
 								ng-repeat="fiche in sentiersCtrl.sentierSelectionne.fiches"
 								ng-click="sentiersCtrl.ajouterMarker(fiche)"
 								type="button" class="btn btn-default"
-								data-toggle="tooltip" data-placement="left" title="{{ fiche.infos_taxon.nom_sci_complet }}">{{ fiche.infos_taxon.nom_sci }}
+								onmouseenter="$(this).tooltip('show')" data-placement="left" title="{{ fiche.infos_taxon.nom_sci_complet }}">{{ fiche.infos_taxon.nom_sci }}
 							</button>
 						</div>
 					</div>
@@ -230,7 +230,7 @@
 							<button ng-click="sentiersCtrl.toggleSuppressionMarkers()"
 								ng-class="{ 'active': sentiersCtrl.modeSuppressionMarkers }"
 								class="btn btn-warning"
-								data-toggle="tooltip" data-placement="top" title="Active le mode suppression">
+								onmouseenter="$(this).tooltip('show')" data-placement="top" title="Active le mode suppression">
 								Supprimer des marqueurs
 							</button>
 							<i ng-show="sentiersCtrl.modeSuppressionMarkers">Cliquez sur un marqueur pour le supprimer</i>
@@ -240,13 +240,13 @@
 						<button ng-click="sentiersCtrl.supprimerDessin()"
 							ng-if="sentiersCtrl.dessinSentier"
 							class="btn btn-warning"
-							data-toggle="tooltip" data-placement="top" title="Supprime le tracé actuel du parcours">
+							onmouseenter="$(this).tooltip('show')" data-placement="top" title="Supprime le tracé actuel du parcours">
 							Supprimer le parcours
 						</button>
 						<button ng-click="sentiersCtrl.revertChangementsDessin()"
 							ng-if="sentiersCtrl.dessinModifie && sentiersCtrl.dessinSentierAvantModif"
 							class="btn btn-warning"
-							data-toggle="tooltip" data-placement="top" title="Annule les modifications au parcours">
+							onmouseenter="$(this).tooltip('show')" data-placement="top" title="Annule les modifications au parcours">
 							Annuler les modifications
 						</button>
 					</div>
@@ -266,16 +266,15 @@
 							ng-show="sentiersCtrl.markerActif || sentiersCtrl.etape == 'localiser-sentier'"
 							ng-submit="sentiersCtrl.rafraichirMarkerActif()">
 							<hr>
-							<div class="form-group" ng-class="{'has-error': !coords.input.$valid}">
+							<div class="form-group" ng-class="{'has-error': coords.input.$invalid}">
 								<input type="text" id="input" name="input" placeholder="xx.xxxx, xx.xxxx"
 									ng-model="sentiersCtrl.saisieCoordGps.txt"
-									ng-paste="sentiersCtrl.collerCoordsGps($event.clipboardData.getData('text/plain')); $event.preventDefault(); pasted=true" ng-init="pasted=false"
 									ng-pattern="sentiersCtrl.regexpCoordsGps"
 									class="form-control" size=35 autocomplete="off"
-									data-toggle="tooltip" data-placement="top" title="Formats acceptés : &quot;[lng, lat]&quot;, &quot;lat, lng&quot;">
+									onmouseenter="$(this).tooltip('show')" data-placement="top" title="Formats acceptés : &quot;[lng, lat]&quot; ou &quot;lat, lng&quot;">
 							</div>
 							<button class="btn btn-default" type="submit"
-								ng-disabled="!sentiersCtrl.saisieCoordGps.txt || sentiersCtrl.saisieCoordGps.txt.length == 0">
+								ng-disabled="!sentiersCtrl.saisieCoordGps.txt || sentiersCtrl.saisieCoordGps.txt.length == 0 || coords.input.$invalid">
 								<i class="glyphicon glyphicon-pencil" aria-hidden="true"></i> Valider coordonnées GPS
 							</button>
 						</form>
@@ -343,12 +342,12 @@
 				  </div>
 				  <div class="modal-body">
 					<div class="form-group">
-						<label for="nomSentier">Nom du sentier</label>
+						<label for="nomSentier">Nom public du sentier <i class="glyphicon glyphicon-info-sign" onmouseenter="$(this).tooltip('show')" data-placement="top" title="Information utilisée pour la publication du sentier"></i></label>
 						<input type="text" class="form-control" id="nomSentier"  name="nomSentier"
 							ng-model="sentiersCtrl.sentierSelectionne.meta.titre">
 					</div>
 					<div class="form-group">
-						<label for="auteurSentier">Auteur du sentier</label>
+						<label for="auteurSentier">Auteur public du sentier <i class="glyphicon glyphicon-info-sign" onmouseenter="$(this).tooltip('show')" data-placement="top" title="Information utilisée pour la publication du sentier"></i></label>
 						<input type="text" class="form-control" id="auteurSentier" name="auteurSentier"
 							ng-model="sentiersCtrl.sentierSelectionne.meta.auteur" placeholder="{{ sentiersCtrl.sentierSelectionne.meta.auteur }}">
 					</div>

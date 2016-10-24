@@ -590,18 +590,18 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 	this.regexpCoordsGps = '^\\[?\\d{1,2}(?:\\.\\d+)?, ?\\d{1,2}(?:\\.\\d+)?\\]?$';
 
 	/**
-	 * Récupère le contenu collé et le modifie si besoin
+	 * Récupère un contenu text contenant des coords et le modifie si besoin
 	 *
-	 * Si le contenu collé est entre crochets, format [lng,lat]
+	 * Si le contenu est entre crochets, format [lng,lat]
 	 * alors il est modifié pour coller au format lat,lng
 	 *
 	 * @param      {string}  pasted  The pasted
 	 */
-	this.collerCoordsGps = function(pasted) {
+	this.verifierCoordsGps = function(text) {
 		// trim et enlève les crochets, remet lat et lng dans le bon sens
 		var re = new RegExp(lthis.regexpCoordsGps);
-		if (pasted.search(re) > -1) {
-			var tmp = '' + pasted,
+		if (text.search(re) > -1) {
+			var tmp = '' + text,
 				lat, lng;
 			tmp = tmp.trim();
 
@@ -633,6 +633,8 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 	 * Si il n'existe pas, le créé le cas échant
 	 */
 	this.rafraichirMarkerActif = function() {
+		lthis.verifierCoordsGps(lthis.saisieCoordGps.txt);
+
 		if (lthis.markerActif) {
 			lthis.markerActif.lat = lthis.saisieCoordGps.lat || 0;
 			lthis.markerActif.lng = lthis.saisieCoordGps.lng || 0;
