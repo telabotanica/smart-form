@@ -28,7 +28,7 @@
 							ng-change="rechercheCtrl.surChangementSaisieSentier()">
 					</div>
 					<div class="col-md-2 bouton-ajout-sentier">
-						<button type="submit" class="btn btn-default btn-sm" title="ajouter un sentier">
+						<button type="submit" class="btn btn-default btn-sm" title="Ajouter un sentier">
 							<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
 						</button>
 					</div>
@@ -42,7 +42,10 @@
 
 			<div class="liste-fiches-sentier" ng-show="!sentiersCtrl.chargementSentier && sentiersCtrl.sentiers.length > 0">
 				<div class="bouton-suppression-sentier">
-					<button ng-click="sentiersCtrl.supprimerSentier(sentiersCtrl.sentierSelectionne)" type="button" class="btn btn-default btn-md" title="Supprimer ce sentier">
+					<button ng-click="sentiersCtrl.supprimerSentier(sentiersCtrl.sentierSelectionne)"
+						type="button" class="btn btn-default btn-md"
+						title="Supprimer ce sentier"
+						onmouseenter="$(this).tooltip('show')" data-placement="top">
 						<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
 					</button>
 				</div>
@@ -50,6 +53,7 @@
 				<div class="bouton-export-sentier" ng-show="sentiersCtrl.sentierSelectionne.fiches.length > 0">
 					<a class="btn btn-default btn-sm"
 						title="Exporter ce sentier en pdf"
+						onmouseenter="$(this).tooltip('show')" data-placement="top"
 						href="{{ listeCtrl.liensService.exporterSentierEnPdf(sentiersCtrl.sentierSelectionne.titre) }}">
 						<span class="glyphicon glyphicon-export" aria-hidden="true"></span>
 					</a>
@@ -58,7 +62,8 @@
 				<div id="bouton-localiser-sentier">
 					<button ng-click="sentiersCtrl.demarrerLocalisationSentier(); sentiersCtrl.modalOpened = !sentiersCtrl.modalOpened"
 						type="button" class="btn btn-default btn-md"
-						title="Localiser ce sentier">
+						title="Localiser ce sentier"
+						onmouseenter="$(this).tooltip('show')" data-placement="top">
 						<span class="glyphicon glyphicon-globe" aria-hidden="true"></span>
 					</button>
 				</div>
@@ -66,7 +71,8 @@
 				<div id="bouton-meta-sentier">
 					<button ng-click="sentiersCtrl.saisirMetaSentier(); sentiersCtrl.modalOpened = !sentiersCtrl.modalOpened"
 						type="button" class="btn btn-default btn-md"
-						title="Saisir les informations de ce sentier">
+						title="Saisir les informations de ce sentier"
+						onmouseenter="$(this).tooltip('show')" data-placement="top">
 						<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
 					</button>
 				</div>
@@ -74,7 +80,8 @@
 				<div id="bouton-invalider-sentier" ng-if="sentiersCtrl.estAdmin() && (['En attente', 'Validé'].indexOf(sentiersCtrl.sentierSelectionne.etat) > -1)">
 					<button ng-click="sentiersCtrl.changerEtatSentier('Refusé')"
 						type="button" class="btn btn-default btn-md"
-						title="Invalider ce sentier">
+						title="Invalider ce sentier"
+						onmouseenter="$(this).tooltip('show')" data-placement="top">
 						<span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span>
 					</button>
 				</div>
@@ -82,7 +89,8 @@
 				<div id="bouton-valider-sentier" ng-if="sentiersCtrl.estAdmin() && sentiersCtrl.sentierSelectionne.etat == 'En attente'">
 					<button ng-click="sentiersCtrl.changerEtatSentier('Validé')"
 						type="button" class="btn btn-default btn-md"
-						title="Valider ce sentier">
+						title="Valider ce sentier"
+						onmouseenter="$(this).tooltip('show')" data-placement="top">
 						<span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 					</button>
 				</div>
