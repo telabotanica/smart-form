@@ -28,7 +28,7 @@
 							ng-change="rechercheCtrl.surChangementSaisieSentier()">
 					</div>
 					<div class="col-md-2 bouton-ajout-sentier">
-						<button type="submit" class="btn btn-default btn-sm" title="ajouter un sentier">
+						<button type="submit" class="btn btn-default btn-sm" title="Ajouter un sentier">
 							<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
 						</button>
 					</div>
@@ -42,7 +42,10 @@
 
 			<div class="liste-fiches-sentier" ng-show="!sentiersCtrl.chargementSentier && sentiersCtrl.sentiers.length > 0">
 				<div class="bouton-suppression-sentier">
-					<button ng-click="sentiersCtrl.supprimerSentier(sentiersCtrl.sentierSelectionne)" type="button" class="btn btn-default btn-md" title="Supprimer ce sentier">
+					<button ng-click="sentiersCtrl.supprimerSentier(sentiersCtrl.sentierSelectionne)"
+						type="button" class="btn btn-default btn-md"
+						title="Supprimer ce sentier"
+						onmouseenter="$(this).tooltip('show')" data-placement="top">
 						<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
 					</button>
 				</div>
@@ -50,6 +53,7 @@
 				<div class="bouton-export-sentier" ng-show="sentiersCtrl.sentierSelectionne.fiches.length > 0">
 					<a class="btn btn-default btn-sm"
 						title="Exporter ce sentier en pdf"
+						onmouseenter="$(this).tooltip('show')" data-placement="top"
 						href="{{ listeCtrl.liensService.exporterSentierEnPdf(sentiersCtrl.sentierSelectionne.titre) }}">
 						<span class="glyphicon glyphicon-export" aria-hidden="true"></span>
 					</a>
@@ -58,7 +62,8 @@
 				<div id="bouton-localiser-sentier">
 					<button ng-click="sentiersCtrl.demarrerLocalisationSentier(); sentiersCtrl.modalOpened = !sentiersCtrl.modalOpened"
 						type="button" class="btn btn-default btn-md"
-						title="Localiser ce sentier">
+						title="Localiser ce sentier"
+						onmouseenter="$(this).tooltip('show')" data-placement="top">
 						<span class="glyphicon glyphicon-globe" aria-hidden="true"></span>
 					</button>
 				</div>
@@ -66,7 +71,8 @@
 				<div id="bouton-meta-sentier">
 					<button ng-click="sentiersCtrl.saisirMetaSentier(); sentiersCtrl.modalOpened = !sentiersCtrl.modalOpened"
 						type="button" class="btn btn-default btn-md"
-						title="Saisir les informations de ce sentier">
+						title="Saisir les informations de ce sentier"
+						onmouseenter="$(this).tooltip('show')" data-placement="top">
 						<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
 					</button>
 				</div>
@@ -74,7 +80,8 @@
 				<div id="bouton-invalider-sentier" ng-if="sentiersCtrl.estAdmin() && (['En attente', 'Validé'].indexOf(sentiersCtrl.sentierSelectionne.etat) > -1)">
 					<button ng-click="sentiersCtrl.changerEtatSentier('Refusé')"
 						type="button" class="btn btn-default btn-md"
-						title="Invalider ce sentier">
+						title="Invalider ce sentier"
+						onmouseenter="$(this).tooltip('show')" data-placement="top">
 						<span class="glyphicon glyphicon-remove text-danger" aria-hidden="true"></span>
 					</button>
 				</div>
@@ -82,7 +89,8 @@
 				<div id="bouton-valider-sentier" ng-if="sentiersCtrl.estAdmin() && sentiersCtrl.sentierSelectionne.etat == 'En attente'">
 					<button ng-click="sentiersCtrl.changerEtatSentier('Validé')"
 						type="button" class="btn btn-default btn-md"
-						title="Valider ce sentier">
+						title="Valider ce sentier"
+						onmouseenter="$(this).tooltip('show')" data-placement="top">
 						<span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 					</button>
 				</div>
@@ -206,7 +214,7 @@
 								ng-repeat="fiche in sentiersCtrl.sentierSelectionne.fiches"
 								ng-click="sentiersCtrl.ajouterMarker(fiche)"
 								type="button" class="btn btn-default"
-								data-toggle="tooltip" data-placement="left" title="{{ fiche.infos_taxon.nom_sci_complet }}">{{ fiche.infos_taxon.nom_sci }}
+								onmouseenter="$(this).tooltip('show')" data-placement="left" title="{{ fiche.infos_taxon.nom_sci_complet }}">{{ fiche.infos_taxon.nom_sci }}
 							</button>
 						</div>
 					</div>
@@ -230,7 +238,7 @@
 							<button ng-click="sentiersCtrl.toggleSuppressionMarkers()"
 								ng-class="{ 'active': sentiersCtrl.modeSuppressionMarkers }"
 								class="btn btn-warning"
-								data-toggle="tooltip" data-placement="top" title="Active le mode suppression">
+								onmouseenter="$(this).tooltip('show')" data-placement="top" title="Active le mode suppression">
 								Supprimer des marqueurs
 							</button>
 							<i ng-show="sentiersCtrl.modeSuppressionMarkers">Cliquez sur un marqueur pour le supprimer</i>
@@ -240,13 +248,13 @@
 						<button ng-click="sentiersCtrl.supprimerDessin()"
 							ng-if="sentiersCtrl.dessinSentier"
 							class="btn btn-warning"
-							data-toggle="tooltip" data-placement="top" title="Supprime le tracé actuel du parcours">
+							onmouseenter="$(this).tooltip('show')" data-placement="top" title="Supprime le tracé actuel du parcours">
 							Supprimer le parcours
 						</button>
 						<button ng-click="sentiersCtrl.revertChangementsDessin()"
 							ng-if="sentiersCtrl.dessinModifie && sentiersCtrl.dessinSentierAvantModif"
 							class="btn btn-warning"
-							data-toggle="tooltip" data-placement="top" title="Annule les modifications au parcours">
+							onmouseenter="$(this).tooltip('show')" data-placement="top" title="Annule les modifications au parcours">
 							Annuler les modifications
 						</button>
 					</div>
@@ -266,16 +274,15 @@
 							ng-show="sentiersCtrl.markerActif || sentiersCtrl.etape == 'localiser-sentier'"
 							ng-submit="sentiersCtrl.rafraichirMarkerActif()">
 							<hr>
-							<div class="form-group" ng-class="{'has-error': !coords.input.$valid}">
+							<div class="form-group" ng-class="{'has-error': coords.input.$invalid}">
 								<input type="text" id="input" name="input" placeholder="xx.xxxx, xx.xxxx"
 									ng-model="sentiersCtrl.saisieCoordGps.txt"
-									ng-paste="sentiersCtrl.collerCoordsGps($event.clipboardData.getData('text/plain')); $event.preventDefault(); pasted=true" ng-init="pasted=false"
 									ng-pattern="sentiersCtrl.regexpCoordsGps"
 									class="form-control" size=35 autocomplete="off"
-									data-toggle="tooltip" data-placement="top" title="Formats acceptés : &quot;[lng, lat]&quot;, &quot;lat, lng&quot;">
+									onmouseenter="$(this).tooltip('show')" data-placement="top" title="Formats acceptés : &quot;[lng, lat]&quot; ou &quot;lat, lng&quot;">
 							</div>
 							<button class="btn btn-default" type="submit"
-								ng-disabled="!sentiersCtrl.saisieCoordGps.txt || sentiersCtrl.saisieCoordGps.txt.length == 0">
+								ng-disabled="!sentiersCtrl.saisieCoordGps.txt || sentiersCtrl.saisieCoordGps.txt.length == 0 || coords.input.$invalid">
 								<i class="glyphicon glyphicon-pencil" aria-hidden="true"></i> Valider coordonnées GPS
 							</button>
 						</form>
@@ -343,12 +350,12 @@
 				  </div>
 				  <div class="modal-body">
 					<div class="form-group">
-						<label for="nomSentier">Nom du sentier</label>
+						<label for="nomSentier">Nom public du sentier <i class="glyphicon glyphicon-info-sign" onmouseenter="$(this).tooltip('show')" data-placement="top" title="Information utilisée pour la publication du sentier"></i></label>
 						<input type="text" class="form-control" id="nomSentier"  name="nomSentier"
 							ng-model="sentiersCtrl.sentierSelectionne.meta.titre">
 					</div>
 					<div class="form-group">
-						<label for="auteurSentier">Auteur du sentier</label>
+						<label for="auteurSentier">Auteur public du sentier <i class="glyphicon glyphicon-info-sign" onmouseenter="$(this).tooltip('show')" data-placement="top" title="Information utilisée pour la publication du sentier"></i></label>
 						<input type="text" class="form-control" id="auteurSentier" name="auteurSentier"
 							ng-model="sentiersCtrl.sentierSelectionne.meta.auteur" placeholder="{{ sentiersCtrl.sentierSelectionne.meta.auteur }}">
 					</div>
