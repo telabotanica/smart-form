@@ -926,7 +926,7 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 					}
 
 					// Si ce n'est déjà fait, on propose la vérification des données au créateur du sentier
-					if (!lthis.sentierSelectionne.etat && testerValiditeDuSentier(localisation, dessin)) {
+					if ((!lthis.sentierSelectionne.etat || lthis.sentierSelectionne.etat == 'Refusé') && testerValiditeDuSentier(localisation, dessin)) {
 						$("#modale-publication").modal();
 					}
 				}
