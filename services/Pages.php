@@ -31,6 +31,7 @@ class Pages extends SmartFloreService {
 		$recherche['recherche'] = !empty($_GET['recherche']) ? $_GET['recherche'] : '%';
 
 		$recherche['pages_existantes'] = isset($_GET['pages_existantes']) ? $_GET['pages_existantes'] == 'true' : false;
+		$recherche['especes_uniquement'] = isset($_GET['especes_uniquement']) ? $_GET['especes_uniquement'] == 'true' : false;
 		$recherche['nom_verna'] = isset($_GET['nom_verna']) ? $_GET['nom_verna'] == 'true' : false;
 
 		$recherche['retour'] = isset($_GET['retour']) ? $_GET['retour'] : 'max';

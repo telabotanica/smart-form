@@ -9,6 +9,7 @@ smartFormApp.service('etatApplicationService', function($http) {
 	etatApplicationService.recherche = {};
 	etatApplicationService.recherche.texte = "";
 	etatApplicationService.recherche.fichesExistantes = false;
+	etatApplicationService.recherche.especesUniquement = true;
 	etatApplicationService.recherche.referentiel = etatApplicationService.referentiels[0];
 	etatApplicationService.recherche.nomVernaculaire = false;
 	etatApplicationService.recherche.referentielVerna = etatApplicationService.infosReferentiels[etatApplicationService.recherche.referentiel].noms_vernaculaires;
