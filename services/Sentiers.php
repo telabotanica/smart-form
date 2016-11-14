@@ -239,8 +239,8 @@ class Sentiers extends SmartFloreService {
 
 		return array(
 			'id' => $sentier['id'],
-			'nom' => $meta['titre'] ?: $sentier['resource'],
-			'auteur' => $meta['auteur'] ?: $sentier['value'],
+			'nom' => isset($meta['titre']) ? $meta['titre'] : $sentier['resource'],
+			'auteur' => isset($meta['auteur']) ? $meta['auteur'] : $sentier['value'],
 			'position' => $lnglat,
 			'info' => array(
 				'horaires' => [],
@@ -346,11 +346,9 @@ class Sentiers extends SmartFloreService {
 	private function getPublicInfosSentiers() {
 		$infos_sentiers_sql = 'SELECT DISTINCT t1.id as id, t1.resource AS resource, t1.value AS value, t2.value AS localisation, t3.value as meta'
 			. ' FROM ' . $this->config['bdd']['table_prefixe'] . '_triples AS t1'
-			. ' JOIN ' . $this->config['bdd']['table_prefixe'] . '_triples AS t2 ON t1.resource = t2.resource'
-			. ' JOIN ' . $this->config['bdd']['table_prefixe'] . '_triples AS t3 ON t1.resource = t3.resource'
+			. ' JOIN ' . $this->config['bdd']['table_prefixe'] . '_triples AS t2 ON t1.resource = t2.resource AND t2.property = ' . $this->bdd->quote($this->triple_sentier_localisation)
+			. ' LEFT JOIN ' . $this->config['bdd']['table_prefixe'] . '_triples AS t3 ON t1.resource = t3.resource AND t3.property = ' . $this->bdd->quote($this->triple_sentier_meta)
 			. ' WHERE t1.property = ' . $this->bdd->quote($this->triple_sentier)
-			. ' AND t2.property = ' . $this->bdd->quote($this->triple_sentier_localisation)
-			. ' AND t3.property = ' . $this->bdd->quote($this->triple_sentier_meta)
 		;
 
 		$infos_sentiers_requete = $this->bdd->query($infos_sentiers_sql);
@@ -423,11 +421,7 @@ class Sentiers extends SmartFloreService {
 
 	private function ajouterSentier($data) {
 
-
-
 		$retour = false;
-
-
 
 		if (empty($data['sentierTitre'])) {
 			$this->error('400', 'Le paramètre sentierTitre est obligatoire');
