@@ -1,7 +1,7 @@
 var config = {
 	nom_application: "Tableau de bord Smart'Flore",
 	prod: false,
-	referentiels : ["BDTFX", "BDTXA", "ISFAN", "APD"],
+	referentiels : ["BDTFX", "BDTXA", "ISFAN", "APD", "BDTRE"],
 	infos_referentiels :
 	{
 		"BDTFX" : {
@@ -18,6 +18,10 @@ var config = {
 		},
 		"APD" : {
 			label : "Afrique du centre et de l'ouest",
+			noms_vernaculaires : null
+		},
+		"BDTRE" : {
+			label : "Île de la Réunion",
 			noms_vernaculaires : null
 		}
 	},
