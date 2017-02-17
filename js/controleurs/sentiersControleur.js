@@ -587,7 +587,7 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 	};
 
 	// Permet de valider des coords gps avec ou sans crochets autour
-	this.regexpCoordsGps = '^\\[?\\d{1,2}(?:\\.\\d+)?, ?\\d{1,2}(?:\\.\\d+)?\\]?$';
+	this.regexpCoordsGps = '^\\[?-?\\d{1,2}(?:\\.\\d+)?, ?-?\\d{1,2}(?:\\.\\d+)?\\]?$';
 
 	/**
 	 * Récupère un contenu text contenant des coords et le modifie si besoin
