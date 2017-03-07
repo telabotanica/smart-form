@@ -9,8 +9,17 @@
 					<select name="sentier" id="sentier" class="form-control"
 						ng-model="sentiersCtrl.sentierSelectionne"
 						ng-change="sentiersCtrl.surChangementSentier()"
-						ng-options="sentier.label for sentier in sentiersCtrl.sentiers">
+						ng-options="sentier.label for sentier in sentiersCtrl.sentiers | orderBy:['auteur','titre']">
 					</select>
+
+					<div class="bouton-export-sentiers" ng-show="sentiersCtrl.estAdmin() && sentiersCtrl.sentiers.length > 0">
+						<a class="btn btn-default btn-sm"
+							title="Exporter les sentiers en csv"
+							onmouseenter="$(this).tooltip('show')" data-placement="top"
+							ng-click="sentiersCtrl.exporterSentiersEnCsv(listeCtrl.liensService.exporterSentiersEnCsv())">
+							<span class="glyphicon glyphicon-export" aria-hidden="true"></span>
+						</a>
+					</div>
 				</div>
 
 					<!-- <select name="sentier" id="sentier" class="form-control"

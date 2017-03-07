@@ -16,7 +16,8 @@
     "Leaflet.extra-markers": "~1.0.x",
     "leaflet.draw": "~0.3.x",
     "ionicons": "~2.0.x",
-    "jquery": "~2.2.x"
+    "jquery": "~2.2.x",
+    "angular-file-saver": "~1.1.x"
   },
   "resolutions": {
     "angular": "~1.5.x"

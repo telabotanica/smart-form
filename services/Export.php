@@ -36,6 +36,10 @@ class Export extends SmartFloreService {
 				} else {
 					$this->error(400, "Vous devez spécifier un nom de sentier et une action");
 				}
+				break;
+			case 'sentiersCSV':
+				$this->getExportSentiersCSV();
+				break;
 			default:
 				$this->error(400, "Aucune commande n'a été spécifiée");
 		}
@@ -122,6 +126,57 @@ class Export extends SmartFloreService {
 		// TODO: suivant le nombre de fiches, faire un export en plusieurs fois à travers
 		// plusieurs appels ajax ou bien en une fois dans la fonction ci dessous
 		$this->deciderActionExportSentier($sentier_titre);
+	}
+
+	protected function getExportSentiersCSV() {
+		$this->verifierAuthentification();
+
+		if (! $this->estAdmin()) {
+			exit('faut être admin');
+		}
+
+		$sentiers_sql = "SELECT t2.id as id, t2.resource as resource, t2.property as property, t2.value as value "
+			. "FROM " . $this->config['bdd']['table_prefixe'] . "_triples t1 "
+			. "JOIN " . $this->config['bdd']['table_prefixe'] . "_triples t2 ON t1.resource = t2.resource "
+			. "WHERE t1.property = " . $this->bdd->quote($this->triple_sentier) . ";"
+		;
+
+		$sentiers_requete = $this->bdd->query($sentiers_sql);
+		$sentiers = $sentiers_requete->fetchAll(PDO::FETCH_ASSOC);
+
+		$sentiers = $this->miseEnFormeInfosSentiers($sentiers);
+
+		// collection des entetes pour générer ensuite le csv
+		$entetes = array('id');
+		foreach ($sentiers as $sentier) {
+			$entetes = array_merge($entetes, array_keys($sentier));
+		}
+		$entetes = array_diff(array_unique($entetes), array('fiches')); // on retire les doublons et 'fiches' qui est un tableau
+		//@todo retirer les tableaux proprement (ou convertir en json)
+
+		header('Content-Description: File Transfer');
+		header('Content-Type: application/octet-stream');
+		header('Content-Disposition: attachment; filename="export_sentiers_' . date('YmdHis') . '.csv"');
+		header('Filename: export_sentiers_' . date('YmdHis') . '.csv');
+		header('Expires: 0');
+		header('Cache-Control: must-revalidate');
+		header('Pragma: public');
+		// header('Content-Length: ' . filesize($file));
+
+		$sortie_directe = fopen('php://output', 'w');
+
+		// les entetes en première ligne du csv, puis génération des autres lignes
+		fputcsv($sortie_directe, $entetes);
+		foreach ($sentiers as $sentier) {
+			$ligne = array();
+			foreach ($entetes as $entete) {
+				$ligne[$entete] = array_key_exists($entete, $sentier) ? $sentier[$entete] : null;
+			}
+
+			fputcsv($sortie_directe, $ligne);
+		}
+
+		fclose($sortie_directe);
 	}
 
 	protected function enregistrerFichePourExportSentier($sentier_titre, $referentiel, $num_tax) {

@@ -305,5 +305,20 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 		});
 	}
 
+	smartFormService.exporterSentiersEnCsv = function(lien, surSucces, surErreur) {
+		$http({
+		    method: 'GET',
+		    url: lien,
+		    headers: etatApplicationService.getHeadersAuth(),
+		    data: {}
+		})
+		.success(function(data, status, headers, config) {
+			surSucces(data, status, headers, config);
+		})
+		.error(function(data, status, headers, config) {
+			surErreur(data, status, headers, config);
+		});
+	};
+
 	return smartFormService;
 });
