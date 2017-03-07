@@ -147,13 +147,14 @@ class Export extends SmartFloreService {
 		$sentiers = $this->miseEnFormeInfosSentiers($sentiers);
 
 		// collection des entetes pour générer ensuite le csv
-		$entetes = array('id');
+		$entetes = array('id'); // pour faire apparaitre id en premier
 		foreach ($sentiers as $sentier) {
 			$entetes = array_merge($entetes, array_keys($sentier));
 		}
 		$entetes = array_diff(array_unique($entetes), array('fiches')); // on retire les doublons et 'fiches' qui est un tableau
 		//@todo retirer les tableaux proprement (ou convertir en json)
 
+		date_default_timezone_set('Europe/Paris'); // Pour que les date() plus bas ne lèvent pas de warnings
 		header('Content-Description: File Transfer');
 		header('Content-Type: application/octet-stream');
 		header('Content-Disposition: attachment; filename="export_sentiers_' . date('YmdHis') . '.csv"');
@@ -169,8 +170,24 @@ class Export extends SmartFloreService {
 		fputcsv($sortie_directe, $entetes);
 		foreach ($sentiers as $sentier) {
 			$ligne = array();
+
 			foreach ($entetes as $entete) {
-				$ligne[$entete] = array_key_exists($entete, $sentier) ? $sentier[$entete] : null;
+				if (array_key_exists($entete, $sentier)) {
+					switch ($entete) {
+						case 'meta':
+							$ligne[$entete] = urldecode(http_build_query(json_decode($sentier[$entete]),'',', ')); // @todo: transformer ce json avec caractères utf8 échappés proprement
+							break;
+						case 'dateCreation':
+						case 'dateDerniereModif':
+							$ligne[$entete] = date('d-m-Y H:i:s', $sentier[$entete]);
+							break;
+						default:
+							$ligne[$entete] = $sentier[$entete];
+							break;
+					}
+				} else {
+					$ligne[$entete] = null;
+				}
 			}
 
 			fputcsv($sortie_directe, $ligne);
