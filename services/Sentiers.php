@@ -114,6 +114,7 @@ class Sentiers extends SmartFloreService {
 			switch ($r['property']) {
 				case $this->triple_sentier:
 					$sentiersNommes[$nomSentier]['auteur'] = $r['value'];
+					$sentiersNommes[$nomSentier]['id'] = $r['id'];
 					break;
 				case $this->triple_sentier_meta:
 					$sentiersNommes[$nomSentier]['meta'] = $r['value'];

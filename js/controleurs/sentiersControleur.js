@@ -1,4 +1,4 @@
-smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope, $window, $http, smartFormService, etatApplicationService, liensService, googleAnalyticsService, geolocation, leafletData, leafletGeoJsonHelpers) {
+smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope, $window, $http, smartFormService, etatApplicationService, liensService, googleAnalyticsService, geolocation, leafletData, leafletGeoJsonHelpers, FileSaver, Blob) {
 
 	this.sentiers = [];
 	this.sentierSelectionne = creerObjetSentierVide();
@@ -112,6 +112,19 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 			}
 		});
 	};
+
+	this.exporterSentiersEnCsv = function(urlExportCsv) {
+		smartFormService.exporterSentiersEnCsv(
+			urlExportCsv,
+			function(sentiersEnCsv, status, headers) {
+				var data = new Blob([sentiersEnCsv], { type: 'text/csv;charset=utf-8' });
+				FileSaver.saveAs(data, headers()['filename']);
+			},
+			function() {
+				alert('Désolé y\'a des soucis lors de l\'export, contactez votre dev préféré =)');
+			}
+		);
+	}
 
 	this.editerFiche = function(fiche) {
 		$rootScope.$broadcast('edition.editer-fiche', fiche);

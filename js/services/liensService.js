@@ -32,5 +32,13 @@ smartFormApp.service('liensService', function() {
 		return url;
 	};
 
+	liensService.exporterSentiersEnCsv = function() {
+		url = config.url_service_export.replace('{referentiel}', '');
+		url = url.replace('{type}', 'sentiersCSV');
+		url = url.replace('{num_tax}', '');
+		url = url.replace('{sentierTitre}', '');
+		return url;
+	};
+
 	return liensService;
 });

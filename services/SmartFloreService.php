@@ -242,9 +242,8 @@ class SmartFloreService {
 		// équivalent de "-k"
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-		$data = curl_exec($ch);
+		$retour = curl_exec($ch);
 		curl_close($ch);
-		$retour = $data;
 
 		$retour = json_decode($retour, true);
 
@@ -506,6 +505,41 @@ class SmartFloreService {
 		$res = $res->fetchAll(PDO::FETCH_ASSOC);
 
 		return $res;
+	}
+
+	function miseEnFormeInfosSentiers($array) {
+		$sentiersNommes = array();
+
+		foreach($array as $r) {
+			$nomSentier = $r['resource'];
+			if (!array_key_exists($nomSentier, $sentiersNommes)) {
+				$sentiersNommes[$nomSentier] = array(
+					'titre' => $nomSentier,
+					'fiches' => array()
+				);
+			}
+			// chargement des propriétés selon le triplet en cours
+			switch ($r['property']) {
+				case $this->triple_sentier:
+					$sentiersNommes[$nomSentier]['auteur'] = $r['value'];
+					$sentiersNommes[$nomSentier]['id'] = $r['id'];
+					break;
+				case $this->triple_sentier_meta:
+					$sentiersNommes[$nomSentier]['meta'] = $r['value'];
+					break;
+				case $this->triple_sentier_etat:
+					$sentiersNommes[$nomSentier]['etat'] = $r['value'];
+					break;
+				case $this->triple_sentier_date_creation:
+					$sentiersNommes[$nomSentier]['dateCreation'] = $r['value'];
+					break;
+				case $this->triple_sentier_date_derniere_modif:
+					$sentiersNommes[$nomSentier]['dateDerniereModif'] = $r['value'];
+					break;
+			}
+		}
+
+		return $sentiersNommes;
 	}
 }
 
