@@ -250,6 +250,23 @@ class SmartFloreService {
 		return ($retour === true);
 	}
 
+
+	/**
+	 * Decode a string with URL-safe Base64.
+	 * copié depuis firebase/jwt
+	 *
+	 * @param string $input A Base64 encoded string
+	 * @return string A decoded string
+	 */
+	protected function urlsafeB64Decode($input) {
+		$remainder = strlen($input) % 4;
+		if ($remainder) {
+			$padlen = 4 - $remainder;
+			$input .= str_repeat('=', $padlen);
+		}
+		return base64_decode(strtr($input, '-_', '+/'));
+	}
+
 	/**
 	 * Décode un jeton JWT (SSO) précédemment validé et retourne les infos
 	 * qu'il contient (payload / claims)
@@ -258,7 +275,7 @@ class SmartFloreService {
 	protected function decoderJeton($jeton) {
 		$parts = explode('.', $jeton);
 		$payload = $parts[1];
-		$payload = base64_decode($payload);
+		$payload = $this->urlsafeB64Decode($payload);
 		$payload = json_decode($payload, true);
 
 		return $payload;
