@@ -166,15 +166,29 @@ smartFormApp.controller('BoiteUtilisateurControleur', function ($scope, $rootSco
 	};
 
 	/**
+	 * Décodage "url-safe" des chaînes base64 retournées par le SSO (lib jwt)
+	 */
+	function b64d(input) {
+		var remainder = input.length % 4;
+		if (remainder != 0) {
+			var padlen = 4 - remainder;
+			for (var i=0; i < padlen; i++) {
+				input += '=';
+			}
+		}
+		input = input.replace('-', '+');
+		input = input.replace('_', '/');
+		return atob(input);
+	}
+
+	/**
 	 * Décodage à l'arrache d'un jeton JWT, ATTENTION CONSIDERE QUE LE
 	 * JETON EST VALIDE, ne pas décoder n'importe quoi - pas trouvé de lib simple
-	 * Si pb de cross-browser, tenter ceci : https://code.google.com/p/javascriptbase64/
-	 * ou ceci : https://code.google.com/p/crypto-js
 	 */
 	this.decoderJeton = function(jeton) {
 		parts = jeton.split('.');
 		payload = parts[1];
-		payload = atob(payload);
+		payload = b64d(payload);
 		payload = JSON.parse(payload, true);
 
 		return payload;
