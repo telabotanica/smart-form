@@ -5,14 +5,26 @@
 		<div id="conteneur" class="container-fluid">
 
 			<div>
-				<div class="col-md-6 selecteur-sentier" ng-show="sentiersCtrl.sentiers.length > 0">
+
+				<form id="sentier-search" name="search" class="form-group"
+					ng-if="sentiersCtrl.estAdmin()">
+					<span class="glyphicon glyphicon-search"></span>
+
+					<input type="text" id="file-search-input" name="query" class="form-control"
+						placeholder="Rechercher un sentier"
+						ng-model="sentiersCtrl.filtre">
+
+					<input type="text" name="compteur-sentiers" value="{{ (sentiersCtrl.sentiers | filter:sentiersCtrl.filtre).length }} sentiers trouvés" disabled>
+				</form>
+
+				<div class="col-md-6 selecteur-sentier" ng-show="(sentiersCtrl.sentiers | filter:sentiersCtrl.filtre).length > 0">
 					<select name="sentier" id="sentier" class="form-control"
 						ng-model="sentiersCtrl.sentierSelectionne"
 						ng-change="sentiersCtrl.surChangementSentier()"
-						ng-options="sentier.label for sentier in sentiersCtrl.sentiers | orderBy:['auteur','titre']">
+						ng-options="sentier.label for sentier in sentiersCtrl.sentiers | filter:sentiersCtrl.filtre | orderBy:['auteur','titre']">
 					</select>
 
-					<div class="bouton-export-sentiers" ng-show="sentiersCtrl.estAdmin() && sentiersCtrl.sentiers.length > 0">
+					<div class="bouton-export-sentiers" ng-if="sentiersCtrl.estAdmin() && sentiersCtrl.sentierSelectionne">
 						<a class="btn btn-default btn-sm"
 							title="Exporter les sentiers en csv"
 							onmouseenter="$(this).tooltip('show')" data-placement="top"
