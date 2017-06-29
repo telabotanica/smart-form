@@ -172,6 +172,28 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 		});
 	};
 
+	/**
+	 * Annule la suppression d'un sentier
+	 */
+	smartFormService.ressusciterSentier = function(sentierTitre, surSucces, surErreur) {
+		var donnees_post = {
+			"sentierTitre" : sentierTitre
+		};
+
+		$http({
+		    method: 'DELETE',
+		    url: config.url_service_sentiers + '/sentier-suppression/',
+		    headers: etatApplicationService.getHeadersAuth(),
+		    data: donnees_post
+		}).
+		success(function(data, status, headers, config) {
+			surSucces(data);
+		}).
+		error(function(data, status, headers, config) {
+			surErreur(data);
+		});
+	};
+
 	smartFormService.getInformationsSentier = function(sentierTitre, surSucces, surErreur) {
 		$http.get(config.url_service_sentiers + '/sentier-informations/?sentierTitre=' + sentierTitre)
 		.success(function(data, status, headers, config) {

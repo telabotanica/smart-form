@@ -49,13 +49,22 @@
 			<!-- MASQUE DE CHARGEMENT -->
 			<masquechargement ng-show="sentiersCtrl.chargementSentier"></masquechargement>
 
-			<div class="liste-fiches-sentier" ng-show="!sentiersCtrl.chargementSentier && sentiersCtrl.sentiers.length > 0">
-				<div class="bouton-suppression-sentier">
+			<div class="liste-fiches-sentier" ng-show="!sentiersCtrl.chargementSentier && sentiersCtrl.sentierSelectionne">
+				<div class="bouton-suppression-sentier" ng-show="!sentiersCtrl.sentierSelectionne.dateSuppression">
 					<button ng-click="sentiersCtrl.supprimerSentier(sentiersCtrl.sentierSelectionne)"
 						type="button" class="btn btn-default btn-md"
 						title="Supprimer ce sentier"
 						onmouseenter="$(this).tooltip('show')" data-placement="top">
 						<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+					</button>
+				</div>
+
+				<div class="bouton-ressusciter-sentier" ng-if="sentiersCtrl.estAdmin() && sentiersCtrl.sentierSelectionne.dateSuppression">
+					<button ng-click="sentiersCtrl.ressusciterSentier(sentiersCtrl.sentierSelectionne)"
+						type="button" class="btn btn-success btn-md"
+						title="Ressusciter (rétablir) ce sentier"
+						onmouseenter="$(this).tooltip('show')" data-placement="top">
+						<span class="glyphicon glyphicon-flash" aria-hidden="true"></span>
 					</button>
 				</div>
 
