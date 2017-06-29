@@ -104,38 +104,8 @@ class Sentiers extends SmartFloreService {
 		$res = $this->bdd->query($requete);
 		$res = $res->fetchAll(PDO::FETCH_ASSOC);
 
-		$sentiersNommes = array();
-		foreach($res as $r) {
-			$nomSentier = $r['resource'];
-			if (!array_key_exists($nomSentier, $sentiersNommes)) {
-				$sentiersNommes[$nomSentier] = array(
-					'titre' => $nomSentier,
-					'fiches' => array()
-				);
-			}
-			// chargement des propriétés selon le triplet en cours
-			switch ($r['property']) {
-				case $this->triple_sentier:
-					$sentiersNommes[$nomSentier]['auteur'] = $r['value'];
-					$sentiersNommes[$nomSentier]['id'] = $r['id'];
-					break;
-				case $this->triple_sentier_meta:
-					$sentiersNommes[$nomSentier]['meta'] = $r['value'];
-					break;
-				case $this->triple_sentier_etat:
-					$sentiersNommes[$nomSentier]['etat'] = $r['value'];
-					break;
-				case $this->triple_sentier_date_creation:
-					$sentiersNommes[$nomSentier]['dateCreation'] = $r['value'];
-					break;
-				case $this->triple_sentier_date_derniere_modif:
-					$sentiersNommes[$nomSentier]['dateDerniereModif'] = $r['value'];
-					break;
-			}
-		}
-
 		// on retourne une liste et non un objet
-		$sentiers = array_values($sentiersNommes);
+		$sentiers = array_values($this->miseEnFormeInfosSentiers($res));
 
 		$retour = array('pagination' => array('total' => count($sentiers)), 'resultats' => $sentiers);
 
@@ -406,6 +376,10 @@ class Sentiers extends SmartFloreService {
 	 * notion de validation par l'auteur + par l'administrateur
 	 */
 	protected function sentierPublicValide($infos_sentier) {
+		// on vérifie que le sentier est validé pour la publication
+		// @todo: optimiser et/ou différencier ces tests
+		$raw_etat_sentier = $this->getEtatBySentier($infos_sentier['resource']);
+		if (empty($raw_etat_sentier) || $raw_etat_sentier['value'] !== 'Validé') return false;
 		// pas de nom, pas de chocolat
 		if (empty($infos_sentier['resource'])) return false;
 		// pas de localisation, pas de chocolat
@@ -417,11 +391,6 @@ class Sentiers extends SmartFloreService {
 		$raw_dessin_sentier = $this->getDessinBySentier($infos_sentier['resource']);
 		$dessin_sentier = json_decode($raw_dessin_sentier['value'], true);
 		if (empty($dessin_sentier['coordinates']) || count($dessin_sentier['coordinates']) < 2) return false;
-		// enfin on vérifie que le sentier est validé pour la publication
-		// on pourrait même commencer par ça tant ces sentiers sont rares actuellement
-		// @todo: optimiser et/ou différencier ces tests
-		$raw_etat_sentier = $this->getEtatBySentier($infos_sentier['resource']);
-		if (empty($raw_etat_sentier) || $raw_etat_sentier['value'] !== 'Validé') return false;
 
 		return true;
 	}
@@ -454,7 +423,7 @@ class Sentiers extends SmartFloreService {
 		$res_existe = $this->bdd->query($requete_existe);
 		$res_existe = $res_existe->fetch(PDO::FETCH_ASSOC);
 
-		if(!$res_existe['sentier_existe']) {
+		if (!$res_existe['sentier_existe']) {
 
 			$requete_insertion = 'INSERT INTO '.$this->config['bdd']['table_prefixe'].'_triples '.
 				'(resource, property, value) VALUES '.
@@ -467,7 +436,7 @@ class Sentiers extends SmartFloreService {
 			$res_insertion = $this->bdd->exec($requete_insertion);
 			$retour = ($res_insertion !== false) ? 'OK' : false;
 
-			if($retour == 'OK') {
+			if ($retour == 'OK') {
 				$infos_evenement = array('utilisateur' => $utilisateur, 'utilisateur_courriel' => $utilisateurCourriel, 'titre' => $sentier_titre);
 				// Enregistrement de l'évènement pour des stats ultérieures
 				$this->enregistrerEvenement($this->triple_evenement_sentier_ajout, $infos_evenement);

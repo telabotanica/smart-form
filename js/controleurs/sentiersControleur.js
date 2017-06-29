@@ -105,11 +105,12 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 					break;
 				case 'Refusé':
 					sentiers[key].label += ' (Publication refusée)';
+					break;
 				case '':
 				case undefined:
 				case false:
 				case null:
-					break
+					break;
 				default:
 					sentiers[key].label += ' (État : ' + sentier.etat + ')';
 					break;
@@ -135,7 +136,7 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 	};
 
 	this.surChangementSentier = function() {
-		if (this.sentierSelectionne.titre) {
+		if (this.sentierSelectionne && this.sentierSelectionne.titre) {
 			this.chargementSentier = true;
 			smartFormService.getFichesASentier(this.sentierSelectionne.titre,
 				function(data) {
