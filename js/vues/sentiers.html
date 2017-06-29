@@ -6,25 +6,31 @@
 
 			<div>
 
-				<form id="sentier-search" name="search" class="form-group"
+				<form id="sentier-search" name="search" class="form-group col-md-12"
 					ng-if="sentiersCtrl.estAdmin()">
-					<span class="glyphicon glyphicon-search"></span>
+					<span class="glyphicon glyphicon-search col-md-1"></span>
 
-					<input type="text" id="file-search-input" name="query" class="form-control"
+					<div class="col-md-7">
+						<input type="text" id="file-search-input" name="query" class="form-control col-md-7"
 						placeholder="Rechercher un sentier"
 						ng-model="sentiersCtrl.filtre">
+					</div>
 
-					<input type="text" name="compteur-sentiers" value="{{ (sentiersCtrl.sentiers | filter:sentiersCtrl.filtre).length }} sentiers trouvés" disabled>
+					<div class="col-md-4">
+						<input type="text" name="compteur-sentiers" class="form-control" value="{{ (sentiersCtrl.sentiers | filter:sentiersCtrl.filtre).length }} sentiers trouvés" disabled>
+					</div>
 				</form>
 
-				<div class="col-md-6 selecteur-sentier" ng-show="(sentiersCtrl.sentiers | filter:sentiersCtrl.filtre).length > 0">
-					<select name="sentier" id="sentier" class="form-control"
-						ng-model="sentiersCtrl.sentierSelectionne"
-						ng-change="sentiersCtrl.surChangementSentier()"
-						ng-options="sentier.label for sentier in sentiersCtrl.sentiers | filter:sentiersCtrl.filtre | orderBy:['auteur','titre']">
-					</select>
+				<div class="col-md-7 selecteur-sentier" ng-show="(sentiersCtrl.sentiers | filter:sentiersCtrl.filtre).length > 0">
+					<div class="col-md-11">
+						<select name="sentier" id="sentier" class="form-control"
+							ng-model="sentiersCtrl.sentierSelectionne"
+							ng-change="sentiersCtrl.surChangementSentier()"
+							ng-options="sentier.label for sentier in sentiersCtrl.sentiers | filter:sentiersCtrl.filtre | orderBy:['auteur','titre']">
+						</select>
+					</div>
 
-					<div class="bouton-export-sentiers" ng-if="sentiersCtrl.estAdmin() && sentiersCtrl.sentierSelectionne">
+					<div class="bouton-export-sentiers col-md-1" ng-if="sentiersCtrl.estAdmin() && sentiersCtrl.sentierSelectionne">
 						<a class="btn btn-default btn-sm"
 							title="Exporter les sentiers en csv"
 							onmouseenter="$(this).tooltip('show')" data-placement="top"
@@ -42,7 +48,7 @@
 						</option>
 					</select> -->
 
-				<form ng-submit="sentiersCtrl.ajouterSentier()" class="col-md-6">
+				<form ng-submit="sentiersCtrl.ajouterSentier()" class="col-md-5">
 					<div class="col-md-10">
 						<input type="text" class="form-control"
 							placeholder="Ajouter un sentier" ng-model="sentiersCtrl.nouveauSentierTitre"
