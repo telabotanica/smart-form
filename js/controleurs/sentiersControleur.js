@@ -92,6 +92,10 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 				sentiers[key].label = sentier.titre;
 			}
 
+			if (sentier.dateSuppression) {
+				sentiers[key].label += ' (SUPPRIMÉ)'
+			}
+
 			switch (sentier.etat) {
 				case 'En attente':
 					sentiers[key].label += ' (Publication en attente)';
@@ -101,11 +105,12 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 					break;
 				case 'Refusé':
 					sentiers[key].label += ' (Publication refusée)';
+					break;
 				case '':
 				case undefined:
 				case false:
 				case null:
-					break
+					break;
 				default:
 					sentiers[key].label += ' (État : ' + sentier.etat + ')';
 					break;
@@ -131,7 +136,7 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 	};
 
 	this.surChangementSentier = function() {
-		if (this.sentierSelectionne.titre) {
+		if (this.sentierSelectionne && this.sentierSelectionne.titre) {
 			this.chargementSentier = true;
 			smartFormService.getFichesASentier(this.sentierSelectionne.titre,
 				function(data) {
@@ -210,17 +215,43 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 			smartFormService.supprimerSentier(sentier.titre,
 				function(data) {
 					if(data == 'OK') {
-						lthis.supprimerSentierDeLaListe(sentier);
-						if(lthis.sentiers.length > 0) {
-							lthis.sentierSelectionne = lthis.sentiers[lthis.sentiers.length - 1];
-						} else {
-							lthis.sentierSelectionne = creerObjetSentierVide();
-						}
+						if (!lthis.estAdmin()) {
+							lthis.supprimerSentierDeLaListe(sentier);
 
-						lthis.surChangementSentier();
+							if (lthis.sentiers.length > 0) {
+								lthis.sentierSelectionne = lthis.sentiers[lthis.sentiers.length - 1];
+							} else {
+								lthis.sentierSelectionne = creerObjetSentierVide();
+							}
+
+							lthis.surChangementSentier();
+						} else {
+							lthis.sentierSelectionne.dateSuppression = Math.round(new Date().getTime() / 1000);
+							enrichirSentierLabel(lthis.sentiers);
+						}
 
 						// stats
 						googleAnalyticsService.envoyerEvenement("sentier", "suppression", sentier.titre);
+					}
+				},
+				function(data) {
+					console.log('C\'est pas bon !');
+				}
+			);
+		}
+	};
+
+	this.ressusciterSentier = function(sentier) {
+		if (window.confirm("Êtes-vous sûr de ressusciter (rétablir) ce sentier ? ")) {
+			smartFormService.ressusciterSentier(sentier.titre,
+				function(data) {
+					if (data == 'OK') {
+
+						lthis.sentierSelectionne.dateSuppression = null;
+						enrichirSentierLabel(lthis.sentiers);
+
+						// stats
+						googleAnalyticsService.envoyerEvenement("sentier", "resurrection", sentier.titre);
 					}
 				},
 				function(data) {

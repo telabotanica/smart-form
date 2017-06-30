@@ -22,6 +22,7 @@ class SmartFloreService {
 	protected $triple_sentier_etat = "smartFlore.sentiers.etat";
 	protected $triple_sentier_date_derniere_modif = "smartFlore.sentiers.date_derniere_modif";
 	protected $triple_sentier_date_creation = "smartFlore.sentiers.date_creation";
+	protected $triple_sentier_date_suppression = "smartFlore.sentiers.date_suppression";
 	protected $triple_sentier_meta = "smartFlore.sentiers.meta";
 
 	protected $triple_favoris_fiche = "smartFlore.favoris.fiche";
@@ -552,6 +553,9 @@ class SmartFloreService {
 					break;
 				case $this->triple_sentier_date_derniere_modif:
 					$sentiersNommes[$nomSentier]['dateDerniereModif'] = $r['value'];
+					break;
+				case $this->triple_sentier_date_suppression:
+					$sentiersNommes[$nomSentier]['dateSuppression'] = $r['value'];
 					break;
 			}
 		}

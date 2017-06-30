@@ -123,7 +123,8 @@ body {
 	margin-left: -15px; /* bricolage dégueu */
 }
 
-.bouton-ajout-sentier {
+.bouton-ajout-sentier,
+.bouton-export-sentiers {
 	margin-left : 0px;
     right: 26px;
     top: 2px;
