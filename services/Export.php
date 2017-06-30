@@ -180,7 +180,7 @@ class Export extends SmartFloreService {
 						case 'dateCreation':
 						case 'dateDerniereModif':
 						case 'dateSuppression':
-							if (isset($sentier[$entete])) {
+							if (!empty($sentier[$entete])) {
 								$ligne[$entete] = date('d-m-Y H:i:s', $sentier[$entete]);
 							}
 							break;

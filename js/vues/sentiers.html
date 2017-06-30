@@ -68,7 +68,7 @@
 			<!-- MASQUE DE CHARGEMENT -->
 			<masquechargement ng-show="sentiersCtrl.chargementSentier"></masquechargement>
 
-			<div class="liste-fiches-sentier" ng-show="!sentiersCtrl.chargementSentier && sentiersCtrl.sentierSelectionne">
+			<div class="liste-fiches-sentier" ng-show="!sentiersCtrl.chargementSentier && sentiersCtrl.sentierSelectionne.titre">
 				<div class="bouton-suppression-sentier" ng-show="!sentiersCtrl.sentierSelectionne.dateSuppression">
 					<button ng-click="sentiersCtrl.supprimerSentier(sentiersCtrl.sentierSelectionne)"
 						type="button" class="btn btn-default btn-md"
