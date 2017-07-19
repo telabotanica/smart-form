@@ -272,7 +272,7 @@ class Sentiers extends SmartFloreService {
 			$sentier_details['occurrences'] = array();
 			foreach ($localisation['individus'] as $individu_id => $individu) {
 				list($referentiel, $numero_taxonomique) = $this->digestIndividuId($individu_id);
-				// si pour une raison X on n'a pas de nn, on oublie l'occurrence
+				// si pour une raison X on n'a pas de nt, on oublie l'occurrence
 				if (empty($numero_taxonomique)) {
 					continue;
 				}
