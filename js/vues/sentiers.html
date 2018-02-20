@@ -368,11 +368,16 @@
 				  </div>
 				  <div class="modal-body">
 					<p>Votre sentier semble prêt à être publié. Cependant, une validation manuelle est nécessaire avant qu'il soit visible sur l'application Smart'Flore.</p>
-					<p>Souhaitez-vous informer la personne responsable pour qu'elle passe en revue votre sentier&nbsp;?</p>
+					<p>Les personnes responsables seront prévenues et passeront en revue votre sentier.&nbsp;</p>
+					<p>
+						<label for="charteOk">En cochant cette case vous reconnaissez que votre sentier est conforme à la <a href="charte.html" target="_blank">Charte de publication de sentiers Smart'Flore</a> :
+							<input type="checkbox" id="charteOk" ng-model="sentiersCtrl.charteOk" name="charte" value="charte">
+						</label>
+					</p>
 				  </div>
 				  <div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">Plus tard</button>
-					<button ng-click="sentiersCtrl.changerEtatSentier()" type="button" class="btn btn-primary">Soumettre le sentier</button>
+					<button ng-click="sentiersCtrl.changerEtatSentier()" ng-disabled="!sentiersCtrl.charteOk" type="button" class="btn btn-primary">Soumettre le sentier</button>
 				  </div>
 				</div><!-- /.modal-content -->
 			  </div><!-- /.modal-dialog -->
