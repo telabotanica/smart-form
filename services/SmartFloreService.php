@@ -557,6 +557,12 @@ class SmartFloreService {
 				case $this->triple_sentier_date_suppression:
 					$sentiersNommes[$nomSentier]['dateSuppression'] = $r['value'];
 					break;
+				case $this->triple_evenement_sentier_ajout:
+					preg_match('/{"utilisateur":"\w+","utilisateur_courriel":"(.+@.+)","titre":"(.+)"}/', $r['value'], $matches);
+					if (!empty($matches[1]) && !empty($matches[2])) {
+						$sentiersNommes[$matches[2]]['auteurEmail'] = $matches[1];
+					}
+					break;
 			}
 		}
 

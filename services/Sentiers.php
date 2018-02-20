@@ -99,6 +99,12 @@ class Sentiers extends SmartFloreService {
 		if (! $this->estAdmin()) {
 			$requete .= "AND t1.value = " . $this->bdd->quote($this->utilisateur['nomWiki']);
 			$requete .= " AND t3.value = '' ";
+		} else {
+			$requete .= "UNION "
+			. "SELECT t2.id as id, t1.resource as resource, t2.property as property, t2.value as value "
+			. "FROM " . $this->config['bdd']['table_prefixe'] . "_triples t1 "
+			. "JOIN " . $this->config['bdd']['table_prefixe'] . "_triples t2 ON t2.value REGEXP CONCAT('\",\"titre\":\"', t1.resource, '\"}$') AND t2.property = " . $this->bdd->quote($this->triple_evenement_sentier_ajout) . " "
+			. "WHERE t1.property = " . $this->bdd->quote($this->triple_sentier);
 		}
 
 		$res = $this->bdd->query($requete);
