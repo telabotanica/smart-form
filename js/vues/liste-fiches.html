@@ -25,8 +25,8 @@
 						<th>Nom scientifique</th>
 						<th class="colonne-collapsible">Numéro nomenclatural</th>
 						<th class="colonne-collapsible">Référentiel</th>
-						<th>Auteur</th>
-						<th>Révisions</th>
+						<th class="colonne-collapsible">Auteur</th>
+						<th class="colonne-collapsible">Révisions</th>
 						<th class="colonne-actions-fiche">Actions</th>
 					</tr>
 					<tr drag="fiche" dragStyle="element-draggable" ng-repeat="fiche in listeCtrl.fiches"
@@ -39,8 +39,8 @@
 						</td>
 						<td class="colonne-collapsible">{{fiche.infos_taxon.num_nom}}</td>
 						<td class="colonne-collapsible">{{fiche.infos_taxon.referentiel}}</td>
-						<td>{{fiche.user}}</td>
-						<td>{{fiche.nb_revisions}}</td>
+						<td class="colonne-collapsible">{{fiche.user}}</td>
+						<td class="colonne-collapsible">{{fiche.nb_revisions}}</td>
 						<td>
 							<button type="button" class="btn btn-default btn-sm"
 								title="{{fiche.existe ? 'Éditer cette fiche' : 'Créer cette fiche'}}"
