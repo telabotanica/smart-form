@@ -409,6 +409,20 @@ class Sentiers extends SmartFloreService {
 		}
 	}
 
+	private function sentierExiste($sentier_titre) {
+		$retour = false;
+
+		$requete_existe = 'SELECT COUNT(resource) >= 1 as sentier_existe '.
+		'FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
+		'WHERE property = "'.$this->triple_sentier.'" '.
+		'AND TRIM(resource) = '.$this->bdd->quote(trim($sentier_titre));
+
+		$res_existe = $this->bdd->query($requete_existe);
+		$res_existe = $res_existe->fetch(PDO::FETCH_ASSOC);
+
+		return $res_existe['sentier_existe'];
+	}
+
 	private function ajouterSentier($data) {
 
 		$retour = false;
@@ -421,15 +435,9 @@ class Sentiers extends SmartFloreService {
 		$utilisateur = $this->utilisateur['nomWiki'];
 		$utilisateurCourriel = $this->utilisateur['courriel'];
 
-		$requete_existe = 'SELECT COUNT(resource) >= 1 as sentier_existe '.
-				'FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
-				'WHERE property = "'.$this->triple_sentier.'" '.
-				'AND TRIM(resource) = '.$this->bdd->quote(trim($sentier_titre));
+		$res_existe = $this->sentierExiste($sentier_titre);
 
-		$res_existe = $this->bdd->query($requete_existe);
-		$res_existe = $res_existe->fetch(PDO::FETCH_ASSOC);
-
-		if (!$res_existe['sentier_existe']) {
+		if (!$res_existe) {
 
 			$requete_insertion = 'INSERT INTO '.$this->config['bdd']['table_prefixe'].'_triples '.
 				'(resource, property, value) VALUES '.
@@ -455,6 +463,20 @@ class Sentiers extends SmartFloreService {
 		echo $retour;
 	}
 
+	private function renommerSentier($sentier_titre, $nouveau_titre) {
+		$retour = false;
+
+		$modification_nom_sentier = 'UPDATE '.$this->config['bdd']['table_prefixe'] . '_triples '.
+			'SET resource = ' . $this->bdd->quote($nouveau_titre) . ' ' .
+			'WHERE resource = ' . $this->bdd->quote($sentier_titre);
+
+		if ($this->bdd->exec($modification_nom_sentier)) {
+			$retour = 'OK';
+		}
+
+		return $retour;
+	}
+
 	/**
 	 * Supprime un sentier (soft delete)
 	 */
@@ -468,8 +490,6 @@ class Sentiers extends SmartFloreService {
 
 		// si pas admin on vérifie la paternité
 		if (false === $this->estAdmin()) {
-			// $requete_suppression += 'AND value = '.$this->bdd->quote($utilisateur).' ';
-
 			$requete_createur = 'SELECT value FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
 				'WHERE property = "'.$this->triple_sentier.'" '.
 				'AND resource = '.$this->bdd->quote($data['sentierTitre'])
@@ -484,16 +504,17 @@ class Sentiers extends SmartFloreService {
 
 		// si admin ou createur on supprime
 		if ($this->estAdmin() || $estCreateur) {
-			$retour = $this->stockerDataTriple($this->triple_sentier_date_suppression, time(), $data['sentierTitre']);
-		}
+			$this->stockerDataTriple($this->triple_sentier_date_suppression, time(), $data['sentierTitre']);
 
+			$retour = $this->renommerSentier($data['sentierTitre'], $data['sentierTitre'] . '_deleted_at_' . date('Ymd-His'));
+		}
 
 		header('Content-type: text/plain');
 		echo $retour;
 	}
 
 	/**
-	 * Ressuscite (annule le soft delete) un sentier
+	 * Ressuscite (annule le soft delete d') un sentier
 	 */
 	private function ressusciterSentier($data) {
 		$retour = false;
@@ -503,7 +524,19 @@ class Sentiers extends SmartFloreService {
 		}
 
 		if ($this->estAdmin()) {
-			$retour = $this->stockerDataTriple($this->triple_sentier_date_suppression, '', $data['sentierTitre']);
+			// nettoyage du nom du sentier, on retrouve l'original
+			$sentier_titre = $base_sentier_titre = strstr($data['sentierTitre'], '_deleted_at_', true);
+
+			// vérifie si le nom n'a pas été réutilisé depuis la suppression
+			$suffixe = 0;
+			while ($this->sentierExiste($sentier_titre)) {
+				$sentier_titre = $base_sentier_titre . '-' . ++$suffixe;
+			}
+
+			$this->renommerSentier($data['sentierTitre'], $sentier_titre);
+
+			// pour finir on vide la date de suppression
+			$retour = $this->stockerDataTriple($this->triple_sentier_date_suppression, '', $sentier_titre);
 		}
 
 
