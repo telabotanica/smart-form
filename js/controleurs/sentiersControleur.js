@@ -76,6 +76,33 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 		});
 	};
 
+	this.filtres = [
+			{
+				label: 'Filtres',
+				value: '!supprimé'
+			},
+			{
+				label: 'En attente',
+				value: 'attente'
+			},
+			{
+				label: 'Validé',
+				value: 'validé'
+			},
+			{
+				label: 'Refusé',
+				value: 'refusé'
+			},
+			{
+				label: 'Supprimé',
+				value: 'supprimé'
+			},
+			{
+				label: 'Tous',
+				value: ''
+			},
+		];
+
 	/**
 	 * Ajoute à la liste des sentiers les labels correspondant à l'affichage du
 	 * nom de chaque sentier dans le select principal. Si l'utilisateur connecté

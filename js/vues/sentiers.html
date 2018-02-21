@@ -8,25 +8,31 @@
 
 				<form id="sentier-search" name="search" class="form-group col-md-12"
 					ng-if="sentiersCtrl.estAdmin()">
-					<span class="glyphicon glyphicon-search col-md-1"></span>
 
-					<div class="col-md-7">
-						<input type="text" id="file-search-input" name="query" class="form-control col-md-7"
-						placeholder="Rechercher un sentier"
-						ng-model="sentiersCtrl.filtre">
+					<div class="col-md-3">
+						<select name="filtre" id="filtre" class="form-control" ng-init="sentiersCtrl.filtre = sentiersCtrl.filtres[0]"
+							ng-model="sentiersCtrl.filtre"
+							ng-options="filtre.label for filtre in sentiersCtrl.filtres">
+						</select>
 					</div>
 
-					<div class="col-md-4">
-						<input type="text" name="compteur-sentiers" class="form-control" value="{{ (sentiersCtrl.sentiers | filter:sentiersCtrl.filtre).length }} sentiers trouvés" disabled>
+					<div class="col-md-6">
+						<input type="text" id="file-search-input" name="query" class="form-control"
+						placeholder="Rechercher un sentier"
+						ng-model="sentiersCtrl.recherche">
+					</div>
+
+					<div class="col-md-3">
+						<input type="text" name="compteur-sentiers" class="form-control" value="{{ (sentiersCtrl.sentiers | filter:sentiersCtrl.filtre.value).length }} sentiers trouvés" disabled>
 					</div>
 				</form>
 
-				<div class="col-md-7 selecteur-sentier" ng-show="(sentiersCtrl.sentiers | filter:sentiersCtrl.filtre).length > 0">
+				<div class="col-md-7 selecteur-sentier" ng-show="(sentiersCtrl.sentiers | filter:sentiersCtrl.filtre.value | filter:sentiersCtrl.recherche).length > 0">
 					<div class="col-md-11">
 						<select name="sentier" id="sentier" class="form-control"
 							ng-model="sentiersCtrl.sentierSelectionne"
 							ng-change="sentiersCtrl.surChangementSentier()"
-							ng-options="sentier.label for sentier in sentiersCtrl.sentiers | filter:sentiersCtrl.filtre | orderBy:['auteur','titre']">
+							ng-options="sentier.label for sentier in sentiersCtrl.sentiers | filter:sentiersCtrl.filtre.value | filter:sentiersCtrl.recherche | orderBy:['auteur','titre']">
 						</select>
 					</div>
 
