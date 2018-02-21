@@ -242,17 +242,6 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 		});
 	};
 
-	smartFormService.getFichesASentier = function(sentierTitre, surSucces, surErreur) {
-		var sentier = "sentierTitre="+sentierTitre;
-		$http.get(config.url_service_sentiers+'/sentier-fiche/?'+sentier).
-		success(function(data, status, headers, config) {
-			surSucces(data);
-		}).
-		error(function(data, status, headers, config) {
-			surErreur(data);
-		});
-	};
-
 	smartFormService.ajouterFicheASentier = function(sentierTitre, pageTag, surSucces, surErreur) {
 		donnees_post = {
 			"sentierTitre" : sentierTitre, "pageTag" : pageTag

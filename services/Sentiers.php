@@ -18,9 +18,6 @@ class Sentiers extends SmartFloreService {
 			case 'sentier':
 				$this->getSentiers();
 				break;
-			case 'sentier-fiche':
-				$this->getFichesASentier();
-				break;
 			case 'sentier-informations':
 				$this->getInformationsSentier();
 				break;
@@ -548,26 +545,22 @@ class Sentiers extends SmartFloreService {
 		echo $retour;
 	}
 
-	private function getFichesASentier() {
+	private function getFichesASentier($sentier_titre) {
 
-		if(empty($_GET['sentierTitre'])) {
-			$this->error('400', 'Le paramètre sentierTitre est obligatoire');
-		}
-
-		$res = $this->getFichesBySentier($_GET['sentierTitre']);
+		$res = $this->getFichesBySentier($sentier_titre);
 
 		$sentiers_a_fiches = array('noms_pages' => array(), 'debut' => null, 'limite' => null);
 
 		$pages_a_traiter = array();
-		foreach($res as $sentier) {
-			$sentiers_a_fiches['noms_pages'][] = $this->bdd->quote($sentier['resource']);
+		foreach ($res as $fiche) {
+			$sentiers_a_fiches['noms_pages'][] = $this->bdd->quote($fiche['resource']);
 			// Certaines fiches ajoutées à des sentiers n'existent pas forcément
 			// donc on crée manuellement leur entrée de tableau pour qu'elles soient
 			// tout de même augmentées des infos taxonomiques et renvoyées
-			$pages_a_traiter[$sentier['resource']] = array(
+			$pages_a_traiter[$fiche['resource']] = array(
 						'existe' => false,
 						'favoris' => false,
-						'tag' => $sentier['resource'],
+						'tag' => $fiche['resource'],
 						'time' => '',
 						'owner' => '',
 						'user' => '',
@@ -576,10 +569,9 @@ class Sentiers extends SmartFloreService {
 				);
 		}
 
-		$sentiers = array();
-		$nb_sentiers = 0;
-		if(!empty($sentiers_a_fiches['noms_pages'])) {
-			list($pages, $nb_sentiers) = $this->getPagesWikiParRechercheExacte($sentiers_a_fiches);
+		$fiches = array();
+		if (!empty($sentiers_a_fiches['noms_pages'])) {
+			$pages = $this->getPagesWikiParRechercheExacte($sentiers_a_fiches)[0];
 			// affectation de leurs informations aux pages existantes
 			foreach($pages as $page) {
 				$pages_a_traiter[$page['tag']] = $page;
@@ -588,16 +580,12 @@ class Sentiers extends SmartFloreService {
 			$pages_enrichies = $this->completerPagesParInfosTaxon(array_values($pages_a_traiter));
 			// $pages_enrichies['resultats'] est indexé par referentiel.num_nom pour des raisons pratiques de
 			// tri et d'accès, on désindexe avant de renvoyer les résultats
-			$sentiers = array_values($pages_enrichies['resultats']);
-			usort($sentiers, array($this, 'trierParNomSci'));
-			unset($sentiers['fiches_a_num_nom']);
+			$fiches = array_values($pages_enrichies['resultats']);
+			usort($fiches, array($this, 'trierParNomSci'));
+			unset($fiches['fiches_a_num_nom']);
 		}
 
-		$retour = array('pagination' => array('total' => $nb_sentiers), 'resultats' => $sentiers);
-
-		header('Content-type: application/json');
-		echo json_encode($retour);
-		exit;
+		return $fiches;
 	}
 
 	private function trierParNomSci($a, $b) {
@@ -689,8 +677,7 @@ class Sentiers extends SmartFloreService {
 			$this->error('400', 'Le paramètre sentierTitre est obligatoire');
 		}
 
-		// @todo : faudrait voir à utiliser un truc genre $this->miseEnFormeInfosSentiers() ici
-
+		$fiches = $this->getFichesASentier($_GET['sentierTitre']);
 		$localisation = $this->getTripleBySentier($this->triple_sentier_localisation, $_GET['sentierTitre']);
 		$dessin = $this->getTripleBySentier($this->triple_sentier_dessin, $_GET['sentierTitre']);
 		$etat = $this->getTripleBySentier($this->triple_sentier_etat, $_GET['sentierTitre']);
@@ -708,6 +695,7 @@ class Sentiers extends SmartFloreService {
 		header('Content-type: application/json');
 		echo json_encode(array(
 			'localisation' => $retour,
+			'fiches' => $fiches,
 			'dessin' => json_decode($dessin['value'], true),
 			'etat' => $etat['value'],
 			'meta' => json_decode($meta['value'], true),

@@ -165,15 +165,6 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 	this.surChangementSentier = function() {
 		if (this.sentierSelectionne && this.sentierSelectionne.titre) {
 			this.chargementSentier = true;
-			smartFormService.getFichesASentier(this.sentierSelectionne.titre,
-				function(data) {
-					lthis.sentierSelectionne.fiches = data.resultats;
-					lthis.chargementSentier = false;
-				},
-				function(data) {
-					console.log('C\'est pas bon !');
-				}
-			);
 
 			smartFormService.getInformationsSentier(this.sentierSelectionne.titre,
 				function(data) {
@@ -181,6 +172,7 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 					lthis.sentierSelectionne.dessin = data.dessin;
 					lthis.sentierSelectionne.etat = data.etat;
 					lthis.sentierSelectionne.meta = data.meta;
+					lthis.sentierSelectionne.fiches = data.fiches;
 
 					// Affectations par défaut
 					if (!lthis.sentierSelectionne.meta) {
@@ -192,6 +184,8 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 					if (!lthis.sentierSelectionne.meta.auteur) {
 						lthis.sentierSelectionne.meta.auteur = lthis.sentierSelectionne.auteur;
 					}
+
+					lthis.chargementSentier = false;
 				},
 				function(data) {
 					console.log('C\'est pas bon !');
