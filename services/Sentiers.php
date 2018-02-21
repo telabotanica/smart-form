@@ -466,6 +466,10 @@ class Sentiers extends SmartFloreService {
 	private function renommerSentier($sentier_titre, $nouveau_titre) {
 		$retour = false;
 
+		if (empty($sentier_titre) || empty($nouveau_titre)) {
+			return $this->error('400', 'Le nom est vide');
+		}
+
 		$modification_nom_sentier = 'UPDATE '.$this->config['bdd']['table_prefixe'] . '_triples '.
 			'SET resource = ' . $this->bdd->quote($nouveau_titre) . ' ' .
 			'WHERE resource = ' . $this->bdd->quote($sentier_titre);
