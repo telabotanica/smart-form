@@ -203,13 +203,13 @@ class Sentiers extends SmartFloreService {
 		$fiches_sql = 'SELECT *'
 			. ' FROM ' . $this->config['bdd']['table_prefixe'] . '_triples'
 			. ' WHERE property = ' . $this->bdd->quote($this->triple_sentier_fiche)
-			. ' AND value = ' . $this->bdd->quote($sentier_id)
+			. ' AND resource = ' . $this->bdd->quote($sentier_id)
 		;
 
 		$fiches = array();
 		$fiches_requete = $this->bdd->query($fiches_sql);
 		while ($fiche = $fiches_requete->fetch(PDO::FETCH_ASSOC)) {
-			$fiches[$fiche['resource']] = $fiche;
+			$fiches[$fiche['value']] = $fiche;
 		}
 
 		return $fiches;
@@ -258,7 +258,7 @@ class Sentiers extends SmartFloreService {
 		// On va chercher sur eflore les infos complètes de chaque fiche
 		$fiches_eflore = array();
 		foreach ($fiches as $fiche) {
-			list($referentiel, $numero_taxonomique) = $this->splitNt($fiche['resource']);
+			list($referentiel, $numero_taxonomique) = $this->splitNt($fiche['value']);
 
 			// construction de l'url
 			$fiche_eflore_url_template = $this->config['eflore']['url_base'] . $this->config['eflore']['infos_taxons_export_url'];
@@ -266,7 +266,7 @@ class Sentiers extends SmartFloreService {
 			// recuperation des infos
 			$fiche_eflore = json_decode(@file_get_contents($fiche_eflore_url), true);
 
-			$fiches_eflore[$fiche['resource']] = $fiche_eflore;
+			$fiches_eflore[$fiche['value']] = $fiche_eflore;
 		}
 
 		$sentier_details = $this->buildJsonInfosSentier($sentier, $meta, $localisation);
@@ -553,14 +553,14 @@ class Sentiers extends SmartFloreService {
 
 		$pages_a_traiter = array();
 		foreach ($res as $fiche) {
-			$sentiers_a_fiches['noms_pages'][] = $this->bdd->quote($fiche['resource']);
+			$sentiers_a_fiches['noms_pages'][] = $this->bdd->quote($fiche['value']);
 			// Certaines fiches ajoutées à des sentiers n'existent pas forcément
 			// donc on crée manuellement leur entrée de tableau pour qu'elles soient
 			// tout de même augmentées des infos taxonomiques et renvoyées
-			$pages_a_traiter[$fiche['resource']] = array(
+			$pages_a_traiter[$fiche['value']] = array(
 						'existe' => false,
 						'favoris' => false,
-						'tag' => $fiche['resource'],
+						'tag' => $fiche['value'],
 						'time' => '',
 						'owner' => '',
 						'user' => '',
@@ -614,11 +614,11 @@ class Sentiers extends SmartFloreService {
 		$utilisateur = $this->utilisateur['nomWiki'];
 		$page_tag = $data['pageTag'];
 
-		$requete_existe = 'SELECT COUNT(resource) > 1 as sentier_a_page_existe '.
+		$requete_existe = 'SELECT COUNT(value) > 1 as sentier_a_page_existe '.
 				'FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
-				'WHERE value = '.$this->bdd->quote($sentier_titre).' '.
+				'WHERE resource = '.$this->bdd->quote($sentier_titre).' '.
 				'AND property = "'.$this->triple_sentier_fiche.'" '.
-				'AND resource = '.$this->bdd->quote($page_tag);
+				'AND value = '.$this->bdd->quote($page_tag);
 
 		$res_existe = $this->bdd->query($requete_existe);
 		$res_existe = $res_existe->fetch(PDO::FETCH_ASSOC);
@@ -627,7 +627,7 @@ class Sentiers extends SmartFloreService {
 
 			$requete_insertion = 'INSERT INTO '.$this->config['bdd']['table_prefixe'].'_triples '.
 					'(resource, property, value) VALUES '.
-					' ('.$this->bdd->quote($page_tag).',"'.$this->triple_sentier_fiche.'", '.$this->bdd->quote($sentier_titre).')';
+					' ('.$this->bdd->quote($sentier_titre).',"'.$this->triple_sentier_fiche.'", '.$this->bdd->quote($page_tag).')';
 
 			$res_insertion = $this->bdd->exec($requete_insertion);
 			$retour = false;
@@ -656,9 +656,9 @@ class Sentiers extends SmartFloreService {
 		$page_tag = $data['pageTag'];
 
 		$requete_suppression = 'DELETE FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
-				'WHERE value = '.$this->bdd->quote($sentier_titre).' '.
+				'WHERE resource = '.$this->bdd->quote($sentier_titre).' '.
 				'AND property = "'.$this->triple_sentier_fiche.'" '.
-				'AND resource = '.$this->bdd->quote($page_tag);
+				'AND value = '.$this->bdd->quote($page_tag);
 
 		$res_suppression = $this->bdd->exec($requete_suppression);
 		$retour = false;

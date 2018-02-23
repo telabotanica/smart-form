@@ -286,14 +286,14 @@ class Export extends SmartFloreService {
 
 		$requete_fiches_a_sentier = 'SELECT * FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
 				'WHERE property = "'.$this->triple_sentier_fiche.'" '.
-				'AND value = '.$this->bdd->quote($sentier_titre);
+				'AND resource = '.$this->bdd->quote($sentier_titre);
 
 		$res = $this->bdd->query($requete_fiches_a_sentier);
 		$res = $res->fetchAll(PDO::FETCH_ASSOC);
 
 		// WTF de stratégie de papou ???
 		foreach($res as $fiche) {
-			$nom_fichier = $fiche['resource'].'.tmp';
+			$nom_fichier = $fiche['value'].'.tmp';
 			touch($chemin_dossier_sentier.$nom_fichier);
 		}
 	}
