@@ -1,4 +1,4 @@
-smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope, $window, $http, smartFormService, etatApplicationService, liensService, googleAnalyticsService, geolocation, leafletData, leafletGeoJsonHelpers, FileSaver, Blob) {
+smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope, $window, $http, $filter, smartFormService, etatApplicationService, liensService, googleAnalyticsService, geolocation, leafletData, leafletGeoJsonHelpers, FileSaver, Blob) {
 
 	this.sentiers = [];
 	this.sentierSelectionne = creerObjetSentierVide();
@@ -77,31 +77,33 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 	};
 
 	this.filtres = [
-			{
-				label: 'Filtres',
-				value: '!supprimé'
-			},
-			{
-				label: 'En attente',
-				value: 'attente'
-			},
-			{
-				label: 'Validé',
-				value: 'validé'
-			},
-			{
-				label: 'Refusé',
-				value: 'refusé'
-			},
-			{
-				label: 'Supprimé',
-				value: 'supprimé'
-			},
-			{
-				label: 'Tous',
-				value: ''
-			},
-		];
+		{
+			label: 'Filtres',
+			value: '!supprimé'
+		},
+		{
+			label: 'En attente',
+			value: 'attente'
+		},
+		{
+			label: 'Validé',
+			value: 'validé'
+		},
+		{
+			label: 'Refusé',
+			value: 'refusé'
+		},
+		{
+			label: 'Supprimé',
+			value: 'supprimé'
+		},
+		{
+			label: 'Tous',
+			value: ''
+		},
+	];
+
+	this.filtre = this.filtres[0];
 
 	/**
 	 * Ajoute à la liste des sentiers les labels correspondant à l'affichage du
@@ -200,10 +202,7 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 				lthis.sentiers = data.resultats ? data.resultats : [] ;
 				enrichirSentierLabel(lthis.sentiers);
 
-				if (lthis.sentiers.length > 0) {
-					lthis.sentierSelectionne = lthis.sentiers[0];
-					lthis.surChangementSentier();
-				}
+				lthis.selectionnerUnSentier();
 
 				lthis.afficherSentiers = etatApplicationService.utilisateur.connecte;
 			},
@@ -231,6 +230,24 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 		}
 	};
 
+	this.selectionnerUnSentier = function() {
+		var sentiersFiltres = $filter('filter')(lthis.sentiers, this.filtre.value);
+		sentiersFiltres = $filter('filter')(sentiersFiltres, this.recherche);
+
+		if (lthis.sentierSelectionne.titre == '' || $filter('filter')(sentiersFiltres, { 'titre': lthis.sentierSelectionne.titre }).length < 1) {
+			if (sentiersFiltres.length > 0) {
+				for (var i = 0, len = sentiersFiltres.length; i < len; i++) {
+					if ('' == sentiersFiltres[i].dateSuppression || i+1 == sentiersFiltres.length) {
+						lthis.sentierSelectionne = sentiersFiltres[i];
+						break;
+					}
+				}
+			} else {
+				lthis.sentierSelectionne = creerObjetSentierVide();
+			}
+		}
+	};
+
 	this.supprimerSentier = function(sentier) {
 		if(window.confirm("Êtes-vous sûr de vouloir supprimer ce sentier ?")) {
 			smartFormService.supprimerSentier(sentier.titre,
@@ -238,18 +255,12 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 					if(data == 'OK') {
 						if (!lthis.estAdmin()) {
 							lthis.supprimerSentierDeLaListe(sentier);
-
-							if (lthis.sentiers.length > 0) {
-								lthis.sentierSelectionne = lthis.sentiers[lthis.sentiers.length - 1];
-							} else {
-								lthis.sentierSelectionne = creerObjetSentierVide();
-							}
-
-							lthis.surChangementSentier();
 						} else {
 							lthis.sentierSelectionne.dateSuppression = Math.round(new Date().getTime() / 1000);
 							enrichirSentierLabel(lthis.sentiers);
 						}
+
+						lthis.getSentiers();
 
 						// stats
 						googleAnalyticsService.envoyerEvenement("sentier", "suppression", sentier.titre);
@@ -270,6 +281,8 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 
 						lthis.sentierSelectionne.dateSuppression = null;
 						enrichirSentierLabel(lthis.sentiers);
+
+						lthis.getSentiers();
 
 						// stats
 						googleAnalyticsService.envoyerEvenement("sentier", "resurrection", sentier.titre);

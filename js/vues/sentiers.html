@@ -12,6 +12,7 @@
 					<div class="col-md-3">
 						<select name="filtre" id="filtre" class="form-control" ng-init="sentiersCtrl.filtre = sentiersCtrl.filtres[0]"
 							ng-model="sentiersCtrl.filtre"
+							ng-change="sentiersCtrl.selectionnerUnSentier()"
 							ng-options="filtre.label for filtre in sentiersCtrl.filtres">
 						</select>
 					</div>
@@ -19,11 +20,12 @@
 					<div class="col-md-6">
 						<input type="text" id="file-search-input" name="query" class="form-control"
 						placeholder="Rechercher un sentier"
+						ng-change="sentiersCtrl.selectionnerUnSentier()"
 						ng-model="sentiersCtrl.recherche">
 					</div>
 
 					<div class="col-md-3">
-						<input type="text" name="compteur-sentiers" class="form-control" value="{{ (sentiersCtrl.sentiers | filter:sentiersCtrl.filtre.value).length }} sentiers trouvés" disabled>
+						<input type="text" name="compteur-sentiers" class="form-control" value="{{ (sentiersCtrl.sentiers | filter:sentiersCtrl.filtre.value | filter:sentiersCtrl.recherche).length }} sentiers trouvés" disabled>
 					</div>
 				</form>
 
