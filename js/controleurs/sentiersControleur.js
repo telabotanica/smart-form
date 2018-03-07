@@ -6,7 +6,7 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 	this.nouveauSentierTitre = "";
 
 	this.afficherSentiers = etatApplicationService.utilisateur.connecte;
-	this.utilisateurNomWiki = etatApplicationService.utilisateur.nomWiki;
+	this.utilisateur = etatApplicationService.utilisateur;
 
 	this.liensService = liensService;
 	this.chargementSentier = false;
@@ -16,14 +16,14 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 	var lthis = this;
 
 	$scope.$on('utilisateur.utilisateur-connecte', function(event, utilisateur) {
-		lthis.utilisateurNomWiki = utilisateur.nomWiki;
+		lthis.utilisateur = utilisateur;
 		lthis.afficherSentiers = utilisateur.connecte;
 		lthis.getSentiers();
 	});
 
 	$scope.$on('utilisateur.utilisateur-deconnecte', function() {
 		lthis.afficherSentiers = false;
-		lthis.utilisateurNomWiki = "";
+		lthis.utilisateur = {};
 	});
 
 	$scope.$on('dropEvent', function(evt, dragged, dropped) {
@@ -72,7 +72,7 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 	 */
 	this.estAdmin = function() {
 		return lthis.sentiers.some(function(sentier) {
-			return sentier.auteur !== lthis.utilisateurNomWiki;
+			return sentier.auteur !== lthis.utilisateur.courriel;
 		});
 	};
 
@@ -115,7 +115,7 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 	 */
 	enrichirSentierLabel = function(sentiers) {
 		sentiers.forEach(function(sentier, key, sentiers) {
-			if (sentier.auteur !== lthis.utilisateurNomWiki) {
+			if (sentier.auteur !== lthis.utilisateur.courriel) {
 				sentiers[key].label = sentier.titre + ' (' + sentier.auteur + ')';
 			} else {
 				sentiers[key].label = sentier.titre;
@@ -331,11 +331,11 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 		var nouveauSentier = creerObjetSentierVide(),
 			now = Math.round(new Date().getTime() / 1000);
 		nouveauSentier.titre = titre;
-		nouveauSentier.auteur = lthis.utilisateurNomWiki;
+		nouveauSentier.auteur = lthis.utilisateur.courriel;
 		nouveauSentier.dateCreation = now;
 		nouveauSentier.dateDerniereModif = now;
 		nouveauSentier.meta.titre = titre;
-		nouveauSentier.meta.auteur = lthis.utilisateurNomWiki;
+		nouveauSentier.meta.auteur = lthis.utilisateur.intitule;
 		this.sentiers.push(nouveauSentier);
 		enrichirSentierLabel(this.sentiers);
 		this.sentierSelectionne = this.sentiers[this.sentiers.length - 1];
@@ -359,7 +359,7 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 	this.contientSentier = function(sentierTitre) {
 	    var i;
 	    for (i = 0; i < this.sentiers.length; i++) {
-	        if (this.sentiers[i].titre === sentierTitre) {
+	        if (this.sentiers[i].titre.toUpperCase() === sentierTitre.toUpperCase()) {
 	        	return true;
 	        }
 	    }

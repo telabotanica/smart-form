@@ -180,11 +180,10 @@ class SmartFloreService {
 			if ($valide === true) {
 				// décodage du courriel utilisateur depuis le jeton
 				$donneesJeton = $this->decoderJeton($jeton);
-				if ($donneesJeton != null && $donneesJeton["sub"] != "" && $donneesJeton["nomWiki"] != "") {
+				if ($donneesJeton != null && $donneesJeton["sub"] != "") {
 					// récupération de l'utilisateur
 					$utilisateur = array(
 						"courriel" => $donneesJeton["sub"],
-						"nomWiki" => $donneesJeton["nomWiki"],
 						"id" => $donneesJeton["id"]
 					);
 				}
@@ -558,7 +557,7 @@ class SmartFloreService {
 					$sentiersNommes[$nomSentier]['dateSuppression'] = $r['value'];
 					break;
 				case $this->triple_evenement_sentier_ajout:
-					preg_match('/{"utilisateur":"\w+","utilisateur_courriel":"(.+@.+)","titre":"(.+)"}/', $r['value'], $matches);
+					preg_match('/{"utilisateur":".+","utilisateur_courriel":"(.+@.+)","titre":"(.+)"}/', $r['value'], $matches);
 					if (!empty($matches[1]) && !empty($matches[2])) {
 						$sentiersNommes[$matches[2]]['auteurEmail'] = $matches[1];
 					}

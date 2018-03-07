@@ -11,7 +11,7 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 		var pagesExistantes = '&pages_existantes='+(!!recherche.fichesExistantes);
 		var nomsVernaculaires = '&nom_verna='+(!!recherche.nomVernaculaire);
 		var pagination = '&debut='+(pageCourante*taillePage)+"&limite="+taillePage;
-		var utilisateurConnecte = (utilisateur.connecte && utilisateur.nomWiki != '') ? '&utilisateur='+utilisateur.nomWiki : '';
+		var utilisateurConnecte = (utilisateur.connecte && utilisateur.courriel != '') ? '&utilisateur='+utilisateur.courriel : '';
 
 		$http.get(config.url_service_pages+'?'+referentiel+referentielVerna+rechercheLibre+pagesExistantes+nomsVernaculaires+pagination+utilisateurConnecte).
 		success(function(data, status, headers, config) {

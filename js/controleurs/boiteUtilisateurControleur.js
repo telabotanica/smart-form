@@ -142,7 +142,6 @@ smartFormApp.controller('BoiteUtilisateurControleur', function ($scope, $rootSco
 		this.utilisateur.nom = "";
 		this.utilisateur.intitule = "";
 		this.utilisateur.courriel = "";
-		this.utilisateur.nomWiki = ""; // homonymes possibles
 		this.utilisateur.mdp = ""; // wtf ?
 	};
 
@@ -158,8 +157,7 @@ smartFormApp.controller('BoiteUtilisateurControleur', function ($scope, $rootSco
 			prenom: infos.prenom,
 			nom: infos.nom,
 			intitule: infos.intitule,
-			courriel: infos.sub,
-			nomWiki: infos.nomWiki
+			courriel: infos.sub
 		};
 
 		return utilisateur;

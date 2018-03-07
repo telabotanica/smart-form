@@ -94,7 +94,7 @@ class Sentiers extends SmartFloreService {
 			. "LEFT JOIN " . $this->config['bdd']['table_prefixe'] . "_triples t3 ON t1.resource = t3.resource AND t3.property = " . $this->bdd->quote($this->triple_sentier_date_suppression) . " "
 			. "WHERE t1.property = " . $this->bdd->quote($this->triple_sentier) . " ";
 		if (! $this->estAdmin()) {
-			$requete .= "AND t1.value = " . $this->bdd->quote($this->utilisateur['nomWiki']);
+			$requete .= "AND t1.value = " . $this->bdd->quote($this->utilisateur['courriel']);
 			$requete .= " AND t3.value = '' ";
 		} else {
 			$requete .= "UNION "
@@ -243,6 +243,58 @@ class Sentiers extends SmartFloreService {
 		);
 	}
 
+	/**
+	 * Appelle l'annuaire pour récupérer l'intitulé publique d'un utilisateur
+	 *
+	 * @param      string  $email  The email
+	 *
+	 * @return     string  L'intitulé de l'utilisateur
+	 */
+	private function retrouverIntituleUtilisateur($email) {
+		$intitule = '';
+
+		$ch = curl_init();
+		curl_setopt_array($ch, array(
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_FAILONERROR => true,
+			// CURLOPT_URL => 'http://annuaire2.dev/service:annuaire:utilisateur/identite-par-courriel/'.$email
+			CURLOPT_URL => sprintf($this->config['service']['details_utilisateur_url'], $email)
+		));
+
+		$output = curl_exec($ch);
+
+		curl_close($ch);
+
+		$infos_utilisateur = array_values(json_decode($output, true))[0];
+
+		if (!empty($infos_utilisateur && array_key_exists('intitule', $infos_utilisateur))) {
+			$intitule = $infos_utilisateur['intitule'];
+		}
+
+		return $intitule;
+	}
+
+	/**
+	 * Anonymise l'email de l'utilisateur avec son intitulé publique
+	 *
+	 * Ne fait rien si l'utilisateur ne fait rien car l'utilisateur ne fait rien (hein?)
+	 *
+	 * @param      array  $infos_sentier  The infos sentier
+	 */
+	private function remplacerEmailParIntitule(&$infos_sentier) {
+		$email = $infos_sentier['value'];
+
+		if (strpos($email, '@') > 0 && strpos($email, '@') < (strlen($email) - 1)) {
+			$intitule = $this->retrouverIntituleUtilisateur($infos_sentier['value']);
+			if ('' !== $intitule) {
+				$infos_sentier['value'] = $intitule;
+			} else {
+				// affectation par défaut pour éviter la fuite d'email dans la nature
+				$infos_sentier['value'] = 'utilisateur-mystère';
+			}
+		}
+	}
+
 	private function formatSentierDetails($sentier) {
 		$fiches = $this->getFichesBySentier($sentier['resource']);
 
@@ -268,6 +320,9 @@ class Sentiers extends SmartFloreService {
 
 			$fiches_eflore[$fiche['value']] = $fiche_eflore;
 		}
+
+		// anonymise l'email attaché au sentier
+		$this->remplacerEmailParIntitule($sentier);
 
 		$sentier_details = $this->buildJsonInfosSentier($sentier, $meta, $localisation);
 
@@ -327,7 +382,7 @@ class Sentiers extends SmartFloreService {
 			echo $this->formatSentierDetails($sentier);
 		} else {
 			header('Content-type: text/plain');
-			return $this->error('400', 'Ce sentier n=\'existe pas');;
+			return $this->error('400', 'Ce sentier n\'existe pas');;
 		}
 	}
 
@@ -355,6 +410,9 @@ class Sentiers extends SmartFloreService {
 			// élimination des sentiers non valides (difficile à faire dans le
 			// SQL à cause des triplets)
 			if ($this->sentierPublicValide($infos_sentier)) {
+				// anonymise l'email attaché au sentier
+				$this->remplacerEmailParIntitule($infos_sentier);
+
 				// formatage du sentier; devrait correspondre à
 				// http://floristic.org/wiki/wakka.php?wiki=FormatDonneesSentiers
 				$jsonInfosSentier = $this->buildJsonInfosSentier(
@@ -429,8 +487,7 @@ class Sentiers extends SmartFloreService {
 		}
 
 		$sentier_titre = $data['sentierTitre'];
-		$utilisateur = $this->utilisateur['nomWiki'];
-		$utilisateurCourriel = $this->utilisateur['courriel'];
+		$utilisateur = $this->utilisateur['courriel'];
 
 		$res_existe = $this->sentierExiste($sentier_titre);
 
@@ -448,7 +505,7 @@ class Sentiers extends SmartFloreService {
 			$retour = ($res_insertion !== false) ? 'OK' : false;
 
 			if ($retour == 'OK') {
-				$infos_evenement = array('utilisateur' => $utilisateur, 'utilisateur_courriel' => $utilisateurCourriel, 'titre' => $sentier_titre);
+				$infos_evenement = array('utilisateur' => $utilisateur, 'utilisateur_courriel' => $utilisateur, 'titre' => $sentier_titre);
 				// Enregistrement de l'évènement pour des stats ultérieures
 				$this->enregistrerEvenement($this->triple_evenement_sentier_ajout, $infos_evenement);
 			}
@@ -498,7 +555,7 @@ class Sentiers extends SmartFloreService {
 
 			$createur = $this->bdd->query($requete_createur)->fetch(PDO::FETCH_ASSOC)['value'];
 
-			if (!empty($createur) && ($this->utilisateur['nomWiki'] === $createur)) {
+			if (!empty($createur) && ($this->utilisateur['courriel'] === $createur)) {
 				$estCreateur = true;
 			}
 		}
@@ -611,7 +668,7 @@ class Sentiers extends SmartFloreService {
 		}
 
 		$sentier_titre = $data['sentierTitre'];
-		$utilisateur = $this->utilisateur['nomWiki'];
+		$utilisateur = $this->utilisateur['courriel'];
 		$page_tag = $data['pageTag'];
 
 		$requete_existe = 'SELECT COUNT(value) > 1 as sentier_a_page_existe '.

@@ -161,6 +161,7 @@
 						<span ng-if="sentiersCtrl.estAdmin()">Créé par <a href="mailto:{{ sentiersCtrl.sentierSelectionne.auteurEmail }}">{{ sentiersCtrl.sentierSelectionne.auteur }}</a></span>
 						<span ng-if="!sentiersCtrl.estAdmin()">Créé par {{ sentiersCtrl.sentierSelectionne.auteur }}</span>
 						le {{ sentiersCtrl.sentierSelectionne.dateCreation * 1000 | date:'dd/MM/yyyy' }}
+
 						<span ng-show="sentiersCtrl.sentierSelectionne.dateDerniereModif !== sentiersCtrl.sentierSelectionne.dateCreation">
 							(dernière modif. le {{ sentiersCtrl.sentierSelectionne.dateDerniereModif * 1000 | date:'dd/MM/yyyy' }})
 						</span>

@@ -28,7 +28,7 @@ class Favoris extends SmartFloreService {
 	public function getFavoris() {
 
 		$this->verifierAuthentification();
-		$utilisateur = $this->utilisateur['nomWiki'];
+		$utilisateur = $this->utilisateur['courriel'];
 
 		$favoris = $this->getFavorisPourUtilisateur($utilisateur);
 
@@ -55,7 +55,7 @@ class Favoris extends SmartFloreService {
 		}
 
 		$page_tag = $data['pageTag'];
-		$utilisateur = $this->utilisateur['nomWiki'];
+		$utilisateur = $this->utilisateur['courriel'];
 
 		$requete_existe = 'SELECT COUNT(resource) >= 1 as favoris_existe '.
 				'FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
@@ -91,7 +91,7 @@ class Favoris extends SmartFloreService {
 		}
 
 		$page_tag = $data['pageTag'];
-		$utilisateur = $this->utilisateur['nomWiki'];
+		$utilisateur = $this->utilisateur['courriel'];
 
 		$requete_suppression = 'DELETE FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
 				'WHERE resource = '.$this->bdd->quote($page_tag).' AND '.
