@@ -558,7 +558,7 @@ class SmartFloreService {
 					break;
 				case $this->triple_evenement_sentier_ajout:
 					preg_match('/{"utilisateur":".+","utilisateur_courriel":"(.+@.+)","titre":"(.+)"}/', $r['value'], $matches);
-					if (!empty($matches[1]) && !empty($matches[2])) {
+					if (!empty($matches[1]) && !empty($matches[2] && array_key_exists($matches[2], $sentiersNommes))) {
 						$sentiersNommes[$matches[2]]['auteurEmail'] = $matches[1];
 					}
 					break;
