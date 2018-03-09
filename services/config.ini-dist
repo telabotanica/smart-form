@@ -2,16 +2,16 @@
 host = "127.0.0.1"
 user = ""
 pass = ""
-db = "tela_prod_wikini"
-table_prefixe = "eFloreRedactionTest"
+db = "wikini"
+table_prefixe = "eFloreRedaction"
 
 [auth]
-auth_url = https://www.tela-botanica.org/service:annuaire-test:auth
+auth_url = https://beta.tela-botanica.org/service:annuaire:auth
 header = 'Auth';
 admins = "admin1@mydomain.com,admin2@mydomain.com"
 
 [eflore]
-url_base = "https://api-test.tela-botanica.org/service:eflore:0.1"
+url_base = "https://beta.tela-botanica.org/service:eflore:0.1"
 
 infos_taxons_url = "/%s/taxons?masque.nt=%s&navigation.limite=99"
 infos_taxons_export_url = "/%s/taxons/%s"
@@ -22,20 +22,21 @@ recherche_noms_vernaculaires_url = "/%s/noms-vernaculaires?masque=%s&recherche=e
 referentiel_verna_bdtfx = "nvjfl"
 referentiel_verna_bdtxa = "nva"
 
-qr_code_url = "http://www.tela-botanica.org/tmp/eflore_v5_cache/qrcode/%s-%s.png"
+qr_code_url = "https://beta.tela-botanica.org/tmp/eflore_v5_cache/qrcode/%s-%s.png"
 
-fiche_mobile = "http://www.tela-botanica.org/eflore/consultation/index_mobile.php?module=mobile&referentiel=%s&num_nom=%s"
+fiche_mobile = "https://beta.tela-botanica.org/eflore/consultation/index_mobile.php?module=mobile&referentiel=%s&num_nom=%s"
 
 [export]
-description_url_tpl = "http://www.tela-botanica.org/wikini/eFloreRedactionTest/api/rest/0.5/pages/SmartFlore%snt%s?txt.format=text/html&txt.section.titre=description"
+description_url_tpl = "https://beta.tela-botanica.org/wikini/eFloreRedactionTest/api/rest/0.5/pages/SmartFlore%snt%s?txt.format=text/html&txt.section.titre=description"
 meilleure_image_url_tpl = "https://api.tela-botanica.org/service:del:0.1/images?masque.referentiel=%s&masque.nn=%s&navigation.limite=1&tri=moyenne-arithmetique&ordre=desc&protocole=3&format=CRL"
 
 chemin_export_tmp = "/home/telabotap/www/tmp/"
 pdf_export_url = "https://api.tela-botanica.org/services/misc/convert/conversionPdf.php?url=%s&height=%s&width=%s"
 
 [smartflore]
-application_saisie_url = "http://www.tela-botanica.org/appli-test:smartflore";
+application_saisie_url = "https://beta.tela-botanica.org/appli:smartflore";
 
 [service]
-sentier_liste_url = "http://www.tela-botanica.org/eflore-test/smart-form/services/Sentiers.php/sentiers/"
-details_sentier_url = "http://www.tela-botanica.org/eflore-test/smart-form/services/Sentiers.php/sentiers/%s"
+sentier_liste_url = "https://beta.tela-botanica.org/smart-form/services/Sentiers.php/sentiers/"
+details_sentier_url = "https://beta.tela-botanica.org/smart-form/services/Sentiers.php/sentiers/%s"
+details_utilisateur_url = "https://beta.tela-botanica.org/service:annuaire:utilisateur/identite-par-courriel/%s"
