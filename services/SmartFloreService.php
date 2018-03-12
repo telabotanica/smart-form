@@ -450,9 +450,9 @@ class SmartFloreService {
 	function getFavorisPourUtilisateur($utilisateur, $tag_fiches = array()) {
 		$requete = 'SELECT * '.
 				'FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
-				'WHERE value = '.$this->bdd->quote($utilisateur).' '.
+				'WHERE resource = '.$this->bdd->quote($utilisateur).' '.
 				'AND property = "'.$this->triple_favoris_fiche.'" '.
-				(!empty($tag_fiches) ? 'AND resource IN ('.implode(',', array_map(array($this->bdd, 'quote'), $tag_fiches)).')' : '');
+				(!empty($tag_fiches) ? 'AND value IN ('.implode(',', array_map(array($this->bdd, 'quote'), $tag_fiches)).')' : '');
 
 		$res = $this->bdd->query($requete);
 		$res = $res->fetchAll(PDO::FETCH_ASSOC);

@@ -34,7 +34,7 @@ class Favoris extends SmartFloreService {
 
 		$recherche = array('noms_pages' => array(), 'debut' => 0, 'limite' => 100);
 		foreach($favoris as $page) {
-			$recherche['noms_pages'][] = $this->bdd->quote($page['resource']);
+			$recherche['noms_pages'][] = $this->bdd->quote($page['value']);
 		}
 
 		$pages_wiki = $this->getPagesWikiParRechercheExacte($recherche);
@@ -59,9 +59,9 @@ class Favoris extends SmartFloreService {
 
 		$requete_existe = 'SELECT COUNT(resource) >= 1 as favoris_existe '.
 				'FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
-				'WHERE value = '.$this->bdd->quote($utilisateur).' '.
+				'WHERE resource = '.$this->bdd->quote($utilisateur).' '.
 				'AND property = "'.$this->triple_favoris_fiche.'" '.
-				'AND resource = '.$this->bdd->quote($page_tag);
+				'AND value = '.$this->bdd->quote($page_tag);
 
 		$res_existe = $this->bdd->query($requete_existe);
 		$res_existe = $res_existe->fetch(PDO::FETCH_ASSOC);
@@ -69,7 +69,7 @@ class Favoris extends SmartFloreService {
 		if(!$res_existe['favoris_existe']) {
 
 			$requete_insertion = 'INSERT INTO '.$this->config['bdd']['table_prefixe'].'_triples '.
-					'(resource, property, value) VALUES '.
+					'(value, property, resource) VALUES '.
 					' ('.$this->bdd->quote($page_tag).',"'.$this->triple_favoris_fiche.'", '.$this->bdd->quote($utilisateur).') ';
 
 			$res_insertion = $this->bdd->exec($requete_insertion);
@@ -94,9 +94,9 @@ class Favoris extends SmartFloreService {
 		$utilisateur = $this->utilisateur['courriel'];
 
 		$requete_suppression = 'DELETE FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
-				'WHERE resource = '.$this->bdd->quote($page_tag).' AND '.
+				'WHERE value = '.$this->bdd->quote($page_tag).' AND '.
 				'property = "'.$this->triple_favoris_fiche.'" AND '.
-				'value = '.$this->bdd->quote($utilisateur);
+				'resource = '.$this->bdd->quote($utilisateur);
 
 		$res_suppression = $this->bdd->exec($requete_suppression);
 		$retour = ($res_suppression !== false) ? 'OK' : false;
