@@ -2,8 +2,8 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<link type="text/css" rel="stylesheet" href="<?= $base_style_url; ?>styles/panneau.css">
-<title><?= $titre ?></title>
+<link type="text/css" rel="stylesheet" href="<?php echo $base_style_url; ?>styles/panneau.css">
+<title><?php echo $titre; ?></title>
 </head>
 <body>
 	<div class="panneau-entete">
@@ -13,50 +13,50 @@
 				<div class="panneau-fiche-sentier">
 					<span class="panneau-lettre-emphase">S</span>mart'<span class="panneau-lettre-emphase">F</span>lore :
 				</div>
-				<div class="panneau-nom-sentier"><?= $nom_sentier ?></div>
-			<? } else { ?>
+				<div class="panneau-nom-sentier"><?php echo $nom_sentier; ?></div>
+			<?php } else { ?>
 				<div class="panneau-fiche-sans-sentier"><span class="panneau-lettre-emphase">S</span>mart'<span class="panneau-lettre-emphase">F</span>lore</div>
-			<? } ?>
+			<?php } ?>
 		</div>
-		<img class="panneau-qr-code" src="<?= $url_qr_code; ?>" />
+		<img class="panneau-qr-code" src="<?php echo $url_qr_code; ?>" />
 	</div>
 	<hr class="nettoyage separation-entete" />
 	<div class="panneau-nom-illustration">
 		<div class="panneau-espece-nom">
 			<div class="panneau-espece-nom-texte">
 				<?php if(!empty($nom_vernaculaire)) { ?>
-					<div class="panneau-nom-vernaculaire <?= $nom_classe ?>"><?= $nom_vernaculaire ?></div>
+					<div class="panneau-nom-vernaculaire <?php echo $nom_classe; ?>"><?php echo $nom_vernaculaire; ?></div>
 					<div class="panneau-infos-scientifique">
-						<span class="panneau-nom-scientifique"><?= $nom_sci; ?></span>
-						<span class="panneau-famille">Famille des <?= $famille; ?></span>
+						<span class="panneau-nom-scientifique"><?php echo $nom_sci; ?></span>
+						<span class="panneau-famille">Famille des <?php echo $famille; ?></span>
 					</div>
-				<? } else { ?>
-					<div class="panneau-nom-vernaculaire <?= $nom_classe ?>"><?= $nom_sci ?></div>
+				<?php } else { ?>
+					<div class="panneau-nom-vernaculaire <?php echo $nom_classe; ?>"><?php echo $nom_sci; ?></div>
 					<div class="panneau-infos-scientifique">
-						<span class="panneau-famille">Famille des <?= $famille; ?></span>
+						<span class="panneau-famille">Famille des <?php echo $famille; ?></span>
 					</div>
-				<? } ?>
+				<?php } ?>
 			</div>
 		</div>
 		<div class="panneau-bande-1">&nbsp;</div>
 		<div class="panneau-bande-2">&nbsp;</div>
 		<div class="panneau-conteneur-illustration">
 			<?php if(!empty($url_illustration)) { ?>
-				<img class="panneau-espece-illustration" src="<?= $url_illustration; ?>" />
+				<img class="panneau-espece-illustration" src="<?php echo $url_illustration; ?>" />
 			<?php } ?>
 		</div>
 	</div>
 	<hr class="nettoyage" />
-	<div class="panneau-description <?= $description_classe ?>">
-		<?= $description; ?>
+	<div class="panneau-description <?php echo $description_classe ?>">
+		<?php echo $description; ?>
 	</div>
 
 	<div class="panneau-pied">
-		<img src="<?= $base_style_url; ?>images/logo_js.jpg" class="panneau-logo" />
-		<img src="<?= $base_style_url; ?>images/logo_pia.jpg" class="panneau-logo" />
-		<img src="<?= $base_style_url; ?>images/logo_occitanie.jpg" class="panneau-logo" />
+		<img src="<?php echo $base_style_url; ?>images/logo_js.jpg" class="panneau-logo" />
+		<img src="<?php echo $base_style_url; ?>images/logo_pia.jpg" class="panneau-logo" />
+		<img src="<?php echo $base_style_url; ?>images/logo_occitanie.jpg" class="panneau-logo" />
 		<?php if ($referentiel == "apd"): ?>
-			<img src="<?= $base_style_url; ?>images/logo_oif.png" class="panneau-logo" />
+			<img src="<?php echo $base_style_url; ?>images/logo_oif.png" class="panneau-logo" />
 		<?php endif; ?>
 	</div>
 </body>
