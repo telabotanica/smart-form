@@ -286,7 +286,7 @@ class Sentiers extends SmartFloreService {
 					),
 					'taxo' => array(
 						'espece' => $fiche_individu['nom_sci'],
-						'auteur_espece' => $fiche_individu['auteur'],
+						'auteur_espece' => $fiche_individu['auteur'] ?? '',
 						'auteur_genre' => '',
 						'auteur_famille' => '',
 						'genre' => $fiche_individu['genre'],
