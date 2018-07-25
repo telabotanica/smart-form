@@ -1,3 +1,16 @@
+Changements 2018-07-25 [création de la branche "1.5-diavola"]:
+* Admin
+ - filtres de recherche
+ - resurection d'un sentier supprimé par un utilisateur
+ - suppression définitive d'un sentier
+* Sentiers
+ - soft delete
+ - lien fort à l'utilisateur (fini le NomWiki)
+* Misc
+ - lien vers les TOS
+ - retrait des colonnes inutiles
+ - Bug fixes
+
 Changements 2017-07-19 [création de la branche "1.4-principessa"]:
 * Admin
  - validation et invalidation de sentiers
