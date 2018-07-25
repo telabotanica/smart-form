@@ -231,20 +231,31 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 	};
 
 	this.selectionnerUnSentier = function() {
-		var sentiersFiltres = $filter('filter')(lthis.sentiers, this.filtre.value);
-		sentiersFiltres = $filter('filter')(sentiersFiltres, this.recherche);
+		if (!lthis.sentierSelectionne) {
+			lthis.sentierSelectionne = creerObjetSentierVide();
+		}
 
-		if (lthis.sentierSelectionne.titre == '' || $filter('filter')(sentiersFiltres, { 'titre': lthis.sentierSelectionne.titre }).length < 1) {
-			if (sentiersFiltres.length > 0) {
-				for (var i = 0, len = sentiersFiltres.length; i < len; i++) {
-					if ('' == sentiersFiltres[i].dateSuppression || i+1 == sentiersFiltres.length) {
-						lthis.sentierSelectionne = sentiersFiltres[i];
-						break;
+		if (lthis.sentiers.length > 0) {
+			var sentiersFiltres = $filter('filter')(lthis.sentiers, this.filtre.value);
+			sentiersFiltres = $filter('filter')(sentiersFiltres, this.recherche);
+
+			// si pas de sentier sélectionné, ou que le sentier selectionné ne correspond pas avec la recherche
+			if (lthis.sentierSelectionne.titre == '' || $filter('filter')(sentiersFiltres, { 'titre': lthis.sentierSelectionne.titre }).length < 1) {
+				if (sentiersFiltres.length > 0) {
+					for (var i = 0, len = sentiersFiltres.length; i < len; i++) {
+						// si le sentier n'est pas supprimé ou qu'on arrive au dernier sentier de la liste
+						if ('' == sentiersFiltres[i].dateSuppression || i+1 == len) {
+							lthis.sentierSelectionne = sentiersFiltres[i];
+							lthis.surChangementSentier();
+							break;
+						}
 					}
+				} else {
+					lthis.sentierSelectionne = creerObjetSentierVide();
 				}
-			} else {
-				lthis.sentierSelectionne = creerObjetSentierVide();
 			}
+		} else {
+			lthis.sentierSelectionne = creerObjetSentierVide();
 		}
 	};
 
