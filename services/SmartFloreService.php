@@ -180,11 +180,10 @@ class SmartFloreService {
 			if ($valide === true) {
 				// décodage du courriel utilisateur depuis le jeton
 				$donneesJeton = $this->decoderJeton($jeton);
-				if ($donneesJeton != null && $donneesJeton["sub"] != "" && $donneesJeton["nomWiki"] != "") {
+				if ($donneesJeton != null && $donneesJeton["sub"] != "") {
 					// récupération de l'utilisateur
 					$utilisateur = array(
 						"courriel" => $donneesJeton["sub"],
-						"nomWiki" => $donneesJeton["nomWiki"],
 						"id" => $donneesJeton["id"]
 					);
 				}
@@ -205,7 +204,7 @@ class SmartFloreService {
 		$jwt = null;
 		if (! function_exists('apache_request_headers')) {
 			function apache_request_headers() {
-				$headers = [];
+				$headers = array();
 				foreach ($_SERVER as $name => $value) {
 					if (substr($name, 0, 5) == 'HTTP_') {
 						$headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
@@ -451,9 +450,9 @@ class SmartFloreService {
 	function getFavorisPourUtilisateur($utilisateur, $tag_fiches = array()) {
 		$requete = 'SELECT * '.
 				'FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
-				'WHERE value = '.$this->bdd->quote($utilisateur).' '.
+				'WHERE resource = '.$this->bdd->quote($utilisateur).' '.
 				'AND property = "'.$this->triple_favoris_fiche.'" '.
-				(!empty($tag_fiches) ? 'AND resource IN ('.implode(',', array_map(array($this->bdd, 'quote'), $tag_fiches)).')' : '');
+				(!empty($tag_fiches) ? 'AND value IN ('.implode(',', array_map(array($this->bdd, 'quote'), $tag_fiches)).')' : '');
 
 		$res = $this->bdd->query($requete);
 		$res = $res->fetchAll(PDO::FETCH_ASSOC);
@@ -556,6 +555,12 @@ class SmartFloreService {
 					break;
 				case $this->triple_sentier_date_suppression:
 					$sentiersNommes[$nomSentier]['dateSuppression'] = $r['value'];
+					break;
+				case $this->triple_evenement_sentier_ajout:
+					preg_match('/{"utilisateur":".+","utilisateur_courriel":"(.+@.+)","titre":"(.+)"}/', $r['value'], $matches);
+					if (!empty($matches[1]) && !empty($matches[2] && array_key_exists($matches[2], $sentiersNommes))) {
+						$sentiersNommes[$matches[2]]['auteurEmail'] = $matches[1];
+					}
 					break;
 			}
 		}

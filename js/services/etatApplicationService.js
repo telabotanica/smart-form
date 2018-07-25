@@ -27,7 +27,6 @@ smartFormApp.service('etatApplicationService', function($http) {
 	etatApplicationService.utilisateur.nom = "";
 	etatApplicationService.utilisateur.intitule = "";
 	etatApplicationService.utilisateur.courriel = "";
-	etatApplicationService.utilisateur.nomWiki = "";
 
 	// SSO
 	etatApplicationService.jeton = null;

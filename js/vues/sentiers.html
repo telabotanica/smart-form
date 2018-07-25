@@ -8,25 +8,33 @@
 
 				<form id="sentier-search" name="search" class="form-group col-md-12"
 					ng-if="sentiersCtrl.estAdmin()">
-					<span class="glyphicon glyphicon-search col-md-1"></span>
 
-					<div class="col-md-7">
-						<input type="text" id="file-search-input" name="query" class="form-control col-md-7"
-						placeholder="Rechercher un sentier"
-						ng-model="sentiersCtrl.filtre">
+					<div class="col-md-3">
+						<select name="filtre" id="filtre" class="form-control" ng-init="sentiersCtrl.filtre = sentiersCtrl.filtres[0]"
+							ng-model="sentiersCtrl.filtre"
+							ng-change="sentiersCtrl.selectionnerUnSentier()"
+							ng-options="filtre.label for filtre in sentiersCtrl.filtres">
+						</select>
 					</div>
 
-					<div class="col-md-4">
-						<input type="text" name="compteur-sentiers" class="form-control" value="{{ (sentiersCtrl.sentiers | filter:sentiersCtrl.filtre).length }} sentiers trouvés" disabled>
+					<div class="col-md-6">
+						<input type="text" id="file-search-input" name="query" class="form-control"
+						placeholder="Rechercher un sentier"
+						ng-change="sentiersCtrl.selectionnerUnSentier()"
+						ng-model="sentiersCtrl.recherche">
+					</div>
+
+					<div class="col-md-3">
+						<input type="text" name="compteur-sentiers" class="form-control" value="{{ (sentiersCtrl.sentiers | filter:sentiersCtrl.filtre.value | filter:sentiersCtrl.recherche).length }} sentiers trouvés" disabled>
 					</div>
 				</form>
 
-				<div class="col-md-7 selecteur-sentier" ng-show="(sentiersCtrl.sentiers | filter:sentiersCtrl.filtre).length > 0">
+				<div class="col-md-7 selecteur-sentier" ng-show="(sentiersCtrl.sentiers | filter:sentiersCtrl.filtre.value | filter:sentiersCtrl.recherche).length > 0">
 					<div class="col-md-11">
 						<select name="sentier" id="sentier" class="form-control"
 							ng-model="sentiersCtrl.sentierSelectionne"
 							ng-change="sentiersCtrl.surChangementSentier()"
-							ng-options="sentier.label for sentier in sentiersCtrl.sentiers | filter:sentiersCtrl.filtre | orderBy:['auteur','titre']">
+							ng-options="sentier.label for sentier in sentiersCtrl.sentiers | filter:sentiersCtrl.filtre.value | filter:sentiersCtrl.recherche | orderBy:['auteur','titre']">
 						</select>
 					</div>
 
@@ -150,8 +158,10 @@
 					<span ng-if="!sentiersCtrl.sentierSelectionne.etat">État : Localisation incomplète</span>
 
 					<h5 class="createur-sentier">
-						Créé par {{ sentiersCtrl.sentierSelectionne.auteur }}
+						<span ng-if="sentiersCtrl.estAdmin()">Créé par <a href="mailto:{{ sentiersCtrl.sentierSelectionne.auteurEmail }}">{{ sentiersCtrl.sentierSelectionne.auteur }}</a></span>
+						<span ng-if="!sentiersCtrl.estAdmin()">Créé par {{ sentiersCtrl.sentierSelectionne.auteur }}</span>
 						le {{ sentiersCtrl.sentierSelectionne.dateCreation * 1000 | date:'dd/MM/yyyy' }}
+
 						<span ng-show="sentiersCtrl.sentierSelectionne.dateDerniereModif !== sentiersCtrl.sentierSelectionne.dateCreation">
 							(dernière modif. le {{ sentiersCtrl.sentierSelectionne.dateDerniereModif * 1000 | date:'dd/MM/yyyy' }})
 						</span>
@@ -367,11 +377,16 @@
 				  </div>
 				  <div class="modal-body">
 					<p>Votre sentier semble prêt à être publié. Cependant, une validation manuelle est nécessaire avant qu'il soit visible sur l'application Smart'Flore.</p>
-					<p>Souhaitez-vous informer la personne responsable pour qu'elle passe en revue votre sentier&nbsp;?</p>
+					<p>Les personnes responsables seront prévenues et passeront en revue votre sentier.&nbsp;</p>
+					<p>
+						<label for="charteOk">En cochant cette case vous reconnaissez que votre sentier est conforme à la <a href="http://www.tela-botanica.org/wikini/smartflore/wakka.php?wiki=PageCharte" target="_blank">Charte de publication de sentiers Smart'Flore</a> :
+							<input type="checkbox" id="charteOk" ng-model="sentiersCtrl.charteOk" name="charte" value="charte">
+						</label>
+					</p>
 				  </div>
 				  <div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">Plus tard</button>
-					<button ng-click="sentiersCtrl.changerEtatSentier()" type="button" class="btn btn-primary">Soumettre le sentier</button>
+					<button ng-click="sentiersCtrl.changerEtatSentier()" ng-disabled="!sentiersCtrl.charteOk" type="button" class="btn btn-primary">Soumettre le sentier</button>
 				  </div>
 				</div><!-- /.modal-content -->
 			  </div><!-- /.modal-dialog -->

@@ -18,9 +18,6 @@ class Sentiers extends SmartFloreService {
 			case 'sentier':
 				$this->getSentiers();
 				break;
-			case 'sentier-fiche':
-				$this->getFichesASentier();
-				break;
 			case 'sentier-informations':
 				$this->getInformationsSentier();
 				break;
@@ -97,8 +94,14 @@ class Sentiers extends SmartFloreService {
 			. "LEFT JOIN " . $this->config['bdd']['table_prefixe'] . "_triples t3 ON t1.resource = t3.resource AND t3.property = " . $this->bdd->quote($this->triple_sentier_date_suppression) . " "
 			. "WHERE t1.property = " . $this->bdd->quote($this->triple_sentier) . " ";
 		if (! $this->estAdmin()) {
-			$requete .= "AND t1.value = " . $this->bdd->quote($this->utilisateur['nomWiki']);
+			$requete .= "AND t1.value = " . $this->bdd->quote($this->utilisateur['courriel']);
 			$requete .= " AND t3.value = '' ";
+		} else {
+			$requete .= "UNION "
+			. "SELECT t2.id as id, t1.resource as resource, t2.property as property, t2.value as value "
+			. "FROM " . $this->config['bdd']['table_prefixe'] . "_triples t1 "
+			. "JOIN " . $this->config['bdd']['table_prefixe'] . "_triples t2 ON t2.value REGEXP CONCAT('\",\"titre\":\"', t1.resource, '\"}$') AND t2.property = " . $this->bdd->quote($this->triple_evenement_sentier_ajout) . " "
+			. "WHERE t1.property = " . $this->bdd->quote($this->triple_sentier);
 		}
 
 		$res = $this->bdd->query($requete);
@@ -200,13 +203,13 @@ class Sentiers extends SmartFloreService {
 		$fiches_sql = 'SELECT *'
 			. ' FROM ' . $this->config['bdd']['table_prefixe'] . '_triples'
 			. ' WHERE property = ' . $this->bdd->quote($this->triple_sentier_fiche)
-			. ' AND value = ' . $this->bdd->quote($sentier_id)
+			. ' AND resource = ' . $this->bdd->quote($sentier_id)
 		;
 
 		$fiches = array();
 		$fiches_requete = $this->bdd->query($fiches_sql);
 		while ($fiche = $fiches_requete->fetch(PDO::FETCH_ASSOC)) {
-			$fiches[$fiche['resource']] = $fiche;
+			$fiches[$fiche['value']] = $fiche;
 		}
 
 		return $fiches;
@@ -240,6 +243,58 @@ class Sentiers extends SmartFloreService {
 		);
 	}
 
+	/**
+	 * Appelle l'annuaire pour récupérer l'intitulé publique d'un utilisateur
+	 *
+	 * @param      string  $email  The email
+	 *
+	 * @return     string  L'intitulé de l'utilisateur
+	 */
+	private function retrouverIntituleUtilisateur($email) {
+		$intitule = '';
+
+		$ch = curl_init();
+		curl_setopt_array($ch, array(
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_FAILONERROR => true,
+			// CURLOPT_URL => 'http://annuaire2.dev/service:annuaire:utilisateur/identite-par-courriel/'.$email
+			CURLOPT_URL => sprintf($this->config['service']['details_utilisateur_url'], $email)
+		));
+
+		$output = curl_exec($ch);
+
+		curl_close($ch);
+
+		$infos_utilisateur = array_values(json_decode($output, true))[0];
+
+		if (!empty($infos_utilisateur && array_key_exists('intitule', $infos_utilisateur))) {
+			$intitule = $infos_utilisateur['intitule'];
+		}
+
+		return $intitule;
+	}
+
+	/**
+	 * Anonymise l'email de l'utilisateur avec son intitulé publique
+	 *
+	 * Ne fait rien si l'utilisateur ne fait rien car l'utilisateur ne fait rien (hein?)
+	 *
+	 * @param      array  $infos_sentier  The infos sentier
+	 */
+	private function remplacerEmailParIntitule(&$infos_sentier) {
+		$email = $infos_sentier['value'];
+
+		if (strpos($email, '@') > 0 && strpos($email, '@') < (strlen($email) - 1)) {
+			$intitule = $this->retrouverIntituleUtilisateur($infos_sentier['value']);
+			if ('' !== $intitule) {
+				$infos_sentier['value'] = $intitule;
+			} else {
+				// affectation par défaut pour éviter la fuite d'email dans la nature
+				$infos_sentier['value'] = 'utilisateur-mystère';
+			}
+		}
+	}
+
 	private function formatSentierDetails($sentier) {
 		$fiches = $this->getFichesBySentier($sentier['resource']);
 
@@ -255,7 +310,7 @@ class Sentiers extends SmartFloreService {
 		// On va chercher sur eflore les infos complètes de chaque fiche
 		$fiches_eflore = array();
 		foreach ($fiches as $fiche) {
-			list($referentiel, $numero_taxonomique) = $this->splitNt($fiche['resource']);
+			list($referentiel, $numero_taxonomique) = $this->splitNt($fiche['value']);
 
 			// construction de l'url
 			$fiche_eflore_url_template = $this->config['eflore']['url_base'] . $this->config['eflore']['infos_taxons_export_url'];
@@ -263,8 +318,11 @@ class Sentiers extends SmartFloreService {
 			// recuperation des infos
 			$fiche_eflore = json_decode(@file_get_contents($fiche_eflore_url), true);
 
-			$fiches_eflore[$fiche['resource']] = $fiche_eflore;
+			$fiches_eflore[$fiche['value']] = $fiche_eflore;
 		}
+
+		// anonymise l'email attaché au sentier
+		$this->remplacerEmailParIntitule($sentier);
 
 		$sentier_details = $this->buildJsonInfosSentier($sentier, $meta, $localisation);
 
@@ -324,7 +382,7 @@ class Sentiers extends SmartFloreService {
 			echo $this->formatSentierDetails($sentier);
 		} else {
 			header('Content-type: text/plain');
-			return $this->error('400', 'Ce sentier n=\'existe pas');;
+			return $this->error('400', 'Ce sentier n\'existe pas');;
 		}
 	}
 
@@ -352,6 +410,9 @@ class Sentiers extends SmartFloreService {
 			// élimination des sentiers non valides (difficile à faire dans le
 			// SQL à cause des triplets)
 			if ($this->sentierPublicValide($infos_sentier)) {
+				// anonymise l'email attaché au sentier
+				$this->remplacerEmailParIntitule($infos_sentier);
+
 				// formatage du sentier; devrait correspondre à
 				// http://floristic.org/wiki/wakka.php?wiki=FormatDonneesSentiers
 				$jsonInfosSentier = $this->buildJsonInfosSentier(
@@ -403,6 +464,20 @@ class Sentiers extends SmartFloreService {
 		}
 	}
 
+	private function sentierExiste($sentier_titre) {
+		$retour = false;
+
+		$requete_existe = 'SELECT COUNT(resource) >= 1 as sentier_existe '.
+		'FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
+		'WHERE property = "'.$this->triple_sentier.'" '.
+		'AND TRIM(resource) = '.$this->bdd->quote(trim($sentier_titre));
+
+		$res_existe = $this->bdd->query($requete_existe);
+		$res_existe = $res_existe->fetch(PDO::FETCH_ASSOC);
+
+		return $res_existe['sentier_existe'];
+	}
+
 	private function ajouterSentier($data) {
 
 		$retour = false;
@@ -412,18 +487,11 @@ class Sentiers extends SmartFloreService {
 		}
 
 		$sentier_titre = $data['sentierTitre'];
-		$utilisateur = $this->utilisateur['nomWiki'];
-		$utilisateurCourriel = $this->utilisateur['courriel'];
+		$utilisateur = $this->utilisateur['courriel'];
 
-		$requete_existe = 'SELECT COUNT(resource) >= 1 as sentier_existe '.
-				'FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
-				'WHERE property = "'.$this->triple_sentier.'" '.
-				'AND TRIM(resource) = '.$this->bdd->quote(trim($sentier_titre));
+		$res_existe = $this->sentierExiste($sentier_titre);
 
-		$res_existe = $this->bdd->query($requete_existe);
-		$res_existe = $res_existe->fetch(PDO::FETCH_ASSOC);
-
-		if (!$res_existe['sentier_existe']) {
+		if (!$res_existe) {
 
 			$requete_insertion = 'INSERT INTO '.$this->config['bdd']['table_prefixe'].'_triples '.
 				'(resource, property, value) VALUES '.
@@ -437,7 +505,7 @@ class Sentiers extends SmartFloreService {
 			$retour = ($res_insertion !== false) ? 'OK' : false;
 
 			if ($retour == 'OK') {
-				$infos_evenement = array('utilisateur' => $utilisateur, 'utilisateur_courriel' => $utilisateurCourriel, 'titre' => $sentier_titre);
+				$infos_evenement = array('utilisateur' => $utilisateur, 'utilisateur_courriel' => $utilisateur, 'titre' => $sentier_titre);
 				// Enregistrement de l'évènement pour des stats ultérieures
 				$this->enregistrerEvenement($this->triple_evenement_sentier_ajout, $infos_evenement);
 			}
@@ -447,6 +515,24 @@ class Sentiers extends SmartFloreService {
 
 		header('Content-type: text/plain');
 		echo $retour;
+	}
+
+	private function renommerSentier($sentier_titre, $nouveau_titre) {
+		$retour = false;
+
+		if (empty($sentier_titre) || empty($nouveau_titre)) {
+			return $this->error('400', 'Le nom est vide');
+		}
+
+		$modification_nom_sentier = 'UPDATE '.$this->config['bdd']['table_prefixe'] . '_triples '.
+			'SET resource = ' . $this->bdd->quote($nouveau_titre) . ' ' .
+			'WHERE resource = ' . $this->bdd->quote($sentier_titre);
+
+		if ($this->bdd->exec($modification_nom_sentier)) {
+			$retour = 'OK';
+		}
+
+		return $retour;
 	}
 
 	/**
@@ -462,8 +548,6 @@ class Sentiers extends SmartFloreService {
 
 		// si pas admin on vérifie la paternité
 		if (false === $this->estAdmin()) {
-			// $requete_suppression += 'AND value = '.$this->bdd->quote($utilisateur).' ';
-
 			$requete_createur = 'SELECT value FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
 				'WHERE property = "'.$this->triple_sentier.'" '.
 				'AND resource = '.$this->bdd->quote($data['sentierTitre'])
@@ -471,23 +555,24 @@ class Sentiers extends SmartFloreService {
 
 			$createur = $this->bdd->query($requete_createur)->fetch(PDO::FETCH_ASSOC)['value'];
 
-			if (!empty($createur) && ($this->utilisateur['nomWiki'] === $createur)) {
+			if (!empty($createur) && ($this->utilisateur['courriel'] === $createur)) {
 				$estCreateur = true;
 			}
 		}
 
 		// si admin ou createur on supprime
 		if ($this->estAdmin() || $estCreateur) {
-			$retour = $this->stockerDataTriple($this->triple_sentier_date_suppression, time(), $data['sentierTitre']);
-		}
+			$this->stockerDataTriple($this->triple_sentier_date_suppression, time(), $data['sentierTitre']);
 
+			$retour = $this->renommerSentier($data['sentierTitre'], $data['sentierTitre'] . '_deleted_at_' . date('Ymd-His'));
+		}
 
 		header('Content-type: text/plain');
 		echo $retour;
 	}
 
 	/**
-	 * Ressuscite (annule le soft delete) un sentier
+	 * Ressuscite (annule le soft delete d') un sentier
 	 */
 	private function ressusciterSentier($data) {
 		$retour = false;
@@ -497,7 +582,19 @@ class Sentiers extends SmartFloreService {
 		}
 
 		if ($this->estAdmin()) {
-			$retour = $this->stockerDataTriple($this->triple_sentier_date_suppression, '', $data['sentierTitre']);
+			// nettoyage du nom du sentier, on retrouve l'original
+			$sentier_titre = $base_sentier_titre = strstr($data['sentierTitre'], '_deleted_at_', true);
+
+			// vérifie si le nom n'a pas été réutilisé depuis la suppression
+			$suffixe = 0;
+			while ($this->sentierExiste($sentier_titre)) {
+				$sentier_titre = $base_sentier_titre . '-' . ++$suffixe;
+			}
+
+			$this->renommerSentier($data['sentierTitre'], $sentier_titre);
+
+			// pour finir on vide la date de suppression
+			$retour = $this->stockerDataTriple($this->triple_sentier_date_suppression, '', $sentier_titre);
 		}
 
 
@@ -505,26 +602,22 @@ class Sentiers extends SmartFloreService {
 		echo $retour;
 	}
 
-	private function getFichesASentier() {
+	private function getFichesASentier($sentier_titre) {
 
-		if(empty($_GET['sentierTitre'])) {
-			$this->error('400', 'Le paramètre sentierTitre est obligatoire');
-		}
-
-		$res = $this->getFichesBySentier($_GET['sentierTitre']);
+		$res = $this->getFichesBySentier($sentier_titre);
 
 		$sentiers_a_fiches = array('noms_pages' => array(), 'debut' => null, 'limite' => null);
 
 		$pages_a_traiter = array();
-		foreach($res as $sentier) {
-			$sentiers_a_fiches['noms_pages'][] = $this->bdd->quote($sentier['resource']);
+		foreach ($res as $fiche) {
+			$sentiers_a_fiches['noms_pages'][] = $this->bdd->quote($fiche['value']);
 			// Certaines fiches ajoutées à des sentiers n'existent pas forcément
 			// donc on crée manuellement leur entrée de tableau pour qu'elles soient
 			// tout de même augmentées des infos taxonomiques et renvoyées
-			$pages_a_traiter[$sentier['resource']] = array(
+			$pages_a_traiter[$fiche['value']] = array(
 						'existe' => false,
 						'favoris' => false,
-						'tag' => $sentier['resource'],
+						'tag' => $fiche['value'],
 						'time' => '',
 						'owner' => '',
 						'user' => '',
@@ -533,10 +626,9 @@ class Sentiers extends SmartFloreService {
 				);
 		}
 
-		$sentiers = array();
-		$nb_sentiers = 0;
-		if(!empty($sentiers_a_fiches['noms_pages'])) {
-			list($pages, $nb_sentiers) = $this->getPagesWikiParRechercheExacte($sentiers_a_fiches);
+		$fiches = array();
+		if (!empty($sentiers_a_fiches['noms_pages'])) {
+			$pages = $this->getPagesWikiParRechercheExacte($sentiers_a_fiches)[0];
 			// affectation de leurs informations aux pages existantes
 			foreach($pages as $page) {
 				$pages_a_traiter[$page['tag']] = $page;
@@ -545,16 +637,12 @@ class Sentiers extends SmartFloreService {
 			$pages_enrichies = $this->completerPagesParInfosTaxon(array_values($pages_a_traiter));
 			// $pages_enrichies['resultats'] est indexé par referentiel.num_nom pour des raisons pratiques de
 			// tri et d'accès, on désindexe avant de renvoyer les résultats
-			$sentiers = array_values($pages_enrichies['resultats']);
-			usort($sentiers, array($this, 'trierParNomSci'));
-			unset($sentiers['fiches_a_num_nom']);
+			$fiches = array_values($pages_enrichies['resultats']);
+			usort($fiches, array($this, 'trierParNomSci'));
+			unset($fiches['fiches_a_num_nom']);
 		}
 
-		$retour = array('pagination' => array('total' => $nb_sentiers), 'resultats' => $sentiers);
-
-		header('Content-type: application/json');
-		echo json_encode($retour);
-		exit;
+		return $fiches;
 	}
 
 	private function trierParNomSci($a, $b) {
@@ -580,14 +668,14 @@ class Sentiers extends SmartFloreService {
 		}
 
 		$sentier_titre = $data['sentierTitre'];
-		$utilisateur = $this->utilisateur['nomWiki'];
+		$utilisateur = $this->utilisateur['courriel'];
 		$page_tag = $data['pageTag'];
 
-		$requete_existe = 'SELECT COUNT(resource) > 1 as sentier_a_page_existe '.
+		$requete_existe = 'SELECT COUNT(value) > 1 as sentier_a_page_existe '.
 				'FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
-				'WHERE value = '.$this->bdd->quote($sentier_titre).' '.
+				'WHERE resource = '.$this->bdd->quote($sentier_titre).' '.
 				'AND property = "'.$this->triple_sentier_fiche.'" '.
-				'AND resource = '.$this->bdd->quote($page_tag);
+				'AND value = '.$this->bdd->quote($page_tag);
 
 		$res_existe = $this->bdd->query($requete_existe);
 		$res_existe = $res_existe->fetch(PDO::FETCH_ASSOC);
@@ -596,7 +684,7 @@ class Sentiers extends SmartFloreService {
 
 			$requete_insertion = 'INSERT INTO '.$this->config['bdd']['table_prefixe'].'_triples '.
 					'(resource, property, value) VALUES '.
-					' ('.$this->bdd->quote($page_tag).',"'.$this->triple_sentier_fiche.'", '.$this->bdd->quote($sentier_titre).')';
+					' ('.$this->bdd->quote($sentier_titre).',"'.$this->triple_sentier_fiche.'", '.$this->bdd->quote($page_tag).')';
 
 			$res_insertion = $this->bdd->exec($requete_insertion);
 			$retour = false;
@@ -625,9 +713,9 @@ class Sentiers extends SmartFloreService {
 		$page_tag = $data['pageTag'];
 
 		$requete_suppression = 'DELETE FROM '.$this->config['bdd']['table_prefixe'].'_triples '.
-				'WHERE value = '.$this->bdd->quote($sentier_titre).' '.
+				'WHERE resource = '.$this->bdd->quote($sentier_titre).' '.
 				'AND property = "'.$this->triple_sentier_fiche.'" '.
-				'AND resource = '.$this->bdd->quote($page_tag);
+				'AND value = '.$this->bdd->quote($page_tag);
 
 		$res_suppression = $this->bdd->exec($requete_suppression);
 		$retour = false;
@@ -646,8 +734,7 @@ class Sentiers extends SmartFloreService {
 			$this->error('400', 'Le paramètre sentierTitre est obligatoire');
 		}
 
-		// @todo : faudrait voir à utiliser un truc genre $this->miseEnFormeInfosSentiers() ici
-
+		$fiches = $this->getFichesASentier($_GET['sentierTitre']);
 		$localisation = $this->getTripleBySentier($this->triple_sentier_localisation, $_GET['sentierTitre']);
 		$dessin = $this->getTripleBySentier($this->triple_sentier_dessin, $_GET['sentierTitre']);
 		$etat = $this->getTripleBySentier($this->triple_sentier_etat, $_GET['sentierTitre']);
@@ -665,6 +752,7 @@ class Sentiers extends SmartFloreService {
 		header('Content-type: application/json');
 		echo json_encode(array(
 			'localisation' => $retour,
+			'fiches' => $fiches,
 			'dessin' => json_decode($dessin['value'], true),
 			'etat' => $etat['value'],
 			'meta' => json_decode($meta['value'], true),
