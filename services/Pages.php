@@ -265,6 +265,7 @@ class Pages extends SmartFloreService {
 				list($referentiel, $nt) = $this->splitNt($page_wiki['tag']);
 				$infos_page_nom = $retour['resultats'][$referentiel.$nt];
 				$retour['resultats'][$recherche['referentiel'].$nt] = array_merge($infos_page_nom, $page_wiki);
+				$retour['resultats'][$recherche['referentiel'].$nt]['existe'] = true;
 			}
 
 			// Ajout des informations des noms scientifiques
