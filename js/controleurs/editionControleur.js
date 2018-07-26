@@ -38,6 +38,7 @@ smartFormApp.controller('EditionControleur', function ($scope, $rootScope, $sce,
 
 	this.editerFiche = function(fiche) {
 		var lthis = this;
+		lthis.fiche_edition = {};
 		wikiniService.getFichePourEdition(fiche,
 		function(data) {
 			lthis.fiche_edition.sections = data.sections;
@@ -46,6 +47,7 @@ smartFormApp.controller('EditionControleur', function ($scope, $rootScope, $sce,
 			lthis.fiche_edition.referentiel = fiche.infos_taxon.referentiel;
 			lthis.fiche_edition.existe = true;
 			// Dès que le formulaire d'édition est appelé, il crée la fiche si elle n'existe pas
+			// C'est ultra naze, faudrait seulement le faire si y'a quelque chose d'enregistré après, histoire d'éviter les fiches vides
 			$rootScope.$broadcast('edition.fiche-editee', lthis.fiche_edition);
 			// stats
 			googleAnalyticsService.envoyerEvenement("fiche", "edition", '{"tag": "' + fiche.tag + '", "nom_sci": "' + fiche.infos_taxon.nom_sci + '", "referentiel": "' + fiche.infos_taxon.referentiel + '"}');
