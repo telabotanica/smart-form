@@ -805,6 +805,7 @@ class Sentiers extends SmartFloreService {
 				'Un nouveau sentier requiert votre attention : ' . "\r\n" .
 				"\r\n" .
 				'Nom du sentier: ' . $data['sentierTitre'] . "\r\n" .
+				'Auteur du sentier: ' . $data['sentierAuteur'] . "\r\n" .
 				"\r\n" .
 				'Rendez-vous sur ' . $this->config['smartflore']['application_saisie_url'];
 

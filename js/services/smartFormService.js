@@ -280,14 +280,15 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 		});
 	};
 
-	smartFormService.demanderValidationSentier = function(sentierTitre, sentierEtat, surSucces, surErreur) {
+	smartFormService.demanderValidationSentier = function(sentierTitre, sentierEtat, sentierAuteur, surSucces, surErreur) {
 		$http({
 		    method: 'PUT',
 		    url: config.url_service_sentiers + '/sentier-validation/',
 		    headers: etatApplicationService.getHeadersAuth(),
 		    data: {
 				'sentierTitre' : sentierTitre,
-				'sentierEtat' : sentierEtat
+				'sentierEtat' : sentierEtat,
+				'sentierAuteur' : sentierAuteur
 			}
 		})
 		.success(function(data, status, headers, config) {

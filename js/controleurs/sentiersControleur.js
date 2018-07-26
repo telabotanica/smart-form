@@ -1051,6 +1051,7 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 		smartFormService.demanderValidationSentier(
 			lthis.sentierSelectionne.titre,
 			etat,
+			lthis.sentierSelectionne.auteur,
 			function(data) {
 				if (data == 'OK') {
 					$('#modale-publication').modal('hide');
