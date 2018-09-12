@@ -257,7 +257,6 @@ class Sentiers extends SmartFloreService {
 		curl_setopt_array($ch, array(
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_FAILONERROR => true,
-			// CURLOPT_URL => 'http://annuaire2.dev/service:annuaire:utilisateur/identite-par-courriel/'.$email
 			CURLOPT_URL => sprintf($this->config['service']['details_utilisateur_url'], $email)
 		));
 
@@ -265,10 +264,12 @@ class Sentiers extends SmartFloreService {
 
 		curl_close($ch);
 
-		$infos_utilisateur = array_values(json_decode($output, true))[0];
+		if ($output) {
+			$infos_utilisateur = array_values(json_decode($output, true))[0];
 
-		if (!empty($infos_utilisateur && array_key_exists('intitule', $infos_utilisateur))) {
-			$intitule = $infos_utilisateur['intitule'];
+			if (!empty($infos_utilisateur && array_key_exists('intitule', $infos_utilisateur))) {
+				$intitule = $infos_utilisateur['intitule'];
+			}
 		}
 
 		return $intitule;
