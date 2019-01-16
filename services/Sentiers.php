@@ -746,8 +746,16 @@ class Sentiers extends SmartFloreService {
 
 		$retour = array('nbIndividus' => 0);
 		if (count($localisation) > 0) {
-			$retour = json_decode($localisation['value'], true);
-			$retour['nbIndividus'] = count($retour['individus']);
+			$individus = json_decode($localisation['value'], true)['individus'];
+			$retour['nbIndividus'] = count($individus);
+		}
+
+		// ajoute le nombre d'invidus pour chaque fiche dans le sentier
+		foreach ($individus as $individu) {
+			$compteur[$individu['ficheTag']]++;
+		}
+		foreach ($fiches as &$fiche) {
+			$fiche['nb_individus'] = $compteur[$fiche['tag']] ?? 0;
 		}
 
 		header('Content-type: application/json');
