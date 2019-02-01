@@ -97,7 +97,7 @@ class Export extends SmartFloreService {
 		// génération du panneau
 		$panneau_html = $this->remplirSquelette('panneau', $infos_fiche);
 
-		$nom_fichier = 'panneau-smartflore-'.$this->sluggifierPlus($sentier_titre).'-'.$referentiel.'-'.$infos_fiche['num_nom'];
+		$nom_fichier = 'SmartFlore'.$referentiel.'nt'.$num_tax;
 		// Attention le chemin d'export temporaire doit se trouver au dessous du
 		// dossier Web du serveur afin d'être accessible par une URL
 		$chemin_html = $this->config['export']['chemin_export_tmp'].$nom_fichier.'.html';
@@ -199,14 +199,13 @@ class Export extends SmartFloreService {
 		fclose($sortie_directe);
 	}
 
-	protected function enregistrerFichePourExportSentier($sentier_titre, $referentiel, $num_tax) {
+	protected function enregistrerFichePourExportSentier($nom_fichier, $sentier_titre, $referentiel, $num_tax) {
 		// infos taxon
 		$infos_fiche = $this->informationsTaxonFiche($referentiel, $num_tax, $sentier_titre);
 
 		// génération du panneau
 		$panneau_html = $this->remplirSquelette('panneau', $infos_fiche);
 
-		$nom_fichier = 'panneau-smartflore-'.$referentiel.'-'.$infos_fiche['num_nom'];
 		// les fichiers du sentier sont contenu dans un répertoire spécifique au sentier
 		$base_chemin_export = $this->config['export']['chemin_export_tmp'].$this->sluggifierPlus($sentier_titre).DIRECTORY_SEPARATOR;
 		$chemin_html = $base_chemin_export.$nom_fichier.'.html';
@@ -230,51 +229,16 @@ class Export extends SmartFloreService {
 		unlink($chemin_html);
 	}
 
+	/**
+	 * TODO: improve export time
+	 * don't rebuild unless content is outdated
+	 * if content hasn't changed since last build keep the file
+	 * check for last revision date of each wiki page and its pdf build date
+	 */
 	protected function deciderActionExportSentier($sentier_titre) {
 		$sentier_titre_slug = $this->sluggifierPlus($sentier_titre);
 		$chemin_dossier_sentier = $this->config['export']['chemin_export_tmp'].$sentier_titre_slug.DIRECTORY_SEPARATOR;
 
-		$this->preparerExportSentier($sentier_titre);
-
-		$fiches_a_exporter = glob($chemin_dossier_sentier."*.tmp");
-
-		while(!empty($fiches_a_exporter)) {
-			$fiche_a_exporter = array_shift($fiches_a_exporter);
-			$fiche = rtrim($fiche_a_exporter, '.tmp');
-
-			$parties_nom_fichier = explode(DIRECTORY_SEPARATOR, $fiche);
-			$nom_fichier = end($parties_nom_fichier);
-
-			list($referentiel, $num_tax) = $this->splitNt($nom_fichier);
-			$this->enregistrerFichePourExportSentier($sentier_titre, $referentiel, $num_tax);
-			unlink($fiche_a_exporter);
-		}
-
-		$pdfs = implode(' ', glob($chemin_dossier_sentier."panneau-smartflore*.pdf"));
-		$commande = '/usr/bin/pdftk '.$pdfs.' cat output '.$chemin_dossier_sentier.$sentier_titre_slug.'.pdf';
-		exec($commande);
-
-		header("Content-type:application/pdf; charset=utf-8");
-		// TODO: envoyer la taille dans le header parce que c'est mieux !
-		// Supprimer les espaces et les points permet d'avoir un nom de fichier pas trop dégeulasse lors du téléchargement par le navigateur
-		header("Content-Disposition:attachment;filename=".$sentier_titre_slug.".pdf");
-		header('Content-Length: '.filesize($chemin_dossier_sentier.$sentier_titre_slug.'.pdf'));
-
-		echo file_get_contents($chemin_dossier_sentier.$sentier_titre_slug.'.pdf');
-
-		// supprime le bordel laissé par l'export
-		$contenuDossier = glob($chemin_dossier_sentier . "*");
-		foreach($contenuDossier as $fichier){ // iterate files
-			if (is_file($fichier)) {
-				unlink($fichier);
-			}
-		}
-
-		exit;
-	}
-
-	protected function preparerExportSentier($sentier_titre) {
-		$chemin_dossier_sentier = $this->config['export']['chemin_export_tmp'].$this->sluggifierPlus($sentier_titre).DIRECTORY_SEPARATOR;
 		// TODO: vérifier les erreurs
 		@mkdir($chemin_dossier_sentier);
 		chmod($chemin_dossier_sentier, 0777);
@@ -286,11 +250,61 @@ class Export extends SmartFloreService {
 		$res = $this->bdd->query($requete_fiches_a_sentier);
 		$res = $res->fetchAll(PDO::FETCH_ASSOC);
 
-		// WTF de stratégie de papou ???
+		// Si la fiche n'a pas été modifiée on y touche pas
 		foreach($res as $fiche) {
-			$nom_fichier = $fiche['value'].'.tmp';
-			touch($chemin_dossier_sentier.$nom_fichier);
+			$nom_fiche = $fiche['value'];
+			$res = $this->bdd->query('SELECT `time` FROM '.$this->config['bdd']['table_prefixe'].'_pages '.
+				'WHERE latest = "Y" '.
+				'AND tag = '.$this->bdd->quote($nom_fiche)
+			);
+			$res = $res->fetch();
+			$last_revision_time = strtotime($res['time']);
+
+			if ($last_revision_time) {
+				// construit le nom du fichier à jour
+				$fichier_fiche = $chemin_dossier_sentier.$nom_fiche.'-'.$last_revision_time;
+				if (!file_exists($fichier_fiche.'.pdf')) {
+					// le fichier à jour n'existe pas, on va essayer de supprimer les anciens du coup
+					foreach (glob($chemin_dossier_sentier.$nom_fiche.'*') as $file) {
+						if (is_file($file)) {
+							unlink($file);
+						}
+					}
+					// crée le futur fichier à jour
+					touch($fichier_fiche.'.tmp');
+				}
+			}
 		}
+
+		$fiches_a_exporter = glob($chemin_dossier_sentier."*.tmp");
+		foreach ($fiches_a_exporter as $fiche_a_exporter) {
+			$fiche_a_exporter = rtrim($fiche_a_exporter, '.tmp');
+
+			$parties_nom_fichier = explode(DIRECTORY_SEPARATOR, $fiche_a_exporter);
+			$nom_fichier = end($parties_nom_fichier);
+			$nom_fiche = substr($nom_fichier, 0, strpos($nom_fichier, '-'));
+
+			list($referentiel, $num_tax) = $this->splitNt($nom_fiche);
+			$this->enregistrerFichePourExportSentier($nom_fichier, $sentier_titre, $referentiel, $num_tax);
+			unlink($fiche_a_exporter.'.tmp');
+		}
+
+		$pdfs = implode(' ', glob($chemin_dossier_sentier."*.pdf"));
+		$commande = '/usr/bin/pdftk '.$pdfs.' cat output '.$chemin_dossier_sentier.$sentier_titre_slug.'.pdf';
+		exec($commande);
+
+		header("Content-type:application/pdf; charset=utf-8");
+		// TODO: envoyer la taille dans le header parce que c'est mieux !
+		// Supprimer les espaces et les points permet d'avoir un nom de fichier pas trop dégeulasse lors du téléchargement par le navigateur
+		header("Content-Disposition:attachment;filename=".$sentier_titre_slug.".pdf");
+		header('Content-Length: '.filesize($chemin_dossier_sentier.$sentier_titre_slug.'.pdf'));
+
+		echo file_get_contents($chemin_dossier_sentier.$sentier_titre_slug.'.pdf');
+
+		// remove final file, outdated validation is too much tricky
+		unlink($chemin_dossier_sentier.$sentier_titre_slug.'.pdf');
+
+		exit;
 	}
 
 	protected function chargerInformationsFiche($referentiel, $num_tax) {
