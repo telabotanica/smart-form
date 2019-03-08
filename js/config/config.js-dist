@@ -37,5 +37,6 @@ var config = {
 	url_section_wiki : "https://beta.tela-botanica.org/yeswiki/api/rest/0.5/pages/{pageTag}?txt.format={format}&txt.section.titre={sectionTitre}&txt.template=PageTaxonSmartFlore",
 	url_inscription : "https://beta.tela-botanica.org/page:inscription",
 	url_service_annuaire : "https://beta.tela-botanica.org/annuaire/jrest/utilisateur/{service}",
-	auth_header : "Auth"
+	auth_header : "Auth",
+	gmaps_api_key : "iamanapikeylol"
 };

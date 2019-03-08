@@ -805,7 +805,7 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 	this.recupererLocaliteAdresse = function(adresse) {
 		lthis.choixAdresses = {};
 		$http({
-			url: 'https://maps.google.com/maps/api/geocode/json?address=' + adresse + '&sensor=false',
+			url: 'https://maps.google.com/maps/api/geocode/json?address=' + adresse + '&sensor=false&key=' + config.gmaps_api_key,
 			// url: 'https://nominatim.openstreetmap.org/search?q=' + adresse + '&format=json',
 			method: 'GET',
 			withCredentials: false
