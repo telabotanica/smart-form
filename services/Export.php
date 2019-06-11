@@ -153,6 +153,10 @@ class Export extends SmartFloreService {
 		}
 		$entetes = array_diff(array_unique($entetes), array('fiches')); // on retire les doublons et 'fiches' qui est un tableau
 		//@todo retirer les tableaux proprement (ou convertir en json)
+		$entetes[] = 'cp';
+		$entetes[] = 'adresse';
+		$entetes[] = 'map';
+		$entetes[] = 'gps';
 
 		date_default_timezone_set('Europe/Paris'); // Pour que les date() plus bas ne lèvent pas de warnings
 		header('Content-Description: File Transfer');
@@ -183,6 +187,26 @@ class Export extends SmartFloreService {
 							if (!empty($sentier[$entete])) {
 								$ligne[$entete] = date('d-m-Y H:i:s', $sentier[$entete]);
 							}
+							break;
+						case 'cp':
+							$lat = $ligne['localisation']['lat'];
+							$lng = $ligne['localisation']['lng'];
+							$url = "https://api.opencagedata.com/geocode/v1/json?q=$lat+$lng&key=a1674daf25f54056a7c8047ca1742c22&no_annotations=1&language=fr";
+							$res = file_get_contents(urlencode($url));
+
+							if ($res && isset($res['results'][0])) {
+								$data = $res['results'][0];
+								$ligne[$entete] = $data['components']['postcode'] ?? 0;
+								$ligne['adresse'] = $data['formatted'] ?? '';
+							}
+							break;
+						case 'map':
+							$lat = $ligne['localisation']['lat'];
+							$lng = $ligne['localisation']['lng'];
+							$ligne[$entete] = "https://nominatim.openstreetmap.org/search.php?q=$lat%2C-$lng";
+							break;
+						case 'gps':
+							$ligne[$entete] = $ligne['localisation']['lat'] . ',' . $ligne['localisation']['lng'];
 							break;
 						default:
 							$ligne[$entete] = $sentier[$entete];
