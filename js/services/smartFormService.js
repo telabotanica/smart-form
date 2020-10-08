@@ -9,11 +9,12 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 		var referentielVerna = '&referentiel_verna='+(recherche.referentielVerna);
 		var rechercheLibre = "&recherche="+(!recherche.texte ? '%' : recherche.texte);
 		var pagesExistantes = '&pages_existantes='+(!!recherche.fichesExistantes);
+		var especesUniquement = '&especes_uniquement='+(!!recherche.especesUniquement);
 		var nomsVernaculaires = '&nom_verna='+(!!recherche.nomVernaculaire);
 		var pagination = '&debut='+(pageCourante*taillePage)+"&limite="+taillePage;
 		var utilisateurConnecte = (utilisateur.connecte && utilisateur.courriel != '') ? '&utilisateur='+utilisateur.courriel : '';
 
-		$http.get(config.url_service_pages+'?'+referentiel+referentielVerna+rechercheLibre+pagesExistantes+nomsVernaculaires+pagination+utilisateurConnecte).
+		$http.get(config.url_service_pages+'?'+referentiel+referentielVerna+rechercheLibre+pagesExistantes+especesUniquement+nomsVernaculaires+pagination+utilisateurConnecte).
 		success(function(data, status, headers, config) {
 			surSucces(data);
 		}).
@@ -28,12 +29,13 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 		var referentielVerna = '&referentiel_verna='+(recherche.referentielVerna);
 		var rechercheLibre = "&recherche="+(!recherche.texte ? '%' : recherche.texte);
 		var pagesExistantes = '&pages_existantes='+(!!recherche.fichesExistantes);
+		var especesUniquement = '&especes_uniquement='+(!!recherche.especesUniquement);
 		var nomsVernaculaires = '&nom_verna='+(!!recherche.nomVernaculaire);
 		var pagination = '&debut='+(pageCourante*taillePage)+"&limite="+taillePage;
 		// Afin de ne renvoyer qu'une simple liste de noms
 		var retour = '&retour=min';
 
-		return $http.get(config.url_service_pages+'?'+referentiel+referentielVerna+rechercheLibre+pagesExistantes+nomsVernaculaires+pagination+retour)
+		return $http.get(config.url_service_pages+'?'+referentiel+referentielVerna+rechercheLibre+pagesExistantes+especesUniquement+nomsVernaculaires+pagination+retour)
 		.then(function(retour) {
 			var resultatsFmt = [];
 			var possibilites = retour.data.resultats;

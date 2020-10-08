@@ -464,6 +464,10 @@ class SmartFloreService {
 		$url_eflore_tpl = $this->config['eflore']['url_base'] . $this->config['eflore']['recherche_noms_url'];
 		$url = sprintf($url_eflore_tpl, strtolower($recherche['referentiel']), 'etendue', urlencode($recherche['recherche'].'%'), $recherche['debut'], $recherche['limite']);
 
+		if ($recherche['especes_uniquement']) {
+			$url = $url . '&masque.rg=290';
+		}
+
 		// Quand il n'y pas de résultats eflore renvoie une erreur 404 (l'imbécile !)
 		// or le cas où l'on n'a pas de résultats est parfaitement valide
 		$infos = @file_get_contents($url);

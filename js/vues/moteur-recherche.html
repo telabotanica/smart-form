@@ -42,6 +42,10 @@
 					ng-change="rechercheCtrl.surChangementRecherche()"> Uniquement les fiches
 					existantes
 				</label>
+				<label> <input type="checkbox"
+					ng-model="rechercheCtrl.recherche.especesUniquement"
+					ng-change="rechercheCtrl.surChangementRecherche()"> Uniquement les espèces
+				</label>
 			</div>
 			<div class="col-md-1">
 				<button type="submit" class="btn btn-default btn-sm">OK</button>
