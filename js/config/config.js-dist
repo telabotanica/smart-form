@@ -1,30 +1,40 @@
 var config = {
 	nom_application: "Tableau de bord Smart'Flore",
 	prod: false,
-	referentiels : ["BDTFX", "BDTXA", "ISFAN", "APD", "BDTRE"],
-	infos_referentiels :
-	{
-		"BDTFX" : {
-			label : "France métropolitaine",
-			noms_vernaculaires : "nvjfl"
-		},
-		"BDTXA" : {
-			label : "Antilles Françaises",
-			noms_vernaculaires : "nva"
-		},
-		"ISFAN" : {
-			label : "Afrique du Nord",
-			noms_vernaculaires : null
-		},
-		"APD" : {
-			label : "Afrique du centre et de l'ouest",
-			noms_vernaculaires : null
-		},
-		"BDTRE" : {
-			label : "Île de la Réunion",
-			noms_vernaculaires : null
-		}
-	},
+    referentiels : ["BDTFX", "BDTXA", "ISFAN", "APD", "BDTRE", "TAXREF"],
+    infos_referentiels :
+    {
+        "BDTFX" : {
+            label : "France métropolitaine",
+            noms_vernaculaires : "nvjfl",
+            filtre: null
+        },
+        "BDTXA" : {
+            label : "Antilles Françaises",
+            noms_vernaculaires : "nva",
+            filtre: null
+        },
+        "ISFAN" : {
+            label : "Afrique du Nord",
+            noms_vernaculaires : null,
+            filtre: null
+        },
+        "APD" : {
+            label : "Afrique du centre et de l'ouest",
+            noms_vernaculaires : null,
+            filtre: null
+        },
+        "BDTRE" : {
+            label : "Île de la Réunion",
+            noms_vernaculaires : null,
+            filtre: null
+        },
+        "TAXREF" : {
+            label : "Guyane",
+            noms_vernaculaires : null,
+            filtre: "guyane"
+        }
+    },
 	nom_fiche : 'SmartFlore{referentiel}nt{num_tax}',
 	sections_pages : ["Description", "Usages", "Écologie & habitat", "Sources"],
 	url_wikini : "https://beta.tela-botanica.org/wikini/eFloreRedactionTest/wakka.php?wiki={tag}",
