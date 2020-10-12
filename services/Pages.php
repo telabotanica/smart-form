@@ -25,6 +25,7 @@ class Pages extends SmartFloreService {
 
 		$recherche['referentiel'] = !empty($_GET['referentiel']) ? $_GET['referentiel'] : '%';
 		$recherche['referentiel_verna'] = !empty($_GET['referentiel_verna']) && $_GET['referentiel_verna'] != "null" ? $_GET['referentiel_verna'] : null;
+		$recherche['filtre'] = $_GET['filtre'] ?? null;
 
 		$recherche['num_tax'] = !empty($_GET['num_tax']) ? $_GET['num_tax'] : '%';
 

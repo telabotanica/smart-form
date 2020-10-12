@@ -13,7 +13,13 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 		var pagination = '&debut='+(pageCourante*taillePage)+"&limite="+taillePage;
 		var utilisateurConnecte = (utilisateur.connecte && utilisateur.courriel != '') ? '&utilisateur='+utilisateur.courriel : '';
 
-		$http.get(config.url_service_pages+'?'+referentiel+referentielVerna+rechercheLibre+pagesExistantes+nomsVernaculaires+pagination+utilisateurConnecte).
+		var url = config.url_service_pages+'?'+referentiel+referentielVerna+rechercheLibre+pagesExistantes+nomsVernaculaires+pagination+utilisateurConnecte;
+
+		if (recherche.filtreSousEnsemble) {
+			url += '&filtre='+recherche.filtreSousEnsemble;
+		}
+
+		$http.get(url).
 		success(function(data, status, headers, config) {
 			surSucces(data);
 		}).
@@ -33,7 +39,13 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 		// Afin de ne renvoyer qu'une simple liste de noms
 		var retour = '&retour=min';
 
-		return $http.get(config.url_service_pages+'?'+referentiel+referentielVerna+rechercheLibre+pagesExistantes+nomsVernaculaires+pagination+retour)
+		var url = config.url_service_pages+'?'+referentiel+referentielVerna+rechercheLibre+pagesExistantes+nomsVernaculaires+pagination+retour;
+
+		if (recherche.filtreSousEnsemble) {
+			url += '&filtre='+recherche.filtreSousEnsemble;
+		}
+
+		return $http.get(url)
 		.then(function(retour) {
 			var resultatsFmt = [];
 			var possibilites = retour.data.resultats;

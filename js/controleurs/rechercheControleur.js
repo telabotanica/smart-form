@@ -9,6 +9,7 @@ smartFormApp.controller('RechercheControleur', function ($scope, $rootScope, eta
 	this.recherche.referentiel = this.referentiels[0];
 	this.recherche.nomVernaculaire = false;
 	this.recherche.referentielVerna = this.infosReferentiels[this.recherche.referentiel].noms_vernaculaires;
+	this.recherche.filtreSousEnsemble = this.infosReferentiels[this.recherche.referentiel].filtre;
 
 	this.surChangementTypeRecherche = function(type) {
 		this.recherche.nomVernaculaire = (type == "vernaculaire");
@@ -23,9 +24,12 @@ smartFormApp.controller('RechercheControleur', function ($scope, $rootScope, eta
 			etatApplicationService.rechercheModifiee = true;
 		}
 		this.recherche.referentielVerna = this.infosReferentiels[this.recherche.referentiel].noms_vernaculaires;
+		this.recherche.filtreSousEnsemble = this.infosReferentiels[this.recherche.referentiel].filtre;
+
 		if(this.infosReferentiels[this.recherche.referentiel].noms_vernaculaires == null) {
 			this.recherche.nomVernaculaire = false;
 		}
+
 		etatApplicationService.premierChargement = false;
 	};
 
@@ -40,6 +44,7 @@ smartFormApp.controller('RechercheControleur', function ($scope, $rootScope, eta
 		etatApplicationService.recherche.referentiel = this.recherche.referentiel;
 		etatApplicationService.recherche.nomVernaculaire = this.recherche.nomVernaculaire;
 		etatApplicationService.recherche.referentielVerna = this.recherche.referentielVerna;
+		etatApplicationService.recherche.filtreSousEnsemble = this.recherche.filtreSousEnsemble;
 	};
 
 	this.getNomsAsync = function() {
