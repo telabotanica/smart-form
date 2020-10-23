@@ -1,52 +1,64 @@
 var config = {
-	nom_application: "Tableau de bord Smart'Flore",
-	prod: false,
-    referentiels : ["BDTFX", "BDTXA", "ISFAN", "APD", "BDTRE", "TAXREF"],
-    infos_referentiels :
-    {
-        "BDTFX" : {
-            label : "France métropolitaine",
-            noms_vernaculaires : "nvjfl",
-            filtre: null
+    nom_application: "Tableau de bord Smart'Flore",
+    prod: false,
+    referentiels: ["BDTFX", "BDTXA", "ISFAN", "APD", "BDTRE", "TAXREF"],
+    infos_referentiels: {
+        "BDTFX": {
+            label: "France métropolitaine",
+            noms_vernaculaires: "nvjfl",
+            filtre: null,
+            fournisseur_fiches_especes: "eflore"
         },
-        "BDTXA" : {
-            label : "Antilles Françaises",
-            noms_vernaculaires : "nva",
-            filtre: null
+        "BDTXA": {
+            label: "Antilles Françaises",
+            noms_vernaculaires: "nva",
+            filtre: null,
+            fournisseur_fiches_especes: "eflore"
         },
-        "ISFAN" : {
-            label : "Afrique du Nord",
-            noms_vernaculaires : null,
-            filtre: null
+        "ISFAN": {
+            label: "Afrique du Nord",
+            noms_vernaculaires: null,
+            filtre: null,
+            fournisseur_fiches_especes: "eflore"
         },
-        "APD" : {
-            label : "Afrique du centre et de l'ouest",
-            noms_vernaculaires : null,
-            filtre: null
+        "APD": {
+            label: "Afrique du centre et de l'ouest",
+            noms_vernaculaires: null,
+            filtre: null,
+            fournisseur_fiches_especes: "eflore"
         },
-        "BDTRE" : {
-            label : "Île de la Réunion",
-            noms_vernaculaires : null,
-            filtre: null
+        "BDTRE": {
+            label: "Île de la Réunion",
+            noms_vernaculaires: null,
+            filtre: null,
+            fournisseur_fiches_especes: "eflore"
         },
-        "TAXREF" : {
-            label : "Guyane",
-            noms_vernaculaires : null,
-            filtre: "guyane"
+        "TAXREF": {
+            label: "Guyane",
+            noms_vernaculaires: null,
+            filtre: "guyane",
+            fournisseur_fiches_especes: "inpn"
         }
     },
-	nom_fiche : 'SmartFlore{referentiel}nt{num_tax}',
-	sections_pages : ["Description", "Usages", "Écologie & habitat", "Sources"],
-	url_wikini : "https://beta.tela-botanica.org/wikini/eFloreRedactionTest/wakka.php?wiki={tag}",
-	url_service_pages : "https://beta.tela-botanica.org/smart-form/services/Pages.php",
-	url_service_favoris : "https://beta.tela-botanica.org/smart-form/services/Favoris.php",
-	url_service_sentiers : "https://beta.tela-botanica.org/smart-form/services/Sentiers.php",
-	url_service_export : "https://beta.tela-botanica.org/smart-form/services/Export.php/{type}?referentiel={referentiel}&num_tax={num_tax}&sentierTitre={sentierTitre}",
-	url_fiche_mobile : "https://beta.tela-botanica.org/mobile:{referentiel}-nn-{num_nom}",
-	url_qr_code : "https://beta.tela-botanica.org/tmp/eflore_v5_cache/qrcode/{referentiel}-{num_nom}.png",
-	url_section_wiki : "https://beta.tela-botanica.org/yeswiki/api/rest/0.5/pages/{pageTag}?txt.format={format}&txt.section.titre={sectionTitre}&txt.template=PageTaxonSmartFlore",
-	url_inscription : "https://beta.tela-botanica.org/page:inscription",
-	url_service_annuaire : "https://beta.tela-botanica.org/annuaire/jrest/utilisateur/{service}",
-	auth_header : "Auth",
-	gmaps_api_key : "iamanapikeylol"
+    fiches_especes: {
+        eflore: {
+            url: "https://beta.tela-botanica.org/mobile:{referentiel}-nn-{num_nom}"
+        },
+        inpn: {
+            url: "https://inpn.mnhn.fr/espece/cd_nom/{num_nom}"
+        }
+    },
+    nom_fiche: 'SmartFlore{referentiel}nt{num_tax}',
+    sections_pages: ["Description", "Usages", "Écologie & habitat", "Sources"],
+    url_wikini: "https://beta.tela-botanica.org/wikini/eFloreRedactionTest/wakka.php?wiki={tag}",
+    url_service_pages: "https://beta.tela-botanica.org/smart-form/services/Pages.php",
+    url_service_favoris: "https://beta.tela-botanica.org/smart-form/services/Favoris.php",
+    url_service_sentiers: "https://beta.tela-botanica.org/smart-form/services/Sentiers.php",
+    url_service_export: "https://beta.tela-botanica.org/smart-form/services/Export.php/{type}?referentiel={referentiel}&num_tax={num_tax}&sentierTitre={sentierTitre}",
+    url_qr_code: "https://qr.tela-botanica.org/smartflore/{nom_sci}/{lien_fiche}.png",
+    url_section_wiki: "https://beta.tela-botanica.org/yeswiki/api/rest/0.5/pages/{pageTag}?txt.format={format}&txt.section.titre={sectionTitre}&txt.template=PageTaxonSmartFlore",
+    url_inscription: "https://beta.tela-botanica.org/page:inscription",
+    url_service_annuaire: "https://beta.tela-botanica.org/annuaire/jrest/utilisateur/{service}",
+    auth_header: "Auth",
+    gmaps_api_key: "iamanapikeylol"
 };

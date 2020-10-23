@@ -10,9 +10,17 @@ smartFormApp.service('liensService', function() {
 		return url_fiche;
 	};
 
+	liensService.lienFicheEflore = function(fiche) {
+		fournisseur = config.infos_referentiels[fiche.infos_taxon.referentiel].fournisseur_fiches_especes;
+		url = config.fiches_especes[fournisseur].url.replace('{num_nom}', fiche.infos_taxon.num_nom);
+		url = url.replace('{referentiel}', fiche.infos_taxon.referentiel.toLowerCase());
+		return url;
+	};
+
 	liensService.lienQrCode = function(fiche) {
-		url = config.url_qr_code.replace('{referentiel}', fiche.infos_taxon.referentiel.toLowerCase());
-		url = url.replace('{num_nom}', fiche.infos_taxon.num_nom);
+		url_fiche = this.lienFicheEflore(fiche);
+		url = config.url_qr_code.replace('{nom_sci}', fiche.infos_taxon.nom_sci);
+		url = url.replace('{lien_fiche}', url_fiche);
 		return url;
 	};
 
