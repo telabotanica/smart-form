@@ -186,7 +186,8 @@
 							<td>{{fiche.infos_taxon.noms_vernaculaires.slice(0,3).join(', ')}}</td>
 							<td>
 								<a class="lien-fiche-eflore" target="_blank" title="Voir la fiche eFlore"
-								   href="http://www.tela-botanica.org/{{fiche.infos_taxon.referentiel | lowercase}}-nn-{{fiche.infos_taxon.num_nom}}">{{fiche.infos_taxon.nom_sci}}
+								   href="{{listeCtrl.liensService.lienFicheEflore(fiche)}}">
+									{{fiche.infos_taxon.nom_sci}}
 								</a>
 							</td>
 							<td class="colonne-collapsible">{{fiche.infos_taxon.referentiel}}</td>
