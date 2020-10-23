@@ -11,9 +11,9 @@ smartFormApp.service('liensService', function() {
 	};
 
 	liensService.lienFicheEflore = function(fiche) {
-		fournisseur = config[fiche.infos_taxon.referentiel].fournisseur_fiches_especes;
+		fournisseur = config.infos_referentiels[fiche.infos_taxon.referentiel].fournisseur_fiches_especes;
 		url = config.fiches_especes[fournisseur].url.replace('{num_nom}', fiche.infos_taxon.num_nom);
-		url = url.replace('{referentiel}', fiche.infos_taxon.referentiel | lowercase);
+		url = url.replace('{referentiel}', fiche.infos_taxon.referentiel.toLowerCase());
 		return url;
 	};
 

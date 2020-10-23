@@ -55,7 +55,7 @@ var config = {
     url_service_favoris: "https://beta.tela-botanica.org/smart-form/services/Favoris.php",
     url_service_sentiers: "https://beta.tela-botanica.org/smart-form/services/Sentiers.php",
     url_service_export: "https://beta.tela-botanica.org/smart-form/services/Export.php/{type}?referentiel={referentiel}&num_tax={num_tax}&sentierTitre={sentierTitre}",
-    url_qr_code: "https://qr.tela-botanica.org/qrcode/smartflore/{nom_sci}/{lien_fiche}.png",
+    url_qr_code: "https://qr.tela-botanica.org/smartflore/{nom_sci}/{lien_fiche}.png",
     url_section_wiki: "https://beta.tela-botanica.org/yeswiki/api/rest/0.5/pages/{pageTag}?txt.format={format}&txt.section.titre={sectionTitre}&txt.template=PageTaxonSmartFlore",
     url_inscription: "https://beta.tela-botanica.org/page:inscription",
     url_service_annuaire: "https://beta.tela-botanica.org/annuaire/jrest/utilisateur/{service}",
