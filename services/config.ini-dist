@@ -27,7 +27,7 @@ qr_code_url = "https://qr.tela-botanica.org/smartflore/%s/%s.png"
 fiche_mobile = "https://beta.tela-botanica.org/mobile:%s-nn-%s"
 
 [export]
-description_url_tpl = "https://beta.tela-botanica.org/wikini/eFloreRedactionTest/api/rest/0.5/pages/SmartFlore%snt%s?txt.format=text/html&txt.section.titre=description"
+description_url_tpl = "https://beta.tela-botanica.org/wikini/eFloreRedactionTest/api/rest/0.5/pages/SmartFlore%snt%s?txt.format=text/html&txt.sections"
 meilleure_image_url_tpl = "https://api.tela-botanica.org/service:del:0.1/images?masque.referentiel=%s&masque.nn=%s&navigation.limite=1&tri=moyenne-arithmetique&ordre=desc&protocole=3&format=CRL"
 
 chemin_export_tmp = "/home/telabotap/www/tmp/"
