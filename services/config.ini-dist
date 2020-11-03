@@ -22,9 +22,9 @@ recherche_noms_vernaculaires_url = "/%s/noms-vernaculaires?masque=%s&recherche=e
 referentiel_verna_bdtfx = "nvjfl"
 referentiel_verna_bdtxa = "nva"
 
-qr_code_url = "https://beta.tela-botanica.org/tmp/eflore_v5_cache/qrcode/%s-%s.png"
+qr_code_url = "https://qr.tela-botanica.org/smartflore/%s/%s.png"
 
-fiche_mobile = "https://beta.tela-botanica.org/eflore/consultation/index_mobile.php?module=mobile&referentiel=%s&num_nom=%s"
+fiche_mobile = "https://beta.tela-botanica.org/mobile:%s-nn-%s"
 
 [export]
 description_url_tpl = "https://beta.tela-botanica.org/wikini/eFloreRedactionTest/api/rest/0.5/pages/SmartFlore%snt%s?txt.format=text/html&txt.section.titre=description"
