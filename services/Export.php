@@ -88,7 +88,7 @@ class Export extends SmartFloreService {
 	}
 
 	/**
-	 * Genère le fichier HTML du panneau, puis le convertit en PDF en appelantle service de conversion distant
+	 * Genère le fichier HTML du panneau, puis le convertit en PDF en appelant le service de conversion distant
 	 */
 	function getExportFiche($referentiel, $num_tax, $sentier_titre = '') {
 		// infos taxon
@@ -322,9 +322,11 @@ class Export extends SmartFloreService {
 			}
 		}
 
-		// Lien vers le qr code (existe t'il toujours ? Ne vaudrait il mieux pas appeler un web service plutot que le fichier du cache ?)
+		// Lien vers le qr code (via un webservice \o/)
+		$fiche_mobile_tpl = $this->config['eflore']['fiche_mobile'];
+		$fiche_mobile = sprintf($fiche_mobile_tpl, strtolower($referentiel), $num_nom);
 		$qr_code_url_tpl = $this->config['eflore']['qr_code_url'];
-		$qr_code_url = sprintf($qr_code_url_tpl, strtolower($referentiel), $num_nom);
+		$qr_code_url = sprintf($qr_code_url_tpl, $nom_sci, $fiche_mobile);
 
 		// Description du wiki
 		$description_url_tpl = $this->config['export']['description_url_tpl'];
