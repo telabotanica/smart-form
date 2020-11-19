@@ -31,6 +31,7 @@ class SmartFloreService {
 	protected $triple_evenement_sentier_ajout = "smartFlore.evenements.sentiers.ajout";
 	protected $triple_evenement_sentier_fiche_ajout = "smartFlore.evenements.sentiers.fiche.ajout";
 	protected $triple_evenement_favoris_ajout = "smartFlore.evenements.favoris.ajout";
+	protected $triple_evenement_changement_email = "smartFlore.evenements.changement.email";
 
 	protected $auth_header = 'Authorization';
 
