@@ -75,6 +75,12 @@ class Favoris extends SmartFloreService {
 			$res_insertion = $this->bdd->exec($requete_insertion);
 			$retour = ($res_insertion !== false) ? 'OK' : false;
 
+			if ($retour == 'OK') {
+				$infos_evenement = array('utilisateur' => $utilisateur, 'page' => $this->bdd->quote($page_tag));
+				// Enregistrement de l'évènement
+				$this->enregistrerEvenement($this->triple_evenement_favoris_ajout, $infos_evenement);
+			}
+
 		} else {
 			$retour = 'OK';
 		}
