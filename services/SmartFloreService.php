@@ -101,7 +101,7 @@ class SmartFloreService {
 				$this->options($requete);
 				break;
 			default:
-				$this->error(400, "unsupported method $method");
+				$this->error(400, "unsupported method $methode");
 				break;
 		}
 	}
@@ -167,8 +167,6 @@ class SmartFloreService {
 	 * Recherche un jeton SSO dans l'entête HTTP "Authorization", vérifie ce
 	 * jeton auprès de l'annuaire et en cas de succès charge les informations
 	 * de l'utilisateur associé dans $this->utilisateur
-	 *
-	 * @return Array un profil utilisateur ou null
 	 */
 	protected function getUtilisateurIdentifie() {
 		$utilisateur = null;
@@ -191,8 +189,6 @@ class SmartFloreService {
 		}
 		$this->utilisateur = $utilisateur;
 	}
-
-
 
 	/**
 	 * Essaye de trouver un jeton JWT non vide dans l'entête HTTP (par défaut
