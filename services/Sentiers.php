@@ -692,6 +692,10 @@ class Sentiers extends SmartFloreService {
 			if ($res_insertion !== false) {
 				$retour = 'OK';
 				$this->mettreAJourDateDerniereModif($sentier_titre);
+
+				$infos_evenement = array('utilisateur' => $utilisateur, 'page' => $this->bdd->quote($page_tag), 'sentier' => $this->bdd->quote($sentier_titre));
+				// Enregistrement de l'évènement
+				$this->enregistrerEvenement($this->triple_evenement_sentier_fiche_ajout, $infos_evenement);
 			}
 
 		} else {
