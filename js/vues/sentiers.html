@@ -185,7 +185,7 @@
 							class="fiche-sentiers {{fiche.existe ? 'fiche-existante' : 'fiche-inexistante'}}">
 							<td>{{fiche.infos_taxon.noms_vernaculaires.slice(0,3).join(', ')}}</td>
 							<td>
-								<a class="lien-fiche-eflore" target="_blank" title="Voir la fiche eFlore"
+								<a class="lien-fiche-eflore" target="_blank" title="Voir la fiche eFlore de : {{fiche.infos_taxon.nom_sci_complet}}"
 								   href="{{listeCtrl.liensService.lienFicheEflore(fiche)}}">
 									{{fiche.infos_taxon.nom_sci}}
 								</a>
