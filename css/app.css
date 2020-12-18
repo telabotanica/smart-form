@@ -235,6 +235,10 @@ body {
 	width: 200px;
 }
 
+.colonne-actions-fiche-sentier {
+	width: 235px;
+}
+
 .contenu_editable .champ_edition_wiki {
 	white-space: pre-line;
 }
