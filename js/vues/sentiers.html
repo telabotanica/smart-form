@@ -210,6 +210,13 @@
 									<span class="glyphicon glyphicon-phone" aria-hidden="true"></span>
 								</a>
 
+								<button ng-click="sentiersCtrl.choisirIllustration(fiche)"
+										type="button" class="btn btn-default btn-sm"
+										title="Choisir l'illustration de cette espèce"
+										onmouseenter="$(this).tooltip('show')" data-placement="top">
+									<span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
+								</button>
+
 								<a href="{{sentiersCtrl.liensService.lienQrCode(fiche)}}"
 								   class="btn btn-default btn-sm"
 								   title="Voir le code QR de cette fiche" target="_blank"
@@ -429,6 +436,47 @@
 							<button ng-click="sentiersCtrl.enregistrerMetaSentier()" type="button" class="btn btn-primary">Enregistrer</button>
 						</div>
 					</div><!-- /.modal-content -->
+				</div><!-- /.modal-dialog -->
+			</div><!-- /.modal -->
+
+			<!-- modale de saisie de l'illustration d'une espèce -->
+			<div id="modale-illustration-fiche" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog">
+				<div class="modal-dialog">
+					<form class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+							<h4 class="modal-title">Identifiant de la photo</h4>
+						</div>
+						<div class="modal-body">
+							<div ng-if="sentiersCtrl.ficheSelectionne.illustrationUrl"
+								 class="form-group">
+								<a href="{{sentiersCtrl.ficheSelectionne.illustrationUrl}}" target="_blank">
+									<img src="{{sentiersCtrl.ficheSelectionne.miniIllustrationUrl}}"
+										 alt="{{sentiersCtrl.ficheSelectionne.infos_taxon.nom_sci}}">
+								</a>
+							</div>
+							<div class="form-group">
+								<label for="illustrationId">Identifiant (ex : 2443429)
+									<button type="button" class="btn btn-default"
+											onmouseenter="$(this).tooltip('show')" data-placement="top"
+											title="Vous trouverez l'identifiant (id:&nbsp;xxxx) après avoir cliqué sur la photo de votre choix dans l'onglet Photos de votre Carnet en Ligne">
+										Aide <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+									</button>
+
+								</label>
+								<input type="number" class="form-control" id="illustrationId"  name="illustrationId"
+									   ng-model="sentiersCtrl.ficheSelectionne.illustrationId">
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button ng-click="sentiersCtrl.supprimerIllustrationFiche()"
+									ng-if="sentiersCtrl.ficheSelectionne.illustrationUrl"
+									type="submit" class="btn btn-warning pull-left">Supprimer l'illustration</button>
+							<button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+							<button ng-click="sentiersCtrl.enregistrerIllustrationFiche()"
+									type="submit" class="btn btn-primary">Enregistrer</button>
+						</div>
+					</form><!-- /.modal-content -->
 				</div><!-- /.modal-dialog -->
 			</div><!-- /.modal -->
 		</div>

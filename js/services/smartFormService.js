@@ -344,5 +344,42 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 		});
 	};
 
+	smartFormService.enregistrerIllustrationFiche = function(sentierTitre, ficheTag, illustrationId, surSucces, surErreur) {
+		$http({
+			method: 'PUT',
+			url: config.url_service_sentiers + '/sentier-illustration-fiche/',
+			headers: etatApplicationService.getHeadersAuth(),
+			data: {
+				'sentierTitre' : sentierTitre,
+				'ficheTag' : ficheTag,
+				'illustrationId': illustrationId,
+			}
+		})
+		.success(function(data, status, headers, config) {
+			surSucces(data, status, headers, config);
+		})
+		.error(function(data, status, headers, config) {
+			surErreur(data, status, headers, config);
+		});
+	};
+
+	smartFormService.supprimerIllustrationFiche = function(sentierTitre, ficheTag, surSucces, surErreur) {
+		$http({
+			method: 'DELETE',
+			url: config.url_service_sentiers + '/sentier-illustration-fiche/',
+			headers: etatApplicationService.getHeadersAuth(),
+			data: {
+				'sentierTitre' : sentierTitre,
+				'ficheTag' : ficheTag,
+			}
+		})
+		.success(function(data, status, headers, config) {
+			surSucces(data, status, headers, config);
+		})
+		.error(function(data, status, headers, config) {
+			surErreur(data, status, headers, config);
+		});
+	};
+
 	return smartFormService;
 });

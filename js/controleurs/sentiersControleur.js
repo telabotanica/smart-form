@@ -175,6 +175,7 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 					lthis.sentierSelectionne.etat = data.etat;
 					lthis.sentierSelectionne.meta = data.meta;
 					lthis.sentierSelectionne.fiches = data.fiches;
+					lthis.sentierSelectionne.illustrations = data.illustrations;
 
 					// Affectations par défaut
 					if (!lthis.sentierSelectionne.meta) {
@@ -1081,6 +1082,58 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 			function(data) {
 				if (data == 'OK') {
 					$('#modale-meta-sentier').modal('hide');
+				}
+			},
+			function() {
+				console.log('C\'est pas bon !');
+			}
+		);
+	};
+
+	this.choisirIllustration = function(fiche) {
+		lthis.ficheSelectionne = fiche;
+		if (angular.isObject(lthis.sentierSelectionne.illustrations) && angular.isObject(lthis.sentierSelectionne.illustrations[lthis.ficheSelectionne.tag])) {
+			var infos = lthis.sentierSelectionne.illustrations[lthis.ficheSelectionne.tag];
+
+			lthis.ficheSelectionne.tag = infos.ficheTag;
+			lthis.ficheSelectionne.illustrationUrl = infos.illustrationUrl;
+			lthis.ficheSelectionne.miniIllustrationUrl = infos.miniIllustrationUrl;
+			lthis.ficheSelectionne.illustrationId = infos.illustrationId;
+		}
+		$('#modale-illustration-fiche').modal();
+	};
+
+	this.enregistrerIllustrationFiche = function() {
+		if (angular.isNumber(lthis.ficheSelectionne.illustrationId)) {
+			smartFormService.enregistrerIllustrationFiche(
+				lthis.sentierSelectionne.titre,
+				lthis.ficheSelectionne.tag,
+				lthis.ficheSelectionne.illustrationId,
+				function (data) {
+					if (data) {
+						lthis.ficheSelectionne.tag = data.ficheTag;
+						lthis.ficheSelectionne.illustrationUrl = data.illustrationUrl;
+						lthis.ficheSelectionne.miniIllustrationUrl = data.miniIllustrationUrl;
+						$('#modale-illustration-fiche').modal('hide');
+					}
+				},
+				function () {
+					console.log('C\'est pas bon !');
+				}
+			);
+		}
+	};
+
+	this.supprimerIllustrationFiche = function() {
+		smartFormService.supprimerIllustrationFiche(
+			lthis.sentierSelectionne.titre,
+			lthis.ficheSelectionne.tag,
+			function(data) {
+				if (data === 'OK') {
+					lthis.ficheSelectionne.illustrationUrl = '';
+					lthis.ficheSelectionne.miniIllustrationUrl = '';
+					lthis.ficheSelectionne.illustrationId = '';
+					$('#modale-illustration-fiche').modal('hide');
 				}
 			},
 			function() {

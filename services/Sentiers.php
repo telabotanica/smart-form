@@ -49,6 +49,9 @@ class Sentiers extends SmartFloreService {
 			case 'sentier-meta':
 				$this->ajouterMetaASentier($data);
 				break;
+			case 'sentier-illustration-fiche':
+				$this->modifierIllustrationFicheASentier('put', $data);
+				break;
 			default:
 				$this->error(400, "Aucune commande connue n'a été spécifiée");
 				break;
@@ -72,6 +75,9 @@ class Sentiers extends SmartFloreService {
 				break;
 			case 'sentier-localisation':
 				$this->supprimerLocalisationASentier($data);
+				break;
+			case 'sentier-illustration-fiche':
+				$this->modifierIllustrationFicheASentier('delete', $data);
 				break;
 			default:
 				$this->error(400, "Aucune commande connue n'a été spécifiée");
@@ -747,6 +753,7 @@ class Sentiers extends SmartFloreService {
 		$date_creation = $this->getTripleBySentier($this->triple_sentier_date_creation, $_GET['sentierTitre']);
 		$date_derniere_modif = $this->getTripleBySentier($this->triple_sentier_date_derniere_modif, $_GET['sentierTitre']);
 		$date_suppression = $this->getTripleBySentier($this->triple_sentier_date_suppression, $_GET['sentierTitre']);
+		$illustrations = $this->chercherInfosIllustrationsSentier($_GET['sentierTitre']);
 
 		$retour = array('nbIndividus' => 0);
 		if (count($localisation) > 0) {
@@ -775,6 +782,7 @@ class Sentiers extends SmartFloreService {
 			'date_creation' => $date_creation['value'],
 			'date_derniere_modif' => $date_derniere_modif['value'],
 			'date_suppression' => $date_suppression['value'],
+			'illustrations' => $illustrations,
 		));
 
 		exit;
@@ -974,6 +982,102 @@ class Sentiers extends SmartFloreService {
 
 		header('Content-type: text/plain');
 		echo $retour;
+	}
+
+	private function modifierIllustrationFicheASentier($method, $data) {
+		// check if params valid
+		if (empty($data['sentierTitre'])) {
+			$this->error('400', 'Le paramètre sentierTitre est obligatoire');
+		}
+
+		$sentier = $this->getSentierById($data['sentierTitre']);
+		if (!$sentier) {
+			$this->error('404', sprintf('Sentier %s not found', $data['sentierTitre']));
+		}
+
+		if (empty($data['ficheTag'])) {
+			$this->error('400', 'Le paramètre ficheTag est obligatoire');
+		}
+
+		$fiches_sentier = $this->getFichesBySentier($data['sentierTitre']);
+		if (empty($fiches_sentier[$data['ficheTag']])) {
+			$this->error('404', sprintf('Fiche %s not found', $data['ficheTag']));
+		}
+
+		// get infos
+		$fiches_illustrations = $this->getTripleBySentier($this->triple_sentier_fiches_illustrations, $data['sentierTitre']);
+		$fiches_illustrations = json_decode($fiches_illustrations, true);
+
+		// modify info
+		switch ($method) {
+			case 'put':
+				if (empty($data['illustrationId'])) {
+					$this->error('400', 'Le paramètre illustrationId est obligatoire');
+				}
+
+				// first time?
+				if (!$fiches_illustrations) {
+					$fiches_illustrations = [];
+				}
+
+				$fiches_illustrations[$data['ficheTag']] = $data['illustrationId'];
+
+				// save info
+				$fiches_illustrations = json_encode($fiches_illustrations);
+				$retour = $this->stockerDataTriple(
+					$this->triple_sentier_fiches_illustrations, $fiches_illustrations, $data['sentierTitre']
+				);
+
+				// return info
+				if ('OK' === $retour) {
+					$image_api_id = str_pad($data['illustrationId'], 9, '0', STR_PAD_LEFT);
+
+					header('Content-type: application/json');
+					echo json_encode([
+						'illustrationId' => $data['illustrationId'],
+						'ficheTag' => $data['ficheTag'],
+						'illustrationUrl' => sprintf($this->config['eflore']['image_url'], $image_api_id),
+						'miniIllustrationUrl' => sprintf($this->config['eflore']['image_miniature_url'], $image_api_id),
+					]);
+					exit;
+				}
+				break;
+			case 'delete':
+				unset($fiches_illustrations[$data['ficheTag']]);
+
+				// save info
+				$fiches_illustrations = json_encode($fiches_illustrations);
+				$retour = $this->stockerDataTriple($this->triple_sentier_fiches_illustrations, $fiches_illustrations, $data['sentierTitre']);
+
+				header('Content-type: text/plain');
+				echo $retour;
+
+				break;
+			default:
+				$this->error('400', sprintf('Method %s not supported', $method));
+				break;
+		}
+
+		// return new Response(ahah, no. See in switch())
+	}
+
+	private function chercherInfosIllustrationsSentier($sentier) {
+		$illustrations = $this->getTripleBySentier($this->triple_sentier_fiches_illustrations, $sentier);
+		$illustrations = json_decode($illustrations['value'], true);
+
+		$details = [];
+		foreach ($illustrations as $fiche_tag => $id_illustration) {
+			$image_api_id = str_pad($id_illustration, 9, '0', STR_PAD_LEFT);
+			$details[$fiche_tag] = [
+				'illustrationId' => $id_illustration,
+				'ficheTag' => $fiche_tag,
+				'illustrationUrl' => sprintf($this->config['eflore']['image_url'], $image_api_id),
+				'miniIllustrationUrl' => sprintf($this->config['eflore']['image_miniature_url'], $image_api_id),
+			];
+
+		}
+
+		return $details;
 	}
 }
 
