@@ -309,7 +309,7 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 		.error(function(data, status, headers, config) {
 			surErreur(data);
 		});
-	}
+	};
 
 	smartFormService.ajouterMetaASentier = function(sentierTitre, sentierMeta, surSucces, surErreur) {
 		$http({
@@ -327,7 +327,7 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 		.error(function(data, status, headers, config) {
 			surErreur(data);
 		});
-	}
+	};
 
 	smartFormService.exporterSentiersEnCsv = function(lien, surSucces, surErreur) {
 		$http({

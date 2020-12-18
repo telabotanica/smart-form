@@ -36,7 +36,6 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 	        if (lthis.sentierSelectionne.fiches[i].tag === fiche.tag) {
 	        	lthis.sentierSelectionne.fiches[i].existe = true;
 	        	lthis.sentierSelectionne.fiches[i].nb_revisions = parseInt(lthis.sentierSelectionne.fiches[i].nb_revisions) + 1;
-				lthis.sentierSelectionne.fiches[i].nb_individus = lthis.sentierSelectionne.fiches[i].nb_individus;
 	        	return;
 	        }
 	    }
@@ -114,7 +113,7 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 	 *
 	 * @param      {array}  sentiers  Les sentiers à enrichir
 	 */
-	enrichirSentierLabel = function(sentiers) {
+	var enrichirSentierLabel = function(sentiers) {
 		sentiers.forEach(function(sentier, key, sentiers) {
 			if (sentier.auteur !== lthis.utilisateur.courriel) {
 				sentiers[key].label = sentier.titre + ' (' + sentier.auteur + ')';
@@ -123,7 +122,7 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 			}
 
 			if (sentier.dateSuppression) {
-				sentiers[key].label += ' (SUPPRIMÉ)'
+				sentiers[key].label += ' (SUPPRIMÉ)';
 			}
 
 			switch (sentier.etat) {
@@ -159,7 +158,7 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 				alert('Désolé y\'a des soucis lors de l\'export, contactez votre dev préféré =)');
 			}
 		);
-	}
+	};
 
 	this.editerFiche = function(fiche) {
 		$rootScope.$broadcast('edition.editer-fiche', fiche);
@@ -621,7 +620,7 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 		if (angular.isDefined(lthis.sentierSelectionne.localisation.sentier)) {
 			lthis.leafletConfig.markers = {
 				sentier: _creerMarkerSentier(lthis.sentierSelectionne.localisation.sentier)
-			}
+			};
 		}
 
 		function getSentierSelectionneFicheParTag(tag) {
@@ -634,11 +633,11 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 
 			return fiche;
 		}
-	};
+	}
 
 	function creerNomMarker(tag) {
 		if (angular.isDefined(lthis.compteurDeMarkers[tag])) {
-			markerName = '' + tag + '#' + lthis.compteurDeMarkers[tag]
+			markerName = '' + tag + '#' + lthis.compteurDeMarkers[tag];
 			lthis.compteurDeMarkers[tag] += 1;
 		} else {
 			markerName = '' + tag + '#0';
@@ -816,7 +815,7 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 				lthis.choixAdresses = data.results;
 			}
 		}).error(function() {
-			$window.alert('Oops, un problème est survenu, réessayer dans un instant')
+			$window.alert('Oops, un problème est survenu, réessayer dans un instant');
 		});
 	};
 
