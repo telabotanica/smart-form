@@ -448,10 +448,10 @@
 							<h4 class="modal-title">Identifiant de la photo</h4>
 						</div>
 						<div class="modal-body">
-							<div ng-if="sentiersCtrl.ficheSelectionne.illustrationUrl"
+							<div ng-if="sentiersCtrl.ficheSelectionne.illustration.url"
 								 class="form-group">
-								<a href="{{sentiersCtrl.ficheSelectionne.illustrationUrl}}" target="_blank">
-									<img src="{{sentiersCtrl.ficheSelectionne.miniIllustrationUrl}}"
+								<a href="{{sentiersCtrl.ficheSelectionne.illustration.url}}" target="_blank">
+									<img ng-src="{{sentiersCtrl.ficheSelectionne.illustration.mini}}"
 										 alt="{{sentiersCtrl.ficheSelectionne.infos_taxon.nom_sci}}">
 								</a>
 							</div>
@@ -465,12 +465,12 @@
 
 								</label>
 								<input type="number" class="form-control" id="illustrationId"  name="illustrationId"
-									   ng-model="sentiersCtrl.ficheSelectionne.illustrationId">
+									   ng-model="sentiersCtrl.ficheSelectionne.illustration.id">
 							</div>
 						</div>
 						<div class="modal-footer">
 							<button ng-click="sentiersCtrl.supprimerIllustrationFiche()"
-									ng-if="sentiersCtrl.ficheSelectionne.illustrationUrl"
+									ng-if="sentiersCtrl.ficheSelectionne.illustration.url"
 									type="submit" class="btn btn-warning pull-left">Supprimer l'illustration</button>
 							<button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
 							<button ng-click="sentiersCtrl.enregistrerIllustrationFiche()"

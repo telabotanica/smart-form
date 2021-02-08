@@ -1037,10 +1037,12 @@ class Sentiers extends SmartFloreService {
 
 					header('Content-type: application/json');
 					echo json_encode([
-						'illustrationId' => $data['illustrationId'],
+						'illustration' => [
+							'id' => $data['illustrationId'],
+							'url' => sprintf($this->config['eflore']['image_url'], $image_api_id),
+							'mini' => sprintf($this->config['eflore']['image_miniature_url'], $image_api_id),
+						],
 						'ficheTag' => $data['ficheTag'],
-						'illustrationUrl' => sprintf($this->config['eflore']['image_url'], $image_api_id),
-						'miniIllustrationUrl' => sprintf($this->config['eflore']['image_miniature_url'], $image_api_id),
 					]);
 					exit;
 				}
@@ -1072,10 +1074,12 @@ class Sentiers extends SmartFloreService {
 		foreach ($illustrations as $fiche_tag => $id_illustration) {
 			$image_api_id = str_pad($id_illustration, 9, '0', STR_PAD_LEFT);
 			$details[$fiche_tag] = [
-				'illustrationId' => $id_illustration,
+				'illustration' => [
+					'id' => $id_illustration,
+					'url' => sprintf($this->config['eflore']['image_url'], $image_api_id),
+					'mini' => sprintf($this->config['eflore']['image_miniature_url'], $image_api_id),
+				],
 				'ficheTag' => $fiche_tag,
-				'illustrationUrl' => sprintf($this->config['eflore']['image_url'], $image_api_id),
-				'miniIllustrationUrl' => sprintf($this->config['eflore']['image_miniature_url'], $image_api_id),
 			];
 
 		}

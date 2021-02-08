@@ -1096,24 +1096,21 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 			var infos = lthis.sentierSelectionne.illustrations[lthis.ficheSelectionne.tag];
 
 			lthis.ficheSelectionne.tag = infos.ficheTag;
-			lthis.ficheSelectionne.illustrationUrl = infos.illustrationUrl;
-			lthis.ficheSelectionne.miniIllustrationUrl = infos.miniIllustrationUrl;
-			lthis.ficheSelectionne.illustrationId = infos.illustrationId;
+			lthis.ficheSelectionne.illustration = infos.illustration;
 		}
 		$('#modale-illustration-fiche').modal();
 	};
 
 	this.enregistrerIllustrationFiche = function() {
-		if (angular.isNumber(lthis.ficheSelectionne.illustrationId)) {
+		if (angular.isNumber(lthis.ficheSelectionne.illustration.id)) {
 			smartFormService.enregistrerIllustrationFiche(
 				lthis.sentierSelectionne.titre,
 				lthis.ficheSelectionne.tag,
-				lthis.ficheSelectionne.illustrationId,
+				lthis.ficheSelectionne.illustration.id,
 				function (data) {
 					if (data) {
 						lthis.ficheSelectionne.tag = data.ficheTag;
-						lthis.ficheSelectionne.illustrationUrl = data.illustrationUrl;
-						lthis.ficheSelectionne.miniIllustrationUrl = data.miniIllustrationUrl;
+						lthis.ficheSelectionne.illustration = data.illustration;
 						$('#modale-illustration-fiche').modal('hide');
 					}
 				},
@@ -1130,9 +1127,7 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 			lthis.ficheSelectionne.tag,
 			function(data) {
 				if (data === 'OK') {
-					lthis.ficheSelectionne.illustrationUrl = '';
-					lthis.ficheSelectionne.miniIllustrationUrl = '';
-					lthis.ficheSelectionne.illustrationId = '';
+					lthis.ficheSelectionne.illustration = {};
 					$('#modale-illustration-fiche').modal('hide');
 				}
 			},
