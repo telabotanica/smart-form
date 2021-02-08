@@ -26,6 +26,9 @@ class Sentiers extends SmartFloreService {
 				// Pas d'authentification
 				$this->getPublicSentiers($requete);
 				break;
+			case 'sentier-illustration-fiche':
+				$this->getIllustrationFicheASentier();
+				break;
 			default:
 				$this->error(400, "Aucune commande connue n'a été spécifiée");
 				break;
@@ -1078,6 +1081,22 @@ class Sentiers extends SmartFloreService {
 		}
 
 		return $details;
+	}
+
+	private function getIllustrationFicheASentier() {
+		if (empty($_GET['sentierTitre'])) {
+			$this->error('400', 'Le paramètre sentierTitre est obligatoire');
+		}
+		if (empty($_GET['ficheTag'])) {
+			$this->error('400', 'Le paramètre ficheTag est obligatoire');
+		}
+
+		$illustrations = $this->chercherInfosIllustrationsSentier($_GET['sentierTitre']);
+
+		header('Content-type: application/json');
+		echo json_encode($illustrations[$_GET['ficheTag']] ?? []);
+
+		exit();
 	}
 }
 
