@@ -344,7 +344,7 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 		});
 	};
 
-	smartFormService.enregistrerIllustrationFiche = function(sentierTitre, ficheTag, illustrationId, surSucces, surErreur) {
+	smartFormService.ajouterIllustrationFiche = function(sentierTitre, ficheTag, illustrationId, surSucces, surErreur) {
 		$http({
 			method: 'PUT',
 			url: config.url_service_sentiers + '/sentier-illustration-fiche/',
@@ -363,7 +363,7 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 		});
 	};
 
-	smartFormService.supprimerIllustrationFiche = function(sentierTitre, ficheTag, surSucces, surErreur) {
+	smartFormService.supprimerIllustrationFiche = function(sentierTitre, ficheTag, illustrationId, surSucces, surErreur) {
 		$http({
 			method: 'DELETE',
 			url: config.url_service_sentiers + '/sentier-illustration-fiche/',
@@ -371,6 +371,7 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 			data: {
 				'sentierTitre' : sentierTitre,
 				'ficheTag' : ficheTag,
+				'illustrationId': illustrationId,
 			}
 		})
 		.success(function(data, status, headers, config) {

@@ -4,6 +4,7 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 	this.sentierSelectionne = creerObjetSentierVide();
 
 	this.nouveauSentierTitre = "";
+	this.nouvelleIllustrationId = '';
 
 	this.afficherSentiers = etatApplicationService.utilisateur.connecte;
 	this.utilisateur = etatApplicationService.utilisateur;
@@ -53,7 +54,8 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 			meta: {
 				titre: '',
 				auteur: ''
-			}
+			},
+			illustrations: {},
 		};
 	}
 
@@ -1095,23 +1097,22 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 		if (angular.isObject(lthis.sentierSelectionne.illustrations) && angular.isObject(lthis.sentierSelectionne.illustrations[lthis.ficheSelectionne.tag])) {
 			var infos = lthis.sentierSelectionne.illustrations[lthis.ficheSelectionne.tag];
 
-			lthis.ficheSelectionne.tag = infos.ficheTag;
-			lthis.ficheSelectionne.illustration = infos.illustration;
+			lthis.ficheSelectionne.illustrations = infos.illustrations;
 		}
 		$('#modale-illustration-fiche').modal();
 	};
 
-	this.enregistrerIllustrationFiche = function() {
-		if (angular.isNumber(lthis.ficheSelectionne.illustration.id)) {
-			smartFormService.enregistrerIllustrationFiche(
+	this.ajouterIllustrationFiche = function() {
+		if (angular.isNumber(lthis.nouvelleIllustrationId)) {
+			smartFormService.ajouterIllustrationFiche(
 				lthis.sentierSelectionne.titre,
 				lthis.ficheSelectionne.tag,
-				lthis.ficheSelectionne.illustration.id,
+				lthis.nouvelleIllustrationId,
 				function (data) {
 					if (data) {
-						lthis.ficheSelectionne.tag = data.ficheTag;
-						lthis.ficheSelectionne.illustration = data.illustration;
-						$('#modale-illustration-fiche').modal('hide');
+						lthis.ficheSelectionne.illustrations = data.illustrations;
+						lthis.sentierSelectionne.illustrations[lthis.ficheSelectionne.tag] = { 'illustrations': data.illustrations};
+						lthis.nouvelleIllustrationId = '';
 					}
 				},
 				function () {
@@ -1121,20 +1122,23 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 		}
 	};
 
-	this.supprimerIllustrationFiche = function() {
-		smartFormService.supprimerIllustrationFiche(
-			lthis.sentierSelectionne.titre,
-			lthis.ficheSelectionne.tag,
-			function(data) {
-				if (data === 'OK') {
-					lthis.ficheSelectionne.illustration = {};
-					$('#modale-illustration-fiche').modal('hide');
+	this.supprimerIllustrationFiche = function(illustrationId) {
+		if (angular.isNumber(illustrationId)) {
+			smartFormService.supprimerIllustrationFiche(
+				lthis.sentierSelectionne.titre,
+				lthis.ficheSelectionne.tag,
+				illustrationId,
+				function (data) {
+					if (data) {
+						lthis.ficheSelectionne.illustrations = data.illustrations;
+						lthis.sentierSelectionne.illustrations[lthis.ficheSelectionne.tag] = {'illustrations': data.illustrations};
+					}
+				},
+				function () {
+					console.log('C\'est pas bon !');
 				}
-			},
-			function() {
-				console.log('C\'est pas bon !');
-			}
-		);
+			);
+		}
 	};
 
 	initialiserLeafletConfig();

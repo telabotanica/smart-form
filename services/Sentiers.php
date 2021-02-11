@@ -27,7 +27,7 @@ class Sentiers extends SmartFloreService {
 				$this->getPublicSentiers($requete);
 				break;
 			case 'sentier-illustration-fiche':
-				$this->getIllustrationFicheASentier();
+				$this->getIllustrationsFicheASentier();
 				break;
 			default:
 				$this->error(400, "Aucune commande connue n'a été spécifiée");
@@ -989,13 +989,17 @@ class Sentiers extends SmartFloreService {
 
 	private function modifierIllustrationFicheASentier($method, $data) {
 		// check if params valid
+		if (empty($data['illustrationId'])) {
+			$this->error('400', 'Le paramètre illustrationId est obligatoire');
+		}
+
 		if (empty($data['sentierTitre'])) {
 			$this->error('400', 'Le paramètre sentierTitre est obligatoire');
 		}
 
 		$sentier = $this->getSentierById($data['sentierTitre']);
 		if (!$sentier) {
-			$this->error('404', sprintf('Sentier %s not found', $data['sentierTitre']));
+			$this->error('404', sprintf('Sentier "%s" not found', $data['sentierTitre']));
 		}
 
 		if (empty($data['ficheTag'])) {
@@ -1009,85 +1013,82 @@ class Sentiers extends SmartFloreService {
 
 		// get infos
 		$fiches_illustrations = $this->getTripleBySentier($this->triple_sentier_fiches_illustrations, $data['sentierTitre']);
-		$fiches_illustrations = json_decode($fiches_illustrations, true);
+		$fiches_illustrations = json_decode($fiches_illustrations['value'], true);
+
+		// first time? initialize
+		if (!$fiches_illustrations) {
+			$fiches_illustrations = [$data['ficheTag'] => []];
+		}
 
 		// modify info
 		switch ($method) {
 			case 'put':
-				if (empty($data['illustrationId'])) {
-					$this->error('400', 'Le paramètre illustrationId est obligatoire');
-				}
-
-				// first time?
-				if (!$fiches_illustrations) {
-					$fiches_illustrations = [];
-				}
-
-				$fiches_illustrations[$data['ficheTag']] = $data['illustrationId'];
-
-				// save info
-				$fiches_illustrations = json_encode($fiches_illustrations);
-				$retour = $this->stockerDataTriple(
-					$this->triple_sentier_fiches_illustrations, $fiches_illustrations, $data['sentierTitre']
-				);
-
-				// return info
-				if ('OK' === $retour) {
-					$image_api_id = str_pad($data['illustrationId'], 9, '0', STR_PAD_LEFT);
-
-					header('Content-type: application/json');
-					echo json_encode([
-						'illustration' => [
-							'id' => $data['illustrationId'],
-							'url' => sprintf($this->config['eflore']['image_url'], $image_api_id),
-							'mini' => sprintf($this->config['eflore']['image_miniature_url'], $image_api_id),
-						],
-						'ficheTag' => $data['ficheTag'],
-					]);
-					exit;
+				$key = array_search($data['illustrationId'], $fiches_illustrations[$data['ficheTag']]);
+				if (false === $key) {
+					$fiches_illustrations[$data['ficheTag']][] = $data['illustrationId'];
 				}
 				break;
 			case 'delete':
-				unset($fiches_illustrations[$data['ficheTag']]);
-
-				// save info
-				$fiches_illustrations = json_encode($fiches_illustrations);
-				$retour = $this->stockerDataTriple($this->triple_sentier_fiches_illustrations, $fiches_illustrations, $data['sentierTitre']);
-
-				header('Content-type: text/plain');
-				echo $retour;
-
+				$key = array_search($data['illustrationId'], $fiches_illustrations[$data['ficheTag']]);
+				if (false !== $key) {
+					unset($fiches_illustrations[$data['ficheTag']][$key]);
+				}
 				break;
 			default:
 				$this->error('400', sprintf('Method %s not supported', $method));
 				break;
 		}
 
-		// return new Response(ahah, no. See in switch())
+		// save info
+		$json = json_encode($fiches_illustrations);
+		$retour = $this->stockerDataTriple(
+			$this->triple_sentier_fiches_illustrations, $json, $data['sentierTitre']
+		);
+
+		// return info
+		if ('OK' === $retour) {
+			$retour = ['illustrations' => []];
+			foreach ($fiches_illustrations[$data['ficheTag']] as $illustrationId) {
+				$image_api_id = str_pad($illustrationId, 9, '0', STR_PAD_LEFT);
+				$retour['illustrations'][] = [
+					'id' => $illustrationId,
+					'url' => sprintf($this->config['eflore']['image_url'], $image_api_id),
+					'mini' => sprintf($this->config['eflore']['image_miniature_url'], $image_api_id),
+				];
+			}
+			header('Content-type: application/json');
+			echo json_encode($retour);
+			exit();
+		} else {
+			$this->error('400', sprintf('Error during data operation : %s with illustration %d', $method, $data['illustrationId']));
+		}
 	}
 
-	private function chercherInfosIllustrationsSentier($sentier) {
-		$illustrations = $this->getTripleBySentier($this->triple_sentier_fiches_illustrations, $sentier);
+	private function chercherInfosIllustrationsSentier($sentier_titre) {
+		$sentier = $this->getSentierById(urldecode($sentier_titre));
+		if (!$sentier) {
+			$this->error('404', sprintf('Sentier "%s" not found', $sentier_titre));
+		}
+
+		$illustrations = $this->getTripleBySentier($this->triple_sentier_fiches_illustrations, $sentier_titre);
 		$illustrations = json_decode($illustrations['value'], true);
 
 		$details = [];
-		foreach ($illustrations as $fiche_tag => $id_illustration) {
-			$image_api_id = str_pad($id_illustration, 9, '0', STR_PAD_LEFT);
-			$details[$fiche_tag] = [
-				'illustration' => [
+		foreach ($illustrations as $fiche_tag => $id_illustrations) {
+			foreach ($id_illustrations as $id_illustration) {
+				$image_api_id = str_pad($id_illustration, 9, '0', STR_PAD_LEFT);
+				$details[$fiche_tag]['illustrations'][] = [
 					'id' => $id_illustration,
 					'url' => sprintf($this->config['eflore']['image_url'], $image_api_id),
 					'mini' => sprintf($this->config['eflore']['image_miniature_url'], $image_api_id),
-				],
-				'ficheTag' => $fiche_tag,
-			];
-
+				];
+			}
 		}
 
 		return $details;
 	}
 
-	private function getIllustrationFicheASentier() {
+	private function getIllustrationsFicheASentier() {
 		if (empty($_GET['sentierTitre'])) {
 			$this->error('400', 'Le paramètre sentierTitre est obligatoire');
 		}

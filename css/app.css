@@ -243,6 +243,22 @@ body {
 	white-space: pre-line;
 }
 
+.illustration-container {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.illustration-container img {
+	display: block;
+}
+
+.illustration-box-link {
+	display: block;
+	width: 100px;
+	height: 100px;
+	margin: 5px;
+}
+
 /* localisation */
 #modalet > .modal-dialog {
 	width: 90%;
