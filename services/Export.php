@@ -78,7 +78,7 @@ class Export extends SmartFloreService {
 	protected function informationsTaxonFiche($referentiel, $num_tax, $sentier_titre) {
 		// infos sur la fiche et le taxon
 		$referentiel = strtolower($referentiel);
-		$infos_fiche = $this->chargerInformationsFiche($referentiel, $num_tax);
+		$infos_fiche = $this->chargerInformationsFiche($referentiel, $num_tax, $sentier_titre);
 		$infos_fiche['nom_sentier'] = $this->convertirEnEntitesHtmlSaufTags(ucfirst($sentier_titre));
 		$infos_fiche['titre'] = $this->convertirEnEntitesHtmlSaufTags($sentier_titre);
 		$infos_fiche['base_style_url'] = $this->remplacerCheminParUrl(dirname(__FILE__).DIRECTORY_SEPARATOR.'squelettes').DIRECTORY_SEPARATOR;
@@ -293,7 +293,7 @@ class Export extends SmartFloreService {
 		}
 	}
 
-	protected function chargerInformationsFiche($referentiel, $num_tax) {
+	protected function chargerInformationsFiche($referentiel, $num_tax, $sentier_titre) {
 
 		// informations sur le nom scientifique et la famille
 		$url_sci_tpl = $this->config['eflore']['url_base'].$this->config['eflore']['infos_taxons_export_url'];
@@ -324,9 +324,9 @@ class Export extends SmartFloreService {
 
 		// Lien vers le qr code (via un webservice \o/)
 		$fiche_mobile_tpl = $this->config['eflore']['fiche_mobile'];
-		$fiche_mobile = sprintf($fiche_mobile_tpl, strtolower($referentiel), $num_nom);
+		$fiche_mobile = sprintf($fiche_mobile_tpl, strtolower($referentiel), $num_nom, $sentier_titre);
 		$qr_code_url_tpl = $this->config['eflore']['qr_code_url'];
-		$qr_code_url = sprintf($qr_code_url_tpl, $nom_sci, $fiche_mobile);
+		$qr_code_url = sprintf($qr_code_url_tpl, $nom_sci, urlencode($fiche_mobile));
 
 		// Description du wiki
 		$description_url_tpl = $this->config['export']['description_url_tpl'];

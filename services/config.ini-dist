@@ -27,7 +27,7 @@ qr_code_url = "https://qr.tela-botanica.org/smartflore/%s/%s.png"
 image_url = "https://api.tela-botanica.org/img:%sO"
 image_miniature_url = "https://api.tela-botanica.org/img:%sCS"
 
-fiche_mobile = "https://beta.tela-botanica.org/mobile:%s-nn-%s"
+fiche_mobile = "https://beta.tela-botanica.org/mobile:%s-nn-%s?sentier=%s"
 
 [export]
 description_url_tpl = "https://beta.tela-botanica.org/wikini/eFloreRedactionTest/api/rest/0.5/pages/SmartFlore%snt%s?txt.format=text/html&txt.sections"

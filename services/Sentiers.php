@@ -345,7 +345,7 @@ class Sentiers extends SmartFloreService {
 					continue;
 				}
 				$fiche_individu = $fiches_eflore[$this->formaterPageNom($referentiel, $numero_taxonomique)];
-				$fiche_url = sprintf($this->config['eflore']['fiche_mobile'], $referentiel, $fiche_individu['nom_retenu.id']);
+				$fiche_url = sprintf($this->config['eflore']['fiche_mobile'], $referentiel, $fiche_individu['nom_retenu.id'], $sentier['resource']);
 
 				$sentier_details['occurrences'][] = array(
 					'position' => array(
