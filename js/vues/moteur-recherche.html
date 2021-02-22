@@ -29,18 +29,17 @@
 
 			<div class="col-md-2">
 				<select name="referentiel" id="referentiel" class="form-control"
+					ng-options="referentiel as referentiel.label for referentiel in rechercheCtrl.referentiels"
 					ng-model="rechercheCtrl.recherche.referentiel"
 					ng-change="rechercheCtrl.surChangementRecherche()">
-					<option ng-repeat="referentiel in rechercheCtrl.referentiels" value="{{referentiel}}">
-						{{rechercheCtrl.infosReferentiels[referentiel].label}}
-					</option>
 				</select>
 			</div>
 			<div id="fiches-existantes" class="checkbox col-md-2">
-				<label> <input type="checkbox"
-					ng-model="rechercheCtrl.recherche.fichesExistantes"
-					ng-change="rechercheCtrl.surChangementRecherche()"> Uniquement les fiches
-					existantes
+				<label>
+					<input type="checkbox"
+						ng-model="rechercheCtrl.recherche.fichesExistantes"
+						ng-change="rechercheCtrl.surChangementRecherche()">
+					Uniquement les fiches existantes
 				</label>
 			</div>
 			<div class="col-md-1">

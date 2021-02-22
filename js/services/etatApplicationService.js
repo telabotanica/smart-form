@@ -4,14 +4,13 @@ smartFormApp.service('etatApplicationService', function($http) {
 	var etatApplicationService = {};
 
 	etatApplicationService.referentiels = config.referentiels;
-	etatApplicationService.infosReferentiels = config.infos_referentiels;
 
 	etatApplicationService.recherche = {};
 	etatApplicationService.recherche.texte = "";
 	etatApplicationService.recherche.fichesExistantes = false;
 	etatApplicationService.recherche.referentiel = etatApplicationService.referentiels[0];
 	etatApplicationService.recherche.nomVernaculaire = false;
-	etatApplicationService.recherche.referentielVerna = etatApplicationService.infosReferentiels[etatApplicationService.recherche.referentiel].noms_vernaculaires;
+	etatApplicationService.recherche.referentielVerna = etatApplicationService.recherche.referentiel.noms_vernaculaires;
 
 
 	etatApplicationService.rechercheModifiee = false;

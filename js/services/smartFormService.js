@@ -5,7 +5,7 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 	/** FICHES **/
 	smartFormService.getListeFichesSmartFlore = function(recherche, utilisateur, pageCourante, taillePage, surSucces, surErreur) {
 
-		var referentiel = "referentiel="+(!recherche.referentiel ? '%' : recherche.referentiel);
+		var referentiel = "referentiel="+(!recherche.referentiel.nom ? '%' : recherche.referentiel.nom);
 		var referentielVerna = '&referentiel_verna='+(recherche.referentielVerna);
 		var rechercheLibre = "&recherche="+(!recherche.texte ? '%' : recherche.texte);
 		var pagesExistantes = '&pages_existantes='+(!!recherche.fichesExistantes);
@@ -30,7 +30,7 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 
 	smartFormService.getListeFichesSmartFloreAsync = function(recherche, pageCourante, taillePage, callback) {
 
-		var referentiel = "referentiel="+(!recherche.referentiel ? '%' : recherche.referentiel);
+		var referentiel = "referentiel="+(!recherche.referentiel.nom ? '%' : recherche.referentiel.nom);
 		var referentielVerna = '&referentiel_verna='+(recherche.referentielVerna);
 		var rechercheLibre = "&recherche="+(!recherche.texte ? '%' : recherche.texte);
 		var pagesExistantes = '&pages_existantes='+(!!recherche.fichesExistantes);

@@ -1,15 +1,14 @@
 smartFormApp.controller('RechercheControleur', function ($scope, $rootScope, etatApplicationService, paginationService, smartFormService) {
 
 	this.referentiels = config.referentiels;
-	this.infosReferentiels = config.infos_referentiels;
 
 	this.recherche = {};
 	this.recherche.texte = "";
 	this.recherche.fichesExistantes = false;
 	this.recherche.referentiel = this.referentiels[0];
 	this.recherche.nomVernaculaire = false;
-	this.recherche.referentielVerna = this.infosReferentiels[this.recherche.referentiel].noms_vernaculaires;
-	this.recherche.filtreSousEnsemble = this.infosReferentiels[this.recherche.referentiel].filtre;
+	this.recherche.referentielVerna = this.recherche.referentiel.noms_vernaculaires;
+	this.recherche.filtreSousEnsemble = this.recherche.referentiel.filtre;
 
 	this.surChangementTypeRecherche = function(type) {
 		this.recherche.nomVernaculaire = (type == "vernaculaire");
@@ -23,10 +22,10 @@ smartFormApp.controller('RechercheControleur', function ($scope, $rootScope, eta
 		if(!etatApplicationService.premierChargement) {
 			etatApplicationService.rechercheModifiee = true;
 		}
-		this.recherche.referentielVerna = this.infosReferentiels[this.recherche.referentiel].noms_vernaculaires;
-		this.recherche.filtreSousEnsemble = this.infosReferentiels[this.recherche.referentiel].filtre;
+		this.recherche.referentielVerna = this.recherche.referentiel.noms_vernaculaires;
+		this.recherche.filtreSousEnsemble = this.recherche.referentiel.filtre;
 
-		if(this.infosReferentiels[this.recherche.referentiel].noms_vernaculaires == null) {
+		if(this.recherche.referentielVerna == null) {
 			this.recherche.nomVernaculaire = false;
 		}
 
