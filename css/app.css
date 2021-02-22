@@ -235,8 +235,28 @@ body {
 	width: 200px;
 }
 
+.colonne-actions-fiche-sentier {
+	width: 235px;
+}
+
 .contenu_editable .champ_edition_wiki {
 	white-space: pre-line;
+}
+
+.illustration-container {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.illustration-container img {
+	display: block;
+}
+
+.illustration-box-link {
+	display: block;
+	width: 100px;
+	height: 100px;
+	margin: 5px;
 }
 
 /* localisation */

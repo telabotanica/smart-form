@@ -4,6 +4,7 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 	this.sentierSelectionne = creerObjetSentierVide();
 
 	this.nouveauSentierTitre = "";
+	this.nouvelleIllustrationId = '';
 
 	this.afficherSentiers = etatApplicationService.utilisateur.connecte;
 	this.utilisateur = etatApplicationService.utilisateur;
@@ -36,7 +37,6 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 	        if (lthis.sentierSelectionne.fiches[i].tag === fiche.tag) {
 	        	lthis.sentierSelectionne.fiches[i].existe = true;
 	        	lthis.sentierSelectionne.fiches[i].nb_revisions = parseInt(lthis.sentierSelectionne.fiches[i].nb_revisions) + 1;
-				lthis.sentierSelectionne.fiches[i].nb_individus = lthis.sentierSelectionne.fiches[i].nb_individus;
 	        	return;
 	        }
 	    }
@@ -54,7 +54,8 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 			meta: {
 				titre: '',
 				auteur: ''
-			}
+			},
+			illustrations: {},
 		};
 	}
 
@@ -114,7 +115,7 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 	 *
 	 * @param      {array}  sentiers  Les sentiers à enrichir
 	 */
-	enrichirSentierLabel = function(sentiers) {
+	var enrichirSentierLabel = function(sentiers) {
 		sentiers.forEach(function(sentier, key, sentiers) {
 			if (sentier.auteur !== lthis.utilisateur.courriel) {
 				sentiers[key].label = sentier.titre + ' (' + sentier.auteur + ')';
@@ -123,7 +124,7 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 			}
 
 			if (sentier.dateSuppression) {
-				sentiers[key].label += ' (SUPPRIMÉ)'
+				sentiers[key].label += ' (SUPPRIMÉ)';
 			}
 
 			switch (sentier.etat) {
@@ -159,7 +160,7 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 				alert('Désolé y\'a des soucis lors de l\'export, contactez votre dev préféré =)');
 			}
 		);
-	}
+	};
 
 	this.editerFiche = function(fiche) {
 		$rootScope.$broadcast('edition.editer-fiche', fiche);
@@ -176,6 +177,7 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 					lthis.sentierSelectionne.etat = data.etat;
 					lthis.sentierSelectionne.meta = data.meta;
 					lthis.sentierSelectionne.fiches = data.fiches;
+					lthis.sentierSelectionne.illustrations = data.illustrations;
 
 					// Affectations par défaut
 					if (!lthis.sentierSelectionne.meta) {
@@ -621,7 +623,7 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 		if (angular.isDefined(lthis.sentierSelectionne.localisation.sentier)) {
 			lthis.leafletConfig.markers = {
 				sentier: _creerMarkerSentier(lthis.sentierSelectionne.localisation.sentier)
-			}
+			};
 		}
 
 		function getSentierSelectionneFicheParTag(tag) {
@@ -634,11 +636,11 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 
 			return fiche;
 		}
-	};
+	}
 
 	function creerNomMarker(tag) {
 		if (angular.isDefined(lthis.compteurDeMarkers[tag])) {
-			markerName = '' + tag + '#' + lthis.compteurDeMarkers[tag]
+			markerName = '' + tag + '#' + lthis.compteurDeMarkers[tag];
 			lthis.compteurDeMarkers[tag] += 1;
 		} else {
 			markerName = '' + tag + '#0';
@@ -816,7 +818,7 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 				lthis.choixAdresses = data.results;
 			}
 		}).error(function() {
-			$window.alert('Oops, un problème est survenu, réessayer dans un instant')
+			$window.alert('Oops, un problème est survenu, réessayer dans un instant');
 		});
 	};
 
@@ -1088,6 +1090,55 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 				console.log('C\'est pas bon !');
 			}
 		);
+	};
+
+	this.choisirIllustration = function(fiche) {
+		lthis.ficheSelectionne = fiche;
+		if (angular.isObject(lthis.sentierSelectionne.illustrations) && angular.isObject(lthis.sentierSelectionne.illustrations[lthis.ficheSelectionne.tag])) {
+			var infos = lthis.sentierSelectionne.illustrations[lthis.ficheSelectionne.tag];
+
+			lthis.ficheSelectionne.illustrations = infos.illustrations;
+		}
+		$('#modale-illustration-fiche').modal();
+	};
+
+	this.ajouterIllustrationFiche = function() {
+		if (angular.isNumber(lthis.nouvelleIllustrationId)) {
+			smartFormService.ajouterIllustrationFiche(
+				lthis.sentierSelectionne.titre,
+				lthis.ficheSelectionne.tag,
+				lthis.nouvelleIllustrationId,
+				function (data) {
+					if (data) {
+						lthis.ficheSelectionne.illustrations = data.illustrations;
+						lthis.sentierSelectionne.illustrations[lthis.ficheSelectionne.tag] = { 'illustrations': data.illustrations};
+						lthis.nouvelleIllustrationId = '';
+					}
+				},
+				function () {
+					console.log('C\'est pas bon !');
+				}
+			);
+		}
+	};
+
+	this.supprimerIllustrationFiche = function(illustrationId) {
+		if (angular.isNumber(illustrationId)) {
+			smartFormService.supprimerIllustrationFiche(
+				lthis.sentierSelectionne.titre,
+				lthis.ficheSelectionne.tag,
+				illustrationId,
+				function (data) {
+					if (data) {
+						lthis.ficheSelectionne.illustrations = data.illustrations;
+						lthis.sentierSelectionne.illustrations[lthis.ficheSelectionne.tag] = {'illustrations': data.illustrations};
+					}
+				},
+				function () {
+					console.log('C\'est pas bon !');
+				}
+			);
+		}
 	};
 
 	initialiserLeafletConfig();

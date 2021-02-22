@@ -309,7 +309,7 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 		.error(function(data, status, headers, config) {
 			surErreur(data);
 		});
-	}
+	};
 
 	smartFormService.ajouterMetaASentier = function(sentierTitre, sentierMeta, surSucces, surErreur) {
 		$http({
@@ -327,7 +327,7 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 		.error(function(data, status, headers, config) {
 			surErreur(data);
 		});
-	}
+	};
 
 	smartFormService.exporterSentiersEnCsv = function(lien, surSucces, surErreur) {
 		$http({
@@ -335,6 +335,44 @@ smartFormApp.service('smartFormService', function($http, etatApplicationService)
 		    url: lien,
 		    headers: etatApplicationService.getHeadersAuth(),
 		    data: {}
+		})
+		.success(function(data, status, headers, config) {
+			surSucces(data, status, headers, config);
+		})
+		.error(function(data, status, headers, config) {
+			surErreur(data, status, headers, config);
+		});
+	};
+
+	smartFormService.ajouterIllustrationFiche = function(sentierTitre, ficheTag, illustrationId, surSucces, surErreur) {
+		$http({
+			method: 'PUT',
+			url: config.url_service_sentiers + '/sentier-illustration-fiche/',
+			headers: etatApplicationService.getHeadersAuth(),
+			data: {
+				'sentierTitre' : sentierTitre,
+				'ficheTag' : ficheTag,
+				'illustrationId': illustrationId,
+			}
+		})
+		.success(function(data, status, headers, config) {
+			surSucces(data, status, headers, config);
+		})
+		.error(function(data, status, headers, config) {
+			surErreur(data, status, headers, config);
+		});
+	};
+
+	smartFormService.supprimerIllustrationFiche = function(sentierTitre, ficheTag, illustrationId, surSucces, surErreur) {
+		$http({
+			method: 'DELETE',
+			url: config.url_service_sentiers + '/sentier-illustration-fiche/',
+			headers: etatApplicationService.getHeadersAuth(),
+			data: {
+				'sentierTitre' : sentierTitre,
+				'ficheTag' : ficheTag,
+				'illustrationId': illustrationId,
+			}
 		})
 		.success(function(data, status, headers, config) {
 			surSucces(data, status, headers, config);

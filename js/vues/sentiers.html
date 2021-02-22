@@ -176,7 +176,7 @@
 							<th class="colonne-collapsible">Référentiel</th>
 							<th class="colonne-collapsible">Révisions</th>
 							<th class="colonne-collapsible">Individus</th>
-							<th class="colonne-actions-fiche">Actions</th>
+							<th class="colonne-actions-fiche-sentier">Actions</th>
 						</tr>
 						<tr class="zone-drop-fiches-sentier" >
 							<td colspan="4" drop="true" dropStyle="element-droppable" > Glissez-déposez des fiches depuis les favoris ou la liste </td>
@@ -193,33 +193,49 @@
 							<td class="colonne-collapsible">{{fiche.infos_taxon.referentiel}}</td>
 							<td class="colonne-collapsible">{{fiche.nb_revisions}}</td>
 							<td class="colonne-collapsible">{{fiche.nb_individus}}</td>
-							<td class="colonne-actions-fiche">
-								<button type="button" class="btn btn-default btn-sm"
-									title="{{fiche.existe ? 'Éditer cette fiche' : 'Créer cette fiche'}}"
-									ng-click="sentiersCtrl.editerFiche(fiche)">
+							<td class="colonne-actions-fiche-sentier">
+								<button ng-click="sentiersCtrl.editerFiche(fiche)"
+										type="button" class="btn btn-default btn-sm"
+										title="{{fiche.existe ? 'Éditer cette fiche' : 'Créer cette fiche'}}"
+										onmouseenter="$(this).tooltip('show')" data-placement="top">
 									<span
 										class="glyphicon {{fiche.existe ? 'glyphicon-edit' : 'glyphicon-plus'}}"
 										aria-hidden="true"></span>
 								</button>
-								<a class="btn btn-default btn-sm"
-									title="Voir cette fiche" target="_blank"
-									href="{{sentiersCtrl.liensService.lienFicheMobile(fiche)}}">
+
+								<a href="{{sentiersCtrl.liensService.lienFicheMobile(fiche, sentiersCtrl.sentierSelectionne.titre)}}"
+								   class="btn btn-default btn-sm"
+								   title="Voir cette fiche" target="_blank"
+								   onmouseenter="$(this).tooltip('show')" data-placement="top">
 									<span class="glyphicon glyphicon-phone" aria-hidden="true"></span>
 								</a>
-								<a class="btn btn-default btn-sm"
-									title="Voir le code QR de cette fiche" target="_blank"
-									href="{{sentiersCtrl.liensService.lienQrCode(fiche)}}">
+
+								<button ng-click="sentiersCtrl.choisirIllustration(fiche)"
+										type="button" class="btn btn-default btn-sm"
+										title="Choisir l'illustration de cette espèce"
+										onmouseenter="$(this).tooltip('show')" data-placement="top">
+									<span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
+								</button>
+
+								<a href="{{sentiersCtrl.liensService.lienQrCode(fiche)}}"
+								   class="btn btn-default btn-sm"
+								   title="Voir le code QR de cette fiche" target="_blank"
+								   onmouseenter="$(this).tooltip('show')" data-placement="top">
 									<span class="glyphicon glyphicon-qrcode" aria-hidden="true"></span>
 								</a>
-								<a class="btn btn-default btn-sm"
-									title="Exporter cette fiche en pdf"
-									ng-show="fiche.existe"
-									href="{{sentiersCtrl.liensService.exporterFicheEnPdf(fiche, sentiersCtrl.sentierSelectionne.titre)}}">
+
+								<a href="{{sentiersCtrl.liensService.exporterFicheEnPdf(fiche, sentiersCtrl.sentierSelectionne.titre)}}"
+								   class="btn btn-default btn-sm"
+								   title="Exporter cette fiche en pdf"
+								   ng-show="fiche.existe"
+								   onmouseenter="$(this).tooltip('show')" data-placement="top">
 									<span class="glyphicon glyphicon-export" aria-hidden="true"></span>
 								</a>
-								<button type="button" class="btn btn-default btn-sm"
-									title="Supprimer cette fiche du sentier"
-									ng-click="sentiersCtrl.supprimerFicheASentier(sentiersCtrl.sentierSelectionne, fiche)">
+
+								<button ng-click="sentiersCtrl.supprimerFicheASentier(sentiersCtrl.sentierSelectionne, fiche)"
+										type="button" class="btn btn-default btn-sm"
+										title="Supprimer cette fiche du sentier"
+										onmouseenter="$(this).tooltip('show')" data-placement="top">
 									<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
 								</button>
 							</td>
@@ -397,30 +413,75 @@
 
 			<!-- modale de saisies des meta d'un sentier -->
 			<div id="modale-meta-sentier" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog">
-			  <div class="modal-dialog">
-				<div class="modal-content">
-				  <div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title">Informations</h4>
-				  </div>
-				  <div class="modal-body">
-					<div class="form-group">
-						<label for="nomSentier">Nom public du sentier <i class="glyphicon glyphicon-info-sign" onmouseenter="$(this).tooltip('show')" data-placement="top" title="Information utilisée pour la publication du sentier"></i></label>
-						<input type="text" class="form-control" id="nomSentier"  name="nomSentier"
-							ng-model="sentiersCtrl.sentierSelectionne.meta.titre">
-					</div>
-					<div class="form-group">
-						<label for="auteurSentier">Auteur public du sentier <i class="glyphicon glyphicon-info-sign" onmouseenter="$(this).tooltip('show')" data-placement="top" title="Information utilisée pour la publication du sentier"></i></label>
-						<input type="text" class="form-control" id="auteurSentier" name="auteurSentier"
-							ng-model="sentiersCtrl.sentierSelectionne.meta.auteur" placeholder="{{ sentiersCtrl.sentierSelectionne.meta.auteur }}">
-					</div>
-				  </div>
-				  <div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
-					<button ng-click="sentiersCtrl.enregistrerMetaSentier()" type="button" class="btn btn-primary">Valider</button>
-				  </div>
-				</div><!-- /.modal-content -->
-			  </div><!-- /.modal-dialog -->
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+							<h4 class="modal-title">Informations</h4>
+						</div>
+						<div class="modal-body">
+							<div class="form-group">
+								<label for="nomSentier">Nom public du sentier <i class="glyphicon glyphicon-info-sign" onmouseenter="$(this).tooltip('show')" data-placement="top" title="Information utilisée pour la publication du sentier"></i></label>
+								<input type="text" class="form-control" id="nomSentier"  name="nomSentier"
+									   ng-model="sentiersCtrl.sentierSelectionne.meta.titre">
+							</div>
+							<div class="form-group">
+								<label for="auteurSentier">Auteur public du sentier <i class="glyphicon glyphicon-info-sign" onmouseenter="$(this).tooltip('show')" data-placement="top" title="Information utilisée pour la publication du sentier"></i></label>
+								<input type="text" class="form-control" id="auteurSentier" name="auteurSentier"
+									   ng-model="sentiersCtrl.sentierSelectionne.meta.auteur" placeholder="{{ sentiersCtrl.sentierSelectionne.meta.auteur }}">
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+							<button ng-click="sentiersCtrl.enregistrerMetaSentier()" type="button" class="btn btn-primary">Enregistrer</button>
+						</div>
+					</div><!-- /.modal-content -->
+				</div><!-- /.modal-dialog -->
+			</div><!-- /.modal -->
+
+			<!-- modale de saisie de l'illustration d'une espèce -->
+			<div id="modale-illustration-fiche" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog">
+				<div class="modal-dialog">
+					<form class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+							<h4 class="modal-title">Illustrations de {{sentiersCtrl.ficheSelectionne.infos_taxon.nom_sci}} spécifiques au sentier</h4>
+						</div>
+						<div class="modal-body">
+							<div class="form-group illustration-container">
+								<div ng-show="sentiersCtrl.ficheSelectionne.illustrations.length > 0"
+									 ng-repeat="illustration in sentiersCtrl.ficheSelectionne.illustrations"
+									 class="text-center">
+									<a href="{{illustration.url}}" target="_blank"
+									   title="Ouvrir l'image dans un nouvel onglet"
+									   class="illustration-box-link">
+										<img ng-src="{{illustration.mini}}"
+											 alt="{{sentiersCtrl.ficheSelectionne.infos_taxon.nom_sci}}">
+									</a>
+									<button ng-click="sentiersCtrl.supprimerIllustrationFiche(illustration.id)"
+											type="submit" class="btn btn-warning btn-sm">Supprimer</button>
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="illustrationId">Ajouter une illustration
+									<button type="button" class="btn btn-default"
+											onmouseenter="$(this).tooltip('show')" data-placement="top"
+											title="Vous trouverez l'identifiant (id:&nbsp;xxxx) après avoir cliqué sur la photo de votre choix dans l'onglet Photos de votre Carnet en Ligne">
+										Aide <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+									</button>
+								</label>
+								<input type="number" class="form-control" id="illustrationId"  name="illustrationId"
+									   placeholder="Identifiant (ex : 2443429)"
+									   ng-model="sentiersCtrl.nouvelleIllustrationId">
+								<button ng-click="sentiersCtrl.ajouterIllustrationFiche()"
+										type="submit" class="btn btn-primary btn-sm">Ajouter l'illustration</button>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
+						</div>
+					</form><!-- /.modal-content -->
+				</div><!-- /.modal-dialog -->
 			</div><!-- /.modal -->
 		</div>
 	</div>

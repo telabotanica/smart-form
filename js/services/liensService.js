@@ -2,10 +2,14 @@ smartFormApp.service('liensService', function() {
 
 	var liensService = {};
 
-	liensService.lienFicheMobile = function(fiche) {
+	liensService.lienFicheMobile = function(fiche, titre) {
+		var sentierTitre = (typeof titre !== 'undefined') ? titre : false;
 		referentiel_fiche = ""+fiche.infos_taxon.referentiel;
 		url_fiche = config.url_fiche_mobile.replace('{referentiel}', referentiel_fiche.toLowerCase());
 		url_fiche = url_fiche.replace('{num_nom}', fiche.infos_taxon.num_nom);
+		if (sentierTitre) {
+			url_fiche = url_fiche+'?sentier='+sentierTitre;
+		}
 		//console.log(url_fiche);
 		return url_fiche;
 	};
