@@ -1,45 +1,50 @@
 var config = {
     nom_application: "Tableau de bord Smart'Flore",
     prod: false,
-    referentiels: ["BDTFX", "BDTXA", "ISFAN", "APD", "BDTRE", "TAXREF"],
-    infos_referentiels: {
-        "BDTFX": {
+    referentiels: [
+        {
+            nom: "BDTFX",
             label: "France métropolitaine",
             noms_vernaculaires: "nvjfl",
             filtre: null,
             fournisseur_fiches_especes: "eflore"
         },
-        "BDTXA": {
-            label: "Antilles Françaises",
+        {
+            nom: "BDTXA",
+            label: "Antilles françaises",
             noms_vernaculaires: "nva",
             filtre: null,
             fournisseur_fiches_especes: "eflore"
         },
-        "ISFAN": {
-            label: "Afrique du Nord",
+        {
+            nom: "ISFAN",
+            label: "Afrique du nord",
             noms_vernaculaires: null,
             filtre: null,
             fournisseur_fiches_especes: "eflore"
         },
-        "APD": {
+        {
+            nom: "APD",
             label: "Afrique du centre et de l'ouest",
             noms_vernaculaires: null,
             filtre: null,
             fournisseur_fiches_especes: "eflore"
         },
-        "BDTRE": {
-            label: "Île de la Réunion",
-            noms_vernaculaires: null,
-            filtre: null,
-            fournisseur_fiches_especes: "eflore"
-        },
-        "TAXREF": {
+        {
+            nom: "TAXREF",
             label: "Guyane",
             noms_vernaculaires: null,
             filtre: "guyane",
-            fournisseur_fiches_especes: "inpn"
+            fournisseur_fiches_especes: "eflore"
+        },
+        {
+            nom: "TAXREF",
+            label: "La Réunion",
+            noms_vernaculaires: null,
+            filtre: "reunion",
+            fournisseur_fiches_especes: "eflore"
         }
-    },
+    ],
     fiches_especes: {
         eflore: {
             url: "https://www.tela-botanica.org/{referentiel}-nn-{num_nom}"
