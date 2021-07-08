@@ -564,6 +564,13 @@ class SmartFloreService {
 						$sentiersNommes[$matches[2]]['auteurEmail'] = $matches[1];
 					}
 					break;
+				case $this->triple_sentier_localisation:
+					preg_match('/"lat":(\d+\.\d+),"lng":(\d+\.\d+)/', $r['value'], $matches);
+					if (!empty($matches[1]) && !empty($matches[2])) {
+						$sentiersNommes[$nomSentier]['localisation']['lat'] = $matches[1];
+						$sentiersNommes[$nomSentier]['localisation']['lng'] = $matches[2];
+					}
+					break;
 			}
 		}
 
