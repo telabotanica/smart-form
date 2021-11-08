@@ -501,7 +501,7 @@ class SmartFloreService {
 	//
 	// ---------------------------------------------------------------------------------------------
 	function enregistrerEvenement($evenement, $cible) {
-		$cible = $this->bdd->quote(json_encode($cible));
+		$cible = $this->bdd->quote(json_encode($cible, JSON_UNESCAPED_UNICODE));
 
 		date_default_timezone_set('Europe/Paris');
 
