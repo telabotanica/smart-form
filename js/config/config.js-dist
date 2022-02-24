@@ -43,6 +43,13 @@ var config = {
             noms_vernaculaires: null,
             filtre: "reunion",
             fournisseur_fiches_especes: "eflore"
+        },
+        {
+            nom: "TAXREFLICH",
+            label: "Lichens",
+            noms_vernaculaires: null,
+            filtre: null,
+            fournisseur_fiches_especes: "eflore"
         }
     ],
     fiches_especes: {
