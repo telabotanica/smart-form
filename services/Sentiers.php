@@ -1023,15 +1023,24 @@ class Sentiers extends SmartFloreService {
 		// modify info
 		switch ($method) {
 			case 'put':
-				$key = array_search($data['illustrationId'], $fiches_illustrations[$data['ficheTag']]);
+				$key = false;
+				if (array_key_exists($data['ficheTag'], $fiches_illustrations)) {
+					$key = array_search($data['illustrationId'], $fiches_illustrations[$data['ficheTag']]);
+				}
 				if (false === $key) {
 					$fiches_illustrations[$data['ficheTag']][] = $data['illustrationId'];
 				}
 				break;
 			case 'delete':
-				$key = array_search($data['illustrationId'], $fiches_illustrations[$data['ficheTag']]);
+				$key = false;
+				if (array_key_exists($data['ficheTag'], $fiches_illustrations)) {
+					$key = array_search($data['illustrationId'], $fiches_illustrations[$data['ficheTag']]);
+				}
 				if (false !== $key) {
 					unset($fiches_illustrations[$data['ficheTag']][$key]);
+				}
+				if (0 === count($fiches_illustrations[$data['ficheTag']])) {
+					unset($fiches_illustrations[$data['ficheTag']]);
 				}
 				break;
 			default:
@@ -1048,13 +1057,15 @@ class Sentiers extends SmartFloreService {
 		// return info
 		if ('OK' === $retour) {
 			$retour = ['illustrations' => []];
-			foreach ($fiches_illustrations[$data['ficheTag']] as $illustrationId) {
-				$image_api_id = str_pad($illustrationId, 9, '0', STR_PAD_LEFT);
-				$retour['illustrations'][] = [
-					'id' => $illustrationId,
-					'url' => sprintf($this->config['eflore']['image_url'], $image_api_id),
-					'mini' => sprintf($this->config['eflore']['image_miniature_url'], $image_api_id),
-				];
+			if (isset($fiches_illustrations[$data['ficheTag']])) {
+				foreach ($fiches_illustrations[$data['ficheTag']] as $illustrationId) {
+					$image_api_id = str_pad($illustrationId, 9, '0', STR_PAD_LEFT);
+					$retour['illustrations'][] = [
+						'id' => $illustrationId,
+						'url' => sprintf($this->config['eflore']['image_url'], $image_api_id),
+						'mini' => sprintf($this->config['eflore']['image_miniature_url'], $image_api_id),
+					];
+				}
 			}
 			header('Content-type: application/json');
 			echo json_encode($retour);
