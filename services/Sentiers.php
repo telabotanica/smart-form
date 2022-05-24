@@ -1103,14 +1103,15 @@ class Sentiers extends SmartFloreService {
 		if (empty($_GET['sentierTitre'])) {
 			$this->error('400', 'Le paramètre sentierTitre est obligatoire');
 		}
-		if (empty($_GET['ficheTag'])) {
-			$this->error('400', 'Le paramètre ficheTag est obligatoire');
-		}
 
 		$illustrations = $this->chercherInfosIllustrationsSentier($_GET['sentierTitre']);
 
 		header('Content-type: application/json');
-		echo json_encode($illustrations[$_GET['ficheTag']] ?? []);
+		if (isset($_GET['ficheTag']) && $_GET['ficheTag']) {
+			echo json_encode($illustrations[$_GET['ficheTag']] ?? []);
+		} else {
+			echo json_encode($illustrations);
+		}
 
 		exit();
 	}
