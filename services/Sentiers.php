@@ -305,6 +305,19 @@ class Sentiers extends SmartFloreService {
 		}
 	}
 
+	/**
+	 * Calcule un identifiant unique basé sur l'email
+	 *
+	 * @param string $email
+	 * @return string The hashed email
+	 */
+	private function hasherEmail($email) {
+		// l'algo et le secret doivent être les mêmes que dans les autres services smartflore-services
+		$salt = $this->config['auth']['secret'];
+
+		return hash('sha3-224', $email.$salt);
+	}
+
 	private function formatSentierDetails($sentier) {
 		$fiches = $this->getFichesBySentier($sentier['resource']);
 
@@ -420,6 +433,7 @@ class Sentiers extends SmartFloreService {
 			// élimination des sentiers non valides (difficile à faire dans le
 			// SQL à cause des triplets)
 			if ($this->sentierPublicValide($infos_sentier)) {
+				$hash = $this->hasherEmail($infos_sentier['value']);
 				// anonymise l'email attaché au sentier
 				$this->remplacerEmailParIntitule($infos_sentier);
 
@@ -430,6 +444,7 @@ class Sentiers extends SmartFloreService {
 					json_decode($infos_sentier['meta'], true),
 					json_decode($infos_sentier['localisation'], true)
 				);
+				$jsonInfosSentier['author_id'] = $hash;
 
 				$ressourceUrlEncodee = urlencode($infos_sentier['resource']);
 				$jsonInfosSentier['details'] = sprintf($this->config['service']['details_sentier_url'], $ressourceUrlEncodee);

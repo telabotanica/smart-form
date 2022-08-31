@@ -9,6 +9,7 @@ table_prefixe = "eFloreRedaction"
 auth_url = https://beta.tela-botanica.org/service:annuaire:auth
 header = 'Auth';
 admins = "admin1@mydomain.com,admin2@mydomain.com"
+secret = 42
 
 [eflore]
 url_base = "https://beta.tela-botanica.org/service:eflore:0.1"
