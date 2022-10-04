@@ -328,7 +328,10 @@ class Sentiers extends SmartFloreService {
 		$dessin_sentier = json_decode($raw_dessin_sentier['value'], true);
 
 		$raw_meta_sentier = $this->getMetaBySentier($sentier['resource']);
-		$meta = json_decode($raw_meta_sentier['value'], true);
+		$meta = [];
+		if (isset($raw_meta_sentier['value'])) {
+			$meta = json_decode($raw_meta_sentier['value'], true);
+		}
 
 		// On va chercher sur eflore les infos complètes de chaque fiche
 		$fiches_eflore = array();
@@ -1096,18 +1099,19 @@ class Sentiers extends SmartFloreService {
 			$this->error('404', sprintf('Sentier "%s" not found', $sentier_titre));
 		}
 
-		$illustrations = $this->getTripleBySentier($this->triple_sentier_fiches_illustrations, $sentier_titre);
-		$illustrations = json_decode($illustrations['value'], true);
-
 		$details = [];
-		foreach ($illustrations as $fiche_tag => $id_illustrations) {
-			foreach ($id_illustrations as $id_illustration) {
-				$image_api_id = str_pad($id_illustration, 9, '0', STR_PAD_LEFT);
-				$details[$fiche_tag]['illustrations'][] = [
-					'id' => $id_illustration,
-					'url' => sprintf($this->config['eflore']['image_url'], $image_api_id),
-					'mini' => sprintf($this->config['eflore']['image_miniature_url'], $image_api_id),
-				];
+		$illustrations = $this->getTripleBySentier($this->triple_sentier_fiches_illustrations, $sentier_titre);
+		if (isset($illustrations['value'])) {
+			$illustrations = json_decode($illustrations['value'], true);
+			foreach ($illustrations as $fiche_tag => $id_illustrations) {
+				foreach ($id_illustrations as $id_illustration) {
+					$image_api_id = str_pad($id_illustration, 9, '0', STR_PAD_LEFT);
+					$details[$fiche_tag]['illustrations'][] = [
+						'id' => $id_illustration,
+						'url' => sprintf($this->config['eflore']['image_url'], $image_api_id),
+						'mini' => sprintf($this->config['eflore']['image_miniature_url'], $image_api_id),
+					];
+				}
 			}
 		}
 
