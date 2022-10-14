@@ -376,7 +376,8 @@ class Sentiers extends SmartFloreService {
 						'genre' => $fiche_individu['genre'] ?? $fiche_individu['nom_sci_complet'],
 						'famille' => $fiche_individu['famille'],
 						'referentiel' => $referentiel,
-						'num_nom' => $fiche_individu['nom_retenu.id']
+						'num_nom' => $fiche_individu['nom_retenu.id'],
+						'taxonomicId' => $numero_taxonomique
 					),
 					'fiche' => array(
 						'fr' => $fiche_url
