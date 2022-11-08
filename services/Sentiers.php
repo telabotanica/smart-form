@@ -248,7 +248,7 @@ class Sentiers extends SmartFloreService {
 			'photo' => '',
 			'date_creation' => $this->getTripleBySentier($this->triple_sentier_date_creation, $sentier['resource'])['value'],
 			'date_modification' => $this->getTripleBySentier($this->triple_sentier_date_derniere_modif, $sentier['resource'])['value'],
-			'date_suppression' => $this->getTripleBySentier($this->triple_sentier_date_suppression, $sentier['resource'])['value'],
+			'date_suppression' => $this->getTripleBySentier($this->triple_sentier_date_suppression, $sentier['resource'])['value'] ?? '',
 		);
 	}
 
@@ -351,6 +351,8 @@ class Sentiers extends SmartFloreService {
 		$this->remplacerEmailParIntitule($sentier);
 
 		$sentier_details = $this->buildJsonInfosSentier($sentier, $meta, $localisation);
+		$hash = $this->hasherEmail($sentier['value']);
+		$sentier_details['author_id'] = $hash;
 
 		if ($localisation) {
 			$sentier_details['occurrences'] = array();
