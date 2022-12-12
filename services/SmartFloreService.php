@@ -25,6 +25,8 @@ class SmartFloreService {
 	protected $triple_sentier_date_suppression = "smartFlore.sentiers.date_suppression";
 	protected $triple_sentier_fiches_illustrations = "smartFlore.sentiers.fiches_illustrations";
 	protected $triple_sentier_meta = "smartFlore.sentiers.meta";
+	protected $triple_sentier_pmr = "smartFlore.sentiers.pmr";
+	protected $triple_sentier_meilleures_saisons = "smartFlore.sentiers.meilleures_saisons";
 
 	protected $triple_favoris_fiche = "smartFlore.favoris.fiche";
 

@@ -55,6 +55,9 @@ class Sentiers extends SmartFloreService {
 			case 'sentier-illustration-fiche':
 				$this->modifierIllustrationFicheASentier('put', $data);
 				break;
+			case 'sentier-pmr-seasons':
+				$this->ajouterInfosPmrMeilleuresSaisons($data);
+				break;
 			default:
 				$this->error(400, "Aucune commande connue n'a été spécifiée");
 				break;
@@ -173,6 +176,32 @@ class Sentiers extends SmartFloreService {
 		$dessin = $dessin_requete->fetch(PDO::FETCH_ASSOC);
 
 		return $dessin;
+	}
+
+	private function getPmrBySentier($sentier_id) {
+		$pmr_sql = 'SELECT *'
+			. ' FROM ' . $this->config['bdd']['table_prefixe'] . '_triples'
+			. ' WHERE property = ' . $this->bdd->quote($this->triple_sentier_pmr)
+			. ' AND resource = ' . $this->bdd->quote($sentier_id)
+		;
+
+		$pmr_requete = $this->bdd->query($pmr_sql);
+		$pmr = $pmr_requete->fetch(PDO::FETCH_ASSOC);
+
+		return $pmr;
+	}
+
+	private function getSeasonsBySentier($sentier_id) {
+		$seasons_sql = 'SELECT *'
+			. ' FROM ' . $this->config['bdd']['table_prefixe'] . '_triples'
+			. ' WHERE property = ' . $this->bdd->quote($this->triple_sentier_meilleures_saisons)
+			. ' AND resource = ' . $this->bdd->quote($sentier_id)
+		;
+
+		$seasons_requete = $this->bdd->query($seasons_sql);
+		$seasons = $seasons_requete->fetch(PDO::FETCH_ASSOC);
+
+		return $seasons;
 	}
 
 	private function getEtatBySentier($sentier_id) {
@@ -326,6 +355,14 @@ class Sentiers extends SmartFloreService {
 
 		$raw_dessin_sentier = $this->getDessinBySentier($sentier['resource']);
 		$dessin_sentier = json_decode($raw_dessin_sentier['value'], true);
+
+		/*
+// 		TODO: Renvoyer les infos pmr et meilleures saisons au front end
+		$pmr = $this->getPmrBySentier($sentier['resource']);
+
+		$raw_seasons_sentier = $this->getSeasonsBySentier($sentier['resource']);
+		$seasons_sentier = json_decode($raw_seasons_sentier['value'], true);
+		*/
 
 		$raw_meta_sentier = $this->getMetaBySentier($sentier['resource']);
 		$meta = [];
@@ -510,7 +547,6 @@ class Sentiers extends SmartFloreService {
 	}
 
 	private function ajouterSentier($data) {
-
 		$retour = false;
 
 		if (empty($data['sentierTitre'])) {
@@ -1136,6 +1172,26 @@ class Sentiers extends SmartFloreService {
 		}
 
 		exit();
+	}
+
+	private function ajouterInfosPmrMeilleuresSaisons($data){
+		if (empty($data['sentierTitre']) || empty($data['pmr']) || empty($data['best_season']) ) {
+			$this->error('400', 'Les paramètres sentierTitre, pmr et best_seasons sont obligatoires');
+		}
+
+		$sentier_titre = $data['sentierTitre'];
+		$sentier_pmr = $data['pmr'];
+		$sentier_bestSeason = json_encode($data['best_season']);
+
+		$succes = $this->stockerDataTriple($this->triple_sentier_pmr, $sentier_pmr, $sentier_titre);
+
+		if ($succes) {
+			$this->stockerDataTriple($this->triple_sentier_meilleures_saisons, $sentier_bestSeason, $sentier_titre);
+		}
+
+		header('Content-type: text/plain');
+		echo $succes;
+
 	}
 }
 
