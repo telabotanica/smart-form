@@ -115,7 +115,7 @@ class Export extends SmartFloreService {
 		// conversion en PDF
 		$url_export_tmp = urlencode($this->remplacerCheminParUrl($chemin_html));
 		// Impossible d'installer phantomJs sur sequoia alors on appelle un web service de conversion sur agathis (les chiffres correspond à une taille de format A5)
-		echo file_get_contents(sprintf($this->config['export']['pdf_export_url'], $url_export_tmp, 1748, 2481));
+		echo file_get_contents(sprintf($this->config['export']['pdf_export_url'], $url_export_tmp, 793, 1122));
 		exit;
 	}
 

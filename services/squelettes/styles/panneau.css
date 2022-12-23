@@ -4,15 +4,15 @@
 @import url(http://fonts.googleapis.com/css?family=Crimson+Text);
 
 html {
-    zoom: 0.68; /*workaround for phantomJS2 rendering pages too large*/
+    /*zoom: 0.68; !*workaround for phantomJS2 rendering pages too large*!*/
 }
 
 body {
 	margin: 0;
-	width: 297mm;
-	height: 210mm;
+	width: 1122px;
+	height: 793px;
 	position: relative;
-	overflow: hidden;
+	/*overflow: hidden;*/
 	font-size: 0.37cm;
 }
 
