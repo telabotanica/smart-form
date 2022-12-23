@@ -11,6 +11,7 @@ body {
 	margin: 0;
 	width: 2481px;
 	height: 1748px;
+	position: relative;
 }
 
 .panneau-entete, .panneau-nom-illustration {
