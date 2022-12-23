@@ -12,7 +12,6 @@ body {
 	width: 1122px;
 	height: 793px;
 	position: relative;
-	/*overflow: hidden;*/
 	font-size: 0.37cm;
 }
 
@@ -42,6 +41,18 @@ body {
 .panneau-lettre-emphase {
 	color: #E06D38;
 	font-size: 60px;
+}
+
+.panneau-nom-sentier {
+	position: relative;
+	bottom: 0px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 75px;
+	padding-left: 10px;
+	margin-top: 13px;
+	width: 500px;
 }
 
 .panneau-fiche-sentier, .panneau-fiche-sans-sentier{
