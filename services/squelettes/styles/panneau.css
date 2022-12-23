@@ -9,9 +9,11 @@ html {
 
 body {
 	margin: 0;
-	width: 2481px;
-	height: 1748px;
+	width: 297mm;
+	height: 210mm;
 	position: relative;
+	overflow: hidden;
+	font-size: 0.37cm;
 }
 
 .panneau-entete, .panneau-nom-illustration {
@@ -19,67 +21,55 @@ body {
 }
 
 .panneau-logo-tela {
-    width: 256px;
+    width: 120px;
     display: inline-block;
-    margin-left: 65px;
-	margin-top: 50px;
+    margin-left: 45px;
+	margin-top: 20px;
 }
 
 .panneau-titre {
     color: #a6a08a;
     display: inline-block;
     font-family: sans-serif;
-    font-size: 90px;
-    left: 350px;
+	font-size: 30px;
+    left: 180px;
     position: absolute;
-    top: 106px;
+    top: 40px;
     width: 100%;
     font-family: 'Muli', sans-serif;
 }
 
 .panneau-lettre-emphase {
 	color: #E06D38;
-	font-size: 130px;
+	font-size: 60px;
 }
 
-.panneau-nom-sentier {
-    display: inline-block;
-    float: left;
-    height: 250px;
-    margin-top: 39px;
-    width: 1120px;
-    margin-left: 15px;
-}
-
-.panneau-fiche-sentier {
+.panneau-fiche-sentier, .panneau-fiche-sans-sentier{
 	position: relative;
 	top: 0px;
 	display: inline-block;
 	float: left;
 }
-
-.panneau-fiche-sans-sentier {
-	padding-left: 650px;
-}
-
 .panneau-qr-code {
    	display: inline-block;
     float: right;
-    width: 350px;
-    margin-top: 40px;
+    width: 120px;
+	height: 120px;
+    margin-top: 45px;
     margin-right: 75px;
 }
 
 .panneau-espece-nom {
 	background-color: #91896E;
 	color: #FFFFFF;
-	height: 200px;
-	padding-left: 390px;
+	height: 100px;
+	display: flex;
+	align-items: center;
 }
 
 .panneau-espece-nom-texte {
-    bottom: -32px;
-    position: relative;
+	margin-left: 475px;
+	margin-right: 20px;
 }
 
 .panneau-bande-1, .panneau-bande-2 {
@@ -88,21 +78,25 @@ body {
 
 .panneau-bande-1 {
 	background-color: #E06D38;
-	height: 7px;
+	height: 4px;
 	margin-bottom: 4px;
 }
 
 .panneau-bande-2 {
 	background-color: #C3D35D;
-	height: 18px;
+	height: 8px;
+}
+
+.panneau-nom-illustration {
+	position: relative;
 }
 
 .panneau-conteneur-illustration {
-    position: relative;
-    width: 500px;
-    height: 500px;
-    top: -350px;
-	margin-left: 65px;
+    position: absolute;
+    width: 375px;
+    height: 240px;
+	left: 60px;
+	top: -65px;
     overflow: hidden;
 }
 
@@ -117,23 +111,21 @@ body {
 	height: 100%;
 }
 
-.panneau-espece-nom .panneau-nom-vernaculaire, .panneau-espece-nom .panneau-infos-scientifique {
-	margin-left: 270px;
-}
-
 .panneau-infos-scientifique {
-	font-size: 35px;
+	font-size: 30px;
 }
 
 .panneau-nom-scientifique {
 	font-style: italic;
 	font-family: 'Crimson Text', serif;
+	font-size: 30px;
 }
 
 .panneau-nom-vernaculaire {
 	font-weight: bold;
 	font-family: 'Muli', sans-serif;
 	padding-right: 80px;
+	font-size: 40px;
 }
 
 .panneau-nom-vernaculaire-normal {
@@ -149,43 +141,41 @@ body {
 }
 
 .panneau-description {
-    font-size: 35px;
-   	margin-left: 65px;
-    margin-right: 65px;
-    position: relative;
+	font-size: 0.37cm;
+	margin: 75px 60px 0 60px;
     text-align: justify;
-    top: -335px;
     color: #54575C;
     max-height: 685px;
     font-family: 'Muli', sans-serif;
 }
 
 .panneau-description-normale {
-	font-size: 35px;
+	font-size: 0.37cm;
 }
 
 .panneau-description-grande {
-	font-size: 25px;
+	font-size: 0.25cm;
 }
 
 .panneau-description-tres-grande {
-	font-size: 20px;
+	font-size: 0.2cm;
 }
 
 .panneau-pied {
 	float: right;
 	position: absolute;
 	bottom: 10px;
-	right: 75px;
+	right: 40px;
 }
 
 .panneau-logo {
-	height: 170px;
+	height: 75px;
+	width: 75px;
 	margin-left: 35px;
 }
 
 hr.separation-entete {
-	margin-bottom: 50px;
+	margin-bottom: 60px;
 }
 
 hr.nettoyage {
