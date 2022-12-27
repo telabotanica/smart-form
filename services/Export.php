@@ -222,7 +222,7 @@ class Export extends SmartFloreService {
 		//echo file_get_contents($chemin_html);exit;
 
 		// Appel au web service de conversion et sauvegarde
-		$pdf_converti = file_get_contents(sprintf($this->config['export']['pdf_export_url'], urlencode($url_export_tmp), 1748, 2481));
+		$pdf_converti = file_get_contents(sprintf($this->config['export']['pdf_export_url'], urlencode($url_export_tmp), 793, 1122));
 		file_put_contents($chemin_pdf, $pdf_converti);
 		chmod($chemin_pdf, 0777);
 
