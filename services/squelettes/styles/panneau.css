@@ -9,10 +9,11 @@ html {
 
 body {
 	margin: 0;
-	width: 1122px;
-	height: 793px;
+	width: 1496px;
+	height: 1058px;
 	position: relative;
 	font-size: 0.37cm;
+	border: black solid 1px;
 }
 
 .panneau-entete, .panneau-nom-illustration {
@@ -45,13 +46,13 @@ body {
 
 .panneau-nom-sentier {
 	position: relative;
-	bottom: -15px;
+	bottom: -17px;
 	display: flex;
 	align-items: center;
 	/*height: 75px;*/
 	padding-left: 10px;
 	margin-top: 13px;
-	width: 500px;
+	width: 800px;
 }
 
 .panneau-fiche-sentier, .panneau-fiche-sans-sentier{
@@ -63,8 +64,8 @@ body {
 .panneau-qr-code {
    	display: inline-block;
     float: right;
-    width: 120px;
-	height: 120px;
+    width: 200px;
+	height: 200px;
     margin-top: 45px;
     margin-right: 75px;
 }
@@ -72,13 +73,13 @@ body {
 .panneau-espece-nom {
 	background-color: #91896E;
 	color: #FFFFFF;
-	height: 100px;
+	height: 150px;
 	display: flex;
 	align-items: center;
 }
 
 .panneau-espece-nom-texte {
-	margin-left: 475px;
+	margin-left: 500px;
 	margin-right: 20px;
 }
 
@@ -103,16 +104,16 @@ body {
 
 .panneau-conteneur-illustration {
     position: absolute;
-    width: 375px;
-    height: 240px;
+    width: 400px;
+    height: 300px;
 	left: 60px;
-	top: -65px;
+	top: -70px;
     overflow: hidden;
 }
 
 .panneau-conteneur-illustration img {
-	height: 240px;
-	width: 375px;
+	height: 300px;
+	width: 400px;
 }
 
 .panneau-espece-illustration {
@@ -179,8 +180,8 @@ body {
 }
 
 .panneau-logo {
-	height: 75px;
-	width: 75px;
+	height: 100px;
+	width: 100px;
 	margin-left: 35px;
 }
 
