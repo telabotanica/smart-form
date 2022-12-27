@@ -13,7 +13,6 @@ body {
 	height: 1058px;
 	position: relative;
 	font-size: 0.37cm;
-	border: black solid 1px;
 }
 
 .panneau-entete, .panneau-nom-illustration {
@@ -64,8 +63,8 @@ body {
 .panneau-qr-code {
    	display: inline-block;
     float: right;
-    width: 200px;
-	height: 200px;
+    width: 150px;
+	height: 150px;
     margin-top: 45px;
     margin-right: 75px;
 }
