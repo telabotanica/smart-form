@@ -358,11 +358,12 @@ class Sentiers extends SmartFloreService {
 
 
 // 		TODO: Renvoyer les infos pmr et meilleures saisons au front end
+		/*
 		$pmr = $this->getPmrBySentier($sentier['resource']);
 
 		$raw_seasons_sentier = $this->getSeasonsBySentier($sentier['resource']);
 		$seasons_sentier = json_decode($raw_seasons_sentier['value'], true);
-
+		*/
 
 		$raw_meta_sentier = $this->getMetaBySentier($sentier['resource']);
 		$meta = [];
@@ -390,8 +391,8 @@ class Sentiers extends SmartFloreService {
 		$sentier_details = $this->buildJsonInfosSentier($sentier, $meta, $localisation);
 		$hash = $this->hasherEmail($sentier['value']);
 		$sentier_details['author_id'] = $hash;
-		$sentier_details['pmr'] = $pmr;
-		$sentier_details['best_seasons'] = $seasons_sentier;
+		// $sentier_details['pmr'] = $pmr;
+		// $sentier_details['best_seasons'] = $seasons_sentier;
 
 		if ($localisation) {
 			$sentier_details['occurrences'] = array();
