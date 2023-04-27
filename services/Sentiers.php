@@ -1178,12 +1178,17 @@ class Sentiers extends SmartFloreService {
 	}
 
 	private function ajouterInfosPmrMeilleuresSaisons($data){
-		if (empty($data['sentierTitre']) || empty($data['pmr']) || empty($data['best_season']) ) {
+		if (empty($data['sentierTitre']) || empty($data['best_season']) ) {
 			$this->error('400', 'Les paramètres sentierTitre, pmr et best_seasons sont obligatoires');
+		}
+		
+		if (empty($data['pmr'])){
+			$sentier_pmr = 0;
+		} else {
+			$sentier_pmr = $data['pmr'];
 		}
 
 		$sentier_titre = $data['sentierTitre'];
-		$sentier_pmr = $data['pmr'];
 		$sentier_bestSeason = json_encode($data['best_season']);
 
 		$succes = $this->stockerDataTriple($this->triple_sentier_pmr, $sentier_pmr, $sentier_titre);
