@@ -528,7 +528,8 @@ smartFormApp.controller('SentiersControleur', function ($sce, $scope, $rootScope
 
 		lthis.baselayers = {
 			osm: {
-				url: 'https://osm.tela-botanica.org/tuiles/osmfr/{z}/{x}/{y}.png',
+				// url: 'https://osm.tela-botanica.org/tuiles/osmfr/{z}/{x}/{y}.png',
+				url: 'https://a.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
 				layerOptions: {
 					attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
 					maxZoom: 20
